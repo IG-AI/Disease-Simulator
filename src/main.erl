@@ -8,23 +8,24 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
--spec start(Num :: integer(),Times :: integer(), Bounds :: bounds()) -> state().
+-spec start(Num :: integer(),Times :: integer(), Bounds :: bounds()) -> ok.
 start(Num, Times, Bounds) ->   
     State  = spawn_people([],Num, Bounds),   
     register(master, self()),
-    master(State, Times).
+    master(State, Times),
+    ok.
 
--spec master(State :: state(), Times :: integer()) -> done.
+-spec master(State :: state(), Times :: integer()) -> state().
 master(State, 0) ->
     unregister(master),
-    io:format("___________________________________ ~n"),
+    %%io:format("___________________________________ ~n"),
     State;
 
 master(State, Times) ->     
     master_call_all(State),
     receive
         {result, New_state} ->      
-            io:format("State: ~p ~n", [New_state]),
+      %%      io:format("State: ~p ~n", [New_state]),
             master(New_state, Times-1)
     end.
 
@@ -37,10 +38,10 @@ master_call_all(State) ->
 master_wait(State, Num) ->
     wait_fun(State, master, Num).
 
-
--spec wait_fun(State :: state(), Receiver :: pid(), Num :: integer()) -> {result,state()}.
+-spec wait_fun(State :: state(), Receiver :: pid(), Num :: integer()) -> ok.
 wait_fun(State, Receiver, 0) ->  
-    Receiver ! {result, State};
+    Receiver ! {result, State},
+    ok;
 
 wait_fun(State, Receiver, Num) ->
     receive
@@ -60,7 +61,6 @@ spawn_people(State, N, {Xmax, Ymax}) ->
     PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
     spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
 
-
 -spec people(person(), Bounds :: bounds()) -> any().
 people({S,X,Y}, Bounds) ->
     receive
@@ -69,7 +69,6 @@ people({S,X,Y}, Bounds) ->
             master ! {work, {self(), {S,X2,Y2}}},            
             people({S,X2,Y2}, Bounds)
     end.
-
 
 -spec new_position(X :: integer(), Y :: integer(),Position :: integer()) -> {integer(),integer()}.
 new_position(X,Y,Position) ->
@@ -110,7 +109,6 @@ new_rand_position(X, Y, {Xmax, Ymax}) ->
             {X2,Y2}
     end.
 
-
 -spec send_to_all(Msg :: term(),state()) -> ok.
 send_to_all(_, []) ->
     ok;
@@ -122,7 +120,6 @@ send_to_all(Msg, [{PID,_} | Elems]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         EUnit Test Cases                                  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 new_position_test() ->
     [?assertEqual(new_position(10,10,1),{9,11}),
@@ -137,16 +134,7 @@ new_position_test() ->
 
 spawn_people_test() ->
     ?assertEqual(length(spawn_people([],5,{10,10})),5).
-     
-
-%% wait_fun_test() ->    
-%%     Test_state =  [{self(),1}],
-%%     PID = spawn(fun() -> wait_fun(Test_state,self(),0) end),
-%%     receive
-%%         {result,_} ->
-%%             ?assertEqual(a,[{self(),1}])                  
-%%     end.
-   
+        
 start_test() ->
     State = start(5,5,{10,10}),
     ?assertEqual(length(State), 5).

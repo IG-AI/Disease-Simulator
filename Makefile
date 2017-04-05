@@ -1,7 +1,7 @@
 
 # Shamelessly stolen from Karl Marklund
 
-ERLC_FLAGS=-Wall
+ERLC_FLAGS=-Wall +debug_info
 
 SOURCES=$(wildcard src/*.erl)
 
