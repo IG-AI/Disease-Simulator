@@ -1,5 +1,5 @@
 
-package main.java.bufferedimage;
+package main.bufferedimage;
 import java.lang.String;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -8,8 +8,6 @@ import javax.imageio.ImageIO;
 
 public class converter {
 
-
-
     public static BufferedImage convertToARGB(String image)
     {
         BufferedImage newImage = null;
@@ -17,8 +15,9 @@ public class converter {
 					newImage = ImageIO.read(new File(image));
 				} catch (IOException e) {
 				}
-        Graphics2D g = newImage.createGraphics();
-        g.drawImage(newImage, newImage.getWidth(), newImage.getHeight(), null);
+				BufferedImage nIn = new BufferedImage(newImage.getWidth(), newImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = nIn.createGraphics();
+        g.drawImage(newImage, 0, 0, null);
         g.dispose();
         return newImage;
     }
