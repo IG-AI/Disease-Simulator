@@ -1,15 +1,17 @@
+package Main;
+
 import javax.swing.*;
 import java.io.*;
 import java.awt.*;
 import java.awt.image.*;
 import javax.imageio.*;
 
-public class Converter extends JPanel
+public class GUIsim extends JPanel
 {
 	public static BufferedImage image;
 	public static String map;
 
-	public Converter ()
+	public GUIsim()
 	{
 		super();
 		try
@@ -32,7 +34,7 @@ public class Converter extends JPanel
 	{
 		JFrame f = new JFrame("Window");
 		map = args[0];
-		f.getContentPane().add(new Converter());
+		f.getContentPane().add(new GUIsim());
 		f.setSize(image.getWidth(), image.getHeight());
 		f.setVisible(true);
 	}
