@@ -1,29 +1,32 @@
 
 package main.java.bufferedimage;
-
+import java.lang.String;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.*;
+import javax.imageio.ImageIO;
 
 public class converter {
 
 
 
-    public static BufferedImage convertToARGB(BufferedImage image)
+    public static BufferedImage convertToARGB(String image)
     {
-        BufferedImage newImage = new BufferedImage(
-                        image.getWidth(), image.getHeight(),
-                                BufferedImage.TYPE_INT_ARGB
-                );
-            Graphics2D g = newImage.createGraphics();
-                g.drawImage(image, 0, 0, null);
-                    g.dispose();
-                        return newImage;
-
+        BufferedImage newImage = null;
+				try {
+					newImage = ImageIO.read(new File(image));
+				} catch (IOException e) {
+				}
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(newImage, newImage.getWidth(), newImage.getHeight(), null);
+        g.dispose();
+        return newImage;
     }
 
+		public static void main(String[] args) {
+			BufferedImage f = convertToARGB(args[0]);
+			System.out.println(f.getWidth());
+			System.out.println(f.getHeight());
+		}
 }
 
-public class main {
-	System.out.println(newImage.getWidth());
-	System.out.println(newImage.getHeight());
-}
