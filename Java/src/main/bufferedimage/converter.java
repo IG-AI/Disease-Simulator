@@ -22,3 +22,8 @@ public class converter {
     }
 
 }
+
+public class main {
+	System.out.println(newImage.getWidth());
+	System.out.println(newImage.getHeight());
+}
