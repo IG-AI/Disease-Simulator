@@ -8,12 +8,11 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
--spec start(Num :: integer(),Times :: integer(), Bounds :: bounds()) -> ok.
+-spec start(Num :: integer(),Times :: integer(), Bounds :: bounds()) -> state().
 start(Num, Times, Bounds) ->   
     State  = spawn_people([],Num, Bounds),   
     register(master, self()),
-    master(State, Times),
-    ok.
+    master(State, Times).
 
 -spec master(State :: state(), Times :: integer()) -> state().
 master(State, 0) ->
@@ -32,16 +31,17 @@ master(State, Times) ->
 -spec master_call_all(State :: state()) -> {result,state()}.
 master_call_all(State) ->
     send_to_all(ready, State),
-    master_wait(State, length(State)).
+    Result = master_wait(State, length(State)),
+    Result.
 
 -spec master_wait(State :: state(), Num :: integer()) -> {result,state()}.
 master_wait(State, Num) ->
     wait_fun(State, master, Num).
 
--spec wait_fun(State :: state(), Receiver :: pid(), Num :: integer()) -> ok.
+-spec wait_fun(State :: state(), Receiver :: pid(), Num :: integer()) -> state().
 wait_fun(State, Receiver, 0) ->  
     Receiver ! {result, State},
-    ok;
+    State;
 
 wait_fun(State, Receiver, Num) ->
     receive
@@ -122,15 +122,15 @@ send_to_all(Msg, [{PID,_} | Elems]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 new_position_test() ->
-    [?assertEqual(new_position(10,10,1),{9,11}),
-     ?assertEqual(new_position(10,10,2),{10,11}),
-     ?assertEqual(new_position(10,10,3),{11,11}),
-     ?assertEqual(new_position(10,10,4),{9,10}),
-     ?assertEqual(new_position(10,10,5),{10,10}),
-     ?assertEqual(new_position(10,10,6),{11,10}),
-     ?assertEqual(new_position(10,10,7),{9,9}),
-     ?assertEqual(new_position(10,10,8),{10,9}),
-     ?assertEqual(new_position(10,10,9),{11,9})].
+    [?assertEqual({9,11},new_position(10,10,1)),
+     ?assertEqual({10,11},new_position(10,10,2)),
+     ?assertEqual({11,11},new_position(10,10,3)),
+     ?assertEqual({9,10},new_position(10,10,4)),
+     ?assertEqual({10,10},new_position(10,10,5)),
+     ?assertEqual({11,10},new_position(10,10,6)),
+     ?assertEqual({9,9},new_position(10,10,7)),
+     ?assertEqual({10,9},new_position(10,10,8)),
+     ?assertEqual({11,9},new_position(10,10,9))].
 
 spawn_people_test() ->
     ?assertEqual(length(spawn_people([],5,{10,10})),5).
@@ -138,8 +138,54 @@ spawn_people_test() ->
 start_test() ->
     State = start(5,5,{10,10}),
     ?assertEqual(length(State), 5).
-    
-    
+
+%%
+%% Testing wait_fun by running it once and changing one element.
+%%
+wait_fun_test() ->
+    SELF = self(),
+    Test_state = [{SELF,{0,0,0}}],
+    PID = spawn(fun() -> wait_fun(Test_state,SELF,1) end ),
+    PID ! {work,{SELF,{1,1,1}}},
+    receive
+        {result,State} ->
+            ?assertEqual([{SELF,{1,1,1}}],State)
+    after 1000 ->
+            ?assert(false)
+    end.
+
+%%
+%% Testing wait_fun when no message arrives
+%%
+wait_fun_2_test() ->
+    SELF = self(),
+    Test_state = [{SELF,{0,0,0}}],
+    PID = spawn(fun() -> wait_fun(Test_state,SELF,1) end ),
+    PID ! {nowork,{SELF,{1,1,1}}},
+    receive
+        _ ->
+            ?assert(false)
+    after 1000 ->
+            ?assertEqual([{SELF,{0,0,0}}],Test_state)
+    end.
+
+%%
+%% Trying to change two elements but only one will change because we only run it once
+%%         
+wait_fun_3_test() ->                       
+    SELF = self(),
+    Processes = [{spawn(fun() -> true end),{0,0,0}} || _ <- lists:seq(1,10)],
+    [{Test_process_1_pid,Test_process_1_data} | [{Test_process_2_pid,Test_process_2_data} | _]] = Processes,
+    PID = spawn(fun() -> wait_fun(Processes,SELF,1) end ),
+    PID ! {work,{Test_process_1_pid,{1,1,1}}},
+    PID ! {work,{Test_process_2_pid,{1,1,1}}},
+    receive
+        {result, [Actuall_1 | [Actuall_2 | _]]} ->
+            ?assertNotEqual(Actuall_1,{Test_process_1_pid,Test_process_1_data}),
+            ?assertEqual(Actuall_2,{Test_process_2_pid,Test_process_2_data})
+    after 3000 ->
+            ?assert(false)
+    end.
 
 
 
@@ -172,15 +218,3 @@ start_test() ->
 
 
 
-%% rek(P, 0) ->
-%%     done3;
-
-%% rek(P,T) ->
-%%     io:format("Result ~p: ~p ~n", [T,rec(P,0)]),
-%%     rek(P,T-1).
-
-%% rec(0,Acc) ->
-%%    Acc;
-
-%% rec(Value,Acc) ->
-%%     rec(Value -1,Acc + rand:uniform(50)).
