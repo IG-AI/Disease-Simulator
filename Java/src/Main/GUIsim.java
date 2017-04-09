@@ -15,7 +15,7 @@ public class GUIsim extends JPanel
 	{
 		super();
 		try
-		{                
+		{
 			image = ImageIO.read(new File(map));
 		}
 		catch (IOException e)
@@ -24,13 +24,14 @@ public class GUIsim extends JPanel
 		}
 	}
 
+	@Override
 	public void paintComponent(Graphics g)
 	{
 		g.drawImage(image, 0, 0, null);
 		repaint();
 	}
 
-	public static void main(String [] args)
+	public static void main(String []args)
 	{
 		JFrame f = new JFrame("Window");
 		map = args[0];
