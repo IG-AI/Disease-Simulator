@@ -35,5 +35,10 @@ public class Converter extends JPanel
 		f.getContentPane().add(new Converter());
 		f.setSize(image.getWidth(), image.getHeight());
 		f.setVisible(true);
+		f.setDefualtCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Unit peepl = new Unit(6332, 0, 1, 1);
+		Unit peeplsick = new Unit(6444, 1, 2, 2);	
+		peepl.moveUnit(20,20,0);
+		peeplsick.moveUnit(40,40,0);
 	}
 }
