@@ -58,21 +58,31 @@ spawn_people(State, N, {Xmax, Ymax}) ->
     X = rand:uniform(Xmax),
     Y = rand:uniform(Ymax),
     PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
-    spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
+spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
+
+%% -spec spawn_people(State :: state(), Amount :: integer(), X_start :: integer(), Y_start :: integer(), Bounds :: bounds()) -> state().
+%% spawn_people(State, 0, _, _, _) ->
+%%     State;
+
+%% spawn_people(State, Amount, X_start, Y_start, {Xmax, Ymax}) ->
+%%     S = 0,
+%%     PID = spawn(fun() -> people({S,X_start,Y}, {Xmax,Ymax}) end),
+%%     spawn_people([{PID,{S,X,Y}} | State], Amount-1, {Xmax,Ymax}).
+
 
 -spec people(person(), Bounds :: bounds()) -> any().
 people({S,X,Y}, Bounds) ->
     receive
         ready ->           
-            {X2, Y2} = new_rand_position(X,Y,Bounds),           
-            master ! {work, {self(), {S,X2,Y2}}},            
-            people({S,X2,Y2}, Bounds);
+            {X_new, Y_new} = new_rand_position(X,Y,Bounds),           
+            master ! {work, {self(), {S,X_new,Y_new}}},            
+            people({S, X_new, Y_new}, Bounds);
         stop ->
             {S,X,Y}
     end.
 
--spec new_position(X :: integer(), Y :: integer(),Position :: integer()) -> {integer(),integer()}.
-new_position(X,Y,Position) ->
+-spec new_position(X :: integer(), Y :: integer(), Position :: integer()) -> {integer(),integer()}.
+new_position(X, Y, Position) ->
     case Position of 
         1 ->
             {X-1, Y+1};
@@ -95,20 +105,41 @@ new_position(X,Y,Position) ->
         end.
 
 -spec new_rand_position(X :: integer(), Y :: integer(), bounds()) -> {integer(),integer()}.
-new_rand_position(X, Y, {Xmax, Ymax}) ->
-    {X2, Y2} = new_position(X,Y,rand:uniform(9)),
+new_rand_position(X, Y, {X_max, Y_max}) ->
+    {X_new, Y_new} = new_position(X, Y, rand:uniform(9)),
+    validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
+    
+
+-spec validate_position(X_old :: integer(), Y_old :: integer(), X_new :: integer(), X_new :: integer(), bounds()) -> {integer(),integer()}.
+validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
     if
-        X2 > Xmax ->
-            {X, Y};
-        X2 < 0 ->
-            {X, Y};
-        Y2 > Ymax ->
-            {X,Y};
-        Y2 < 0 -> 
-            {X,Y};
+        X_new > X_max ->
+            {X_old, Y_old};
+        X_new < 0 ->
+            {X_old, Y_old};
+        Y_new > Y_max ->
+            {X_old, Y_old};
+        Y_new < 0 -> 
+            {X_old,Y_old};
         true -> 
-            {X2,Y2}
+            {X_new, Y_new}
     end.
+
+
+%% validate_position_bool(X, Y, {X_max, Y_max}) ->
+%%     if
+%%         X > X_max ->
+%%             false;
+%%         X < 0 ->
+%%             false;
+%%         Y > Y_max ->
+%%              false;
+%%         Y < 0 -> 
+%%              false;
+%%         true -> 
+%%             true
+%%     end.
+
 
 -spec send_to_all(Msg :: term(),state()) -> ok.
 send_to_all(_, []) ->
@@ -139,6 +170,38 @@ new_position_test() ->
 %% start_test() ->
 %%     State = start(5,5,{10,10}),
 %%     ?assertEqual(length(State), 5).
+
+
+
+
+
+
+people_ready_test() ->
+    register(master, self()),
+    {X_max, Y_max} = {10,10},
+    Person = {0,9,0},
+    PID = spawn(fun() -> people(Person, {X_max, Y_max}) end),
+    PID ! ready,
+    receive
+        {work, {P, {S, X, Y}}} ->
+            ?assertEqual(P, PID),
+            ?assertEqual(S, 0),
+            ?assert(0 =< X),
+            ?assert(X =< X_max),
+            ?assert(0 =< Y),
+            ?assert(Y =< Y_max)                
+    end,
+    unregister(master).
+
+
+%% people_stop_test() ->
+%%     ok.
+
+
+
+
+
+
 
 %%
 %% Testing wait_fun by running it once and changing one element.
