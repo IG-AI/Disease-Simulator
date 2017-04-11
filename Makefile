@@ -9,7 +9,7 @@ HEADERS=$(wildcard src/*.hrl)
 
 OBJECTS:=$(SOURCES:src/%.erl=ebin/%.beam)
 
-.PHONY: doc doc_url skeleton 
+.PHONY: doc doc_url skeleton coverage
 
 all: $(OBJECTS)
 
@@ -52,3 +52,4 @@ test_%: ebin/%.beam
 
 testv_%: ebin/%.beam
 	erl -noshell -pa ebin -eval "eunit:test($(subst testv_,, $@), [verbose])" -s init stop
+
