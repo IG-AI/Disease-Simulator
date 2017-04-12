@@ -58,16 +58,8 @@ spawn_people(State, N, {Xmax, Ymax}) ->
     X = rand:uniform(Xmax),
     Y = rand:uniform(Ymax),
     PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
-spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
+    spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
 
-%% -spec spawn_people(State :: state(), Amount :: integer(), X_start :: integer(), Y_start :: integer(), Bounds :: bounds()) -> state().
-%% spawn_people(State, 0, _, _, _) ->
-%%     State;
-
-%% spawn_people(State, Amount, X_start, Y_start, {Xmax, Ymax}) ->
-%%     S = 0,
-%%     PID = spawn(fun() -> people({S,X_start,Y}, {Xmax,Ymax}) end),
-%%     spawn_people([{PID,{S,X,Y}} | State], Amount-1, {Xmax,Ymax}).
 
 
 -spec people(person(), Bounds :: bounds()) -> any().
@@ -76,9 +68,7 @@ people({S,X,Y}, Bounds) ->
         ready ->           
             {X_new, Y_new} = new_rand_position(X,Y,Bounds),           
             master ! {work, {self(), {S,X_new,Y_new}}},            
-            people({S, X_new, Y_new}, Bounds);
-        stop ->
-            {S,X,Y}
+            people({S, X_new, Y_new}, Bounds)          
     end.
 
 -spec new_position(X :: integer(), Y :: integer(), Position :: integer()) -> {integer(),integer()}.
@@ -153,6 +143,9 @@ send_to_all(Msg, [{PID,_} | Elems]) ->
 %%                         EUnit Test Cases                                  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%
+%% Testing new_position by testing all outcomes
+%%
 new_position_test() ->
      [?assertEqual({9,11},new_position(10,10,1)),
       ?assertEqual({10,11},new_position(10,10,2)),
@@ -164,18 +157,77 @@ new_position_test() ->
       ?assertEqual({10,9},new_position(10,10,8)),
       ?assertEqual({11,9},new_position(10,10,9))].
 
-%% spawn_people_test() ->
-%%     ?assertEqual(length(spawn_people([],5,{10,10})),5).
-        
-%% start_test() ->
-%%     State = start(5,5,{10,10}),
-%%     ?assertEqual(length(State), 5).
+%%
+%% Testing valid_possition when X or Y is within bounds. 
+%%
+validate_position_within_bounds_test() ->
+    Bounds = {10, 10},
+    {X_start, Y_start} = {5, 5},
+    {X_valid, Y_valid} = {7, 7},
+
+    Position = validate_position(X_start, Y_start, X_valid, Y_valid, Bounds),
+    ?assertEqual(Position, {X_valid, Y_valid}).
+
+%%
+%% Testing valid_possition when X or Y is out of bounds. 
+%%
+validate_position_out_of_bounds_test() ->
+    Bounds = {10, 10},
+    {X_start, Y_start} = {5, 5},
+    {X_valid, Y_valid} = {7, 7},
+    
+    % Case 1: when X is larger than the upper bound                                                
+    X_over = 11,   
+    Case_1 = validate_position(X_start, Y_start, X_over, Y_valid, Bounds),
+    ?assertEqual(Case_1, {X_start, Y_start}),
+
+    % Case 2: when X is smaller than the lower bound                                                
+    X_under = -1,
+    Case_2 = validate_position(X_start, Y_start, X_under, Y_valid, Bounds),
+    ?assertEqual(Case_2, {X_start, Y_start}),
+
+    % Case 3: when Y is larger than the upper bound                                          
+    Y_over = 11,
+    Case_3 = validate_position(X_start, Y_start, X_valid, Y_over, Bounds),
+    ?assertEqual(Case_3, {X_start, Y_start}),
+
+    % Case 4: when Y is smaller than the lower bound 
+    Y_under = -1,
+    Case_4 = validate_position(X_start, Y_start, X_valid, Y_under, Bounds),
+    ?assertEqual(Case_4, {X_start, Y_start}).
+
+%%
+%% Testing the edge cases (X or Y on Bounds) of valid_position.  
+%%
+validate_position_edge_cases_test() ->
+    Bounds = {10, 10},
+    {X_start, Y_start} = {5, 5},
+    {X_valid, Y_valid} = {7, 7},
+    
+    % Case 1: when X is on than the upper bound                                                
+    X_on_upper = 10,   
+    Case_1 = validate_position(X_start, Y_start, X_on_upper, Y_valid, Bounds),
+    ?assertEqual(Case_1, {X_on_upper, Y_valid}),
+
+    % Case 2: when X is on than the lower bound                                                
+    X_on_lower = 0,
+    Case_2 = validate_position(X_start, Y_start, X_on_lower, Y_valid, Bounds),
+    ?assertEqual(Case_2, {X_on_lower, Y_valid}),   
+
+    % Case 3: when Y is on than the upper bound                                          
+    Y_on_upper = 10,
+    Case_3 = validate_position(X_start, Y_start, X_valid, Y_on_upper, Bounds),
+    ?assertEqual(Case_3, {X_valid, Y_on_upper}),
+
+    % Case 4: when Y is on than the lower bound 
+    Y_on_lower = 0,
+    Case_4 = validate_position(X_start, Y_start, X_valid, Y_on_lower, Bounds),
+    ?assertEqual(Case_4, {X_valid, Y_on_lower}).
 
 
-
-
-
-
+%%
+%% Testing people by sending ready message. 
+%%
 people_ready_test() ->
     register(master, self()),
     {X_max, Y_max} = {10,10},
@@ -193,14 +245,54 @@ people_ready_test() ->
     end,
     unregister(master).
 
+%%
+%% Testing people by sending stop message. 
+%%
+people_stop_test() ->
+   ok.
 
-%% people_stop_test() ->
-%%     ok.
+%%
+%% Testing people by sending stop message. 
+%%
+people_ready_and_stop_test() ->
+   ok.
 
+%%
+%%T esting spawn_people when no processes are spawned. 
+%%
+spawn_people_none_test() ->
+    Bounds = {10,10},
+    State_start =[],
+    State = spawn_people(State_start, 0, Bounds),
+    ?assertEqual(State_start, State).
 
-
-
-
+%%
+%% Testing spawn_people when a single process is spawned. 
+%%
+spawn_people_single_test() ->
+    {X_max, Y_max} = {10,10},
+    State_start = [],
+    Number_of_processes = 1,
+    State = spawn_people(State_start,  Number_of_processes, {X_max, Y_max}),
+    [{PID, {Status, X, Y}}] = State,
+    ?assertEqual(length(State), Number_of_processes),
+    ?assert(is_pid(PID)),
+    ?assertEqual(Status, 0),
+    ?assert(0 =< X),
+    ?assert(X =< X_max),
+    ?assert(0 =< Y),
+    ?assert(Y =< Y_max).   
+        
+%%
+%% Testing spawn_people when several (10 and 50) processes are spawned. 
+%%
+spawn_people_several_test() ->
+    Bounds = {10,10},
+    State_start = [],
+    State_first = spawn_people(State_start,  10, Bounds),
+    ?assertEqual(length(State_first), 10),
+    State_second = spawn_people(State_start, 50, Bounds),
+    ?assertEqual(length(State_second), 50).
 
 
 %%
