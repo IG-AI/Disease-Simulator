@@ -5,14 +5,24 @@
 -type state() :: [{pid(),person()}].
 -type status() :: integer().
 -type bounds() :: {integer(), integer()}.
+-type position() :: {integer(), integer()}.
 
 -include_lib("eunit/include/eunit.hrl").
 
--spec start(Num :: integer(),Times :: integer(), Bounds :: bounds()) -> state().
-start(Num, Times, Bounds) ->   
-    State  = spawn_people([],Num, Bounds),   
+-spec start(Amount :: integer(),Times :: integer(), Bounds :: bounds()) -> state().
+start(Amount, Times, Bounds) ->   
+    Start_positions = generate_start_positions(Amount,Bounds,[]),
+    State  = spawn_people([],Amount, Bounds,Start_positions),  
     register(master, self()),
     master(State, Times).
+
+-spec generate_start_positions(Amount :: integer(), bounds(), [position()]) -> [position()].
+generate_start_positions(0,_,Result) ->
+    Result;
+
+generate_start_positions(Amount, {X_max,Y_max}, Result) ->
+    generate_start_positions(Amount-1, {X_max, Y_max},[{rand:uniform(X_max), rand:uniform(Y_max)} | Result]).
+
 
 -spec master(State :: state(), Times :: integer()) -> state().
 master(State, 0) ->
@@ -23,7 +33,8 @@ master(State, 0) ->
 master(State, Times) ->     
     master_call_all(State),
     receive
-        {result, New_state} ->      
+        {result, New_state} ->  
+            %io:format("State: ~p~n",[New_state]),
             master(New_state, Times-1)
     end.
 
@@ -49,18 +60,27 @@ wait_fun(State, Receiver, Num) ->
             wait_fun(New_state, Receiver, Num-1)
     end.
 
--spec spawn_people(State :: state(), N :: integer(), Bounds :: bounds()) -> state().
-spawn_people(State, 0, _) ->
+%% -spec spawn_people(State :: state(), N :: integer(), Bounds :: bounds()) -> state().
+%% spawn_people(State, 0, _) ->
+%%     State;
+
+%% spawn_people(State, N, {Xmax, Ymax}) ->
+%%     S = 0,
+%%     X = rand:uniform(Xmax),
+%%     Y = rand:uniform(Ymax),
+%%     PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
+%%     spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
+
+
+-spec spawn_people(State :: state(), N :: integer(), Bounds :: bounds(), [position()]) -> state().
+spawn_people(State, 0, _, _) ->
     State;
 
-spawn_people(State, N, {Xmax, Ymax}) ->
-    S = 0,
-    X = rand:uniform(Xmax),
-    Y = rand:uniform(Ymax),
-    PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
-    spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
-
-
+spawn_people(State, N, {X_max, Y_max}, [{X,Y} | Positions]) ->
+    S = 0,  
+    PID = spawn(fun() -> people({S,X,Y}, {X_max,Y_max}) end),
+    %spawn_people([{PID,{S,X,Y}} | State], N-1, {X_max,Y_max}, Positions).
+    spawn_people(State ++ [{PID,{S,X,Y}}], N-1, {X_max,Y_max}, Positions).
 
 -spec people(person(), Bounds :: bounds()) -> any().
 people({S,X,Y}, Bounds) ->
@@ -144,7 +164,45 @@ send_to_all(Msg, [{PID,_} | Elems]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
-%% Testing new_position by testing all outcomes
+%% Testing generate_start_positions when no positions are generated.
+%%
+genarate_start_positions_zero_test() ->
+    Bounds = {10,10},
+    Number_of_positions = 0,
+    Start_1 = [],
+    Result_1 = generate_start_positions(Number_of_positions, Bounds, Start_1),
+    ?assertEqual(Start_1, Result_1),
+    Start_2 = [{1,1},{2,2},{3,3}],
+    Result_2 = generate_start_positions(Number_of_positions, Bounds, Start_2),
+    ?assertEqual(Start_2, Result_2).
+
+%%
+%% Testing generate_start_positions when one position is generated.
+%%
+genarate_start_positions_one_test() ->
+    {X_max, Y_max} = {10,10},
+    Number_of_positions = 1,
+    Start = [],
+    Result = generate_start_positions(Number_of_positions, {X_max,Y_max}, Start),
+    [{X,Y}] = Result,
+    ?assertEqual(length(Result), Number_of_positions),
+    ?assert(X =< X_max),
+    ?assert(X >= 0),
+    ?assert(Y =< Y_max),
+    ?assert(Y >= 0).
+
+%%
+%% Testing generate_start_positions when several (10) positions are generated.
+%%
+genarate_start_positions_several_test() ->
+    {X_max, Y_max} = {10,10},
+    Number_of_positions = 10,
+    Start = [],
+    Result = generate_start_positions(Number_of_positions, {X_max,Y_max}, Start),
+    ?assertEqual(length(Result), Number_of_positions).
+
+%%
+%% Testing new_position by testing all outcomes.
 %%
 new_position_test() ->
      [?assertEqual({9,11},new_position(10,10,1)),
@@ -263,7 +321,8 @@ people_ready_and_stop_test() ->
 spawn_people_none_test() ->
     Bounds = {10,10},
     State_start =[],
-    State = spawn_people(State_start, 0, Bounds),
+    Start_position = [{5,5}],
+    State = spawn_people(State_start, 0, Bounds, Start_position),
     ?assertEqual(State_start, State).
 
 %%
@@ -273,27 +332,26 @@ spawn_people_single_test() ->
     {X_max, Y_max} = {10,10},
     State_start = [],
     Number_of_processes = 1,
-    State = spawn_people(State_start,  Number_of_processes, {X_max, Y_max}),
+    Start_position = [{5,5}],
+    State = spawn_people(State_start,  Number_of_processes, {X_max, Y_max}, Start_position),
     [{PID, {Status, X, Y}}] = State,
     ?assertEqual(length(State), Number_of_processes),
     ?assert(is_pid(PID)),
     ?assertEqual(Status, 0),
-    ?assert(0 =< X),
-    ?assert(X =< X_max),
-    ?assert(0 =< Y),
-    ?assert(Y =< Y_max).   
+    ?assertEqual([{X,Y}], Start_position).
         
 %%
-%% Testing spawn_people when several (10 and 50) processes are spawned. 
+%% Testing spawn_people when several (10) processes are spawned. 
 %%
 spawn_people_several_test() ->
     Bounds = {10,10},
     State_start = [],
-    State_first = spawn_people(State_start,  10, Bounds),
-    ?assertEqual(length(State_first), 10),
-    State_second = spawn_people(State_start, 50, Bounds),
-    ?assertEqual(length(State_second), 50).
-
+    Number_of_processes = 10,
+    Starting_positions = [{X,Y} || X <- lists:seq(1,Number_of_processes), Y <- lists:seq(1,Number_of_processes), X == Y],
+    State = spawn_people(State_start, Number_of_processes, Bounds, Starting_positions),
+    ?assertEqual(length(State), Number_of_processes),
+    New_positions = lists:map(fun({_,{_,X,Y}}) -> {X,Y} end, State),
+    ?assertEqual(Starting_positions, New_positions).
 
 %%
 %% Testing wait_fun by running it once and changing one element.
