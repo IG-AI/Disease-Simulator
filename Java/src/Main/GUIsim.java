@@ -38,7 +38,7 @@ public class GUIsim extends JPanel
 		f.getContentPane().add(new GUIsim());
 		f.setSize(image.getWidth(), image.getHeight());
 		f.setVisible(true);
-		f.setDefualtCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Unit peepl = new Unit(6332, 0, 1, 1);
 		Unit peeplsick = new Unit(6444, 1, 2, 2);	
 		peepl.moveUnit(20,20,0);
