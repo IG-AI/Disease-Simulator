@@ -5,11 +5,10 @@ import com.sun.corba.se.impl.orbutil.graph.Graph;
 import javax.swing.*;
 import java.io.*;
 import java.awt.*;
-import java.awt.image.*;
 import javax.imageio.*;
 
 
-public class Unit extends JPanel
+public class Unit extends JComponent
 {
 	public int PID;
 	public int status;
@@ -23,7 +22,7 @@ public class Unit extends JPanel
 		status = sickness;
 		x = posx;
 		y = posy;
-		repaint();
+		paint(g);
 	}
 
 	public void moveUnit(int newx, int newy, int sickness) {
@@ -41,6 +40,7 @@ public class Unit extends JPanel
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		Graphics2D g2d = (Graphics2D) g;
 		if(status == 0) {
 			g.setColor(new Color(000,255,000));
 		}
@@ -48,6 +48,7 @@ public class Unit extends JPanel
 			g.setColor(new Color(255,000,000));
 		}
 		g.fillOval(x,y,3,3);
+		repaint();
 	}
 }
 
