@@ -379,7 +379,7 @@ wait_fun_2_test() ->
     receive
         _ ->
             ?assert(false)
-    after 1000 ->
+    after 500 ->
             ?assertEqual([{SELF,{0,0,0}}],Test_state)
     end.
 
@@ -397,41 +397,31 @@ wait_fun_3_test() ->
         {result, [Actuall_1 | [Actuall_2 | _]]} ->
             ?assertNotEqual(Actuall_1,{Test_process_1_pid,Test_process_1_data}),
             ?assertEqual(Actuall_2,{Test_process_2_pid,Test_process_2_data})
-    after 3000 ->
+    after 1000 ->
             ?assert(false)
     end.
 
 %%
-%% Run it two times but only send one message
+%% Test send_to_all with a none empty list and check that each processes in the list received the message
 %%
-wait_fun_4_test() ->
-    ok.
+send_to_all_test() ->
+    Self = self(),
+    PID = spawn(fun () ->
+                        receive 
+                            test -> 
+                                Self ! ok
+                        end
+                end),
+    ok =  send_to_all(test, [{PID,{0,0,0}}]),
+    receive 
+        ok -> 
+            ?assert(true)
+    after 1000 ->
+            ?assert(false)
+    end.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%%
+%% Test send to all with an empty list.
+%%
+send_to_all_empty_test() ->
+    ?assertEqual(ok,send_to_all(ok,[])).
