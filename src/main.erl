@@ -23,7 +23,6 @@ generate_start_positions(0,_,Result) ->
 generate_start_positions(Amount, {X_max,Y_max}, Result) ->
     generate_start_positions(Amount-1, {X_max, Y_max},[{rand:uniform(X_max), rand:uniform(Y_max)} | Result]).
 
-
 -spec master(State :: state(), Times :: integer()) -> state().
 master(State, 0) ->
     unregister(master),
@@ -119,7 +118,6 @@ new_rand_position(X, Y, {X_max, Y_max}) ->
     {X_new, Y_new} = new_position(X, Y, rand:uniform(9)),
     validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
     
-
 -spec validate_position(X_old :: integer(), Y_old :: integer(), X_new :: integer(), X_new :: integer(), bounds()) -> {integer(),integer()}.
 validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
     if
@@ -134,7 +132,6 @@ validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
         true -> 
             {X_new, Y_new}
     end.
-
 
 %% validate_position_bool(X, Y, {X_max, Y_max}) ->
 %%     if
@@ -282,7 +279,6 @@ validate_position_edge_cases_test() ->
     Case_4 = validate_position(X_start, Y_start, X_valid, Y_on_lower, Bounds),
     ?assertEqual(Case_4, {X_valid, Y_on_lower}).
 
-
 %%
 %% Testing people by sending ready message. 
 %%
@@ -353,17 +349,18 @@ spawn_people_several_test() ->
     New_positions = lists:map(fun({_,{_,X,Y}}) -> {X,Y} end, State),
     ?assertEqual(Starting_positions, New_positions).
 
+
 %%
 %% Testing wait_fun by running it once and changing one element.
 %%
 wait_fun_test() ->
-    SELF = self(),
-    Test_state = [{SELF,{0,0,0}}],
-    PID = spawn(fun() -> wait_fun(Test_state,SELF,1) end ),
-    PID ! {work,{SELF,{1,1,1}}},
+    Self = self(),
+    Test_state = [{Self,{0,0,0}}],
+    PID = spawn(fun() -> wait_fun(Test_state,Self,1) end ),
+    PID ! {work,{Self,{1,1,1}}},
     receive
         {result,State} ->
-            ?assertEqual([{SELF,{1,1,1}}],State)
+            ?assertEqual([{Self,{1,1,1}}],State)
     after 1000 ->
             ?assert(false)
     end.
@@ -372,25 +369,25 @@ wait_fun_test() ->
 %% Testing wait_fun when no message arrives
 %%
 wait_fun_2_test() ->
-    SELF = self(),
-    Test_state = [{SELF,{0,0,0}}],
-    PID = spawn(fun() -> wait_fun(Test_state,SELF,1) end ),
-    PID ! {nowork,{SELF,{1,1,1}}},
+    Self = self(),
+    Test_state = [{Self,{0,0,0}}],
+    PID = spawn(fun() -> wait_fun(Test_state,Self,1) end ),
+    PID ! {nowork,{Self,{1,1,1}}},
     receive
         _ ->
             ?assert(false)
-    after 500 ->
-            ?assertEqual([{SELF,{0,0,0}}],Test_state)
+    after 1000 ->
+            ?assertEqual([{Self,{0,0,0}}],Test_state)
     end.
 
 %%
 %% Trying to change two elements but only one will change because we only run it once
 %%         
 wait_fun_3_test() ->                       
-    SELF = self(),
+    Self = self(),
     Processes = [{spawn(fun() -> true end),{0,0,0}} || _ <- lists:seq(1,10)],
     [{Test_process_1_pid,Test_process_1_data} | [{Test_process_2_pid,Test_process_2_data} | _]] = Processes,
-    PID = spawn(fun() -> wait_fun(Processes,SELF,1) end ),
+    PID = spawn(fun() -> wait_fun(Processes,Self,1) end ),
     PID ! {work,{Test_process_1_pid,{1,1,1}}},
     PID ! {work,{Test_process_2_pid,{1,1,1}}},
     receive
@@ -425,3 +422,29 @@ send_to_all_test() ->
 %%
 send_to_all_empty_test() ->
     ?assertEqual(ok,send_to_all(ok,[])).
+
+%%
+%% Test start 
+%%
+start_test() ->
+    {X_bound,Y_bound} = {10,10},
+    Nr_of_processes = 5,
+    Check = fun ({PID,{S,X,Y}}) -> 
+                    ?assert(is_pid(PID)),
+                    ?assert(S =:= 0), 
+                    ?assert(X >= 0),
+                    ?assert(X =< X_bound), 
+                    ?assert(Y >= 0),
+                    ?assert(Y =< Y_bound)
+            end,
+
+    Result = start(Nr_of_processes,1,{X_bound,Y_bound}),
+    lists:foreach(Check,Result),
+    ?assertEqual(Nr_of_processes,length(Result)).
+
+
+%%
+%% Test master_call_all
+%%
+master_call_all_test() ->
+    ok.
