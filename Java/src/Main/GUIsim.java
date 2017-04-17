@@ -1,4 +1,3 @@
-package Main;
 
 import javax.swing.*;
 import java.io.*;
@@ -28,20 +27,30 @@ public class GUIsim extends JPanel
 	public void paintComponent(Graphics g)
 	{
 		g.drawImage(image, 0, 0, null);
-		repaint();
 	}
 
 	public static void main(String []args)
+		throws InterruptedException
 	{
 		JFrame f = new JFrame("Window");
 		map = args[0];
 		f.getContentPane().add(new GUIsim());
 		f.setSize(image.getWidth(), image.getHeight());
+		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		f.setUndecorated(true);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Unit peepl = new Unit(6332, 0, 1, 1);
-		Unit peeplsick = new Unit(6444, 1, 2, 2);	
-		peepl.moveUnit(20,20,0);
-		peeplsick.moveUnit(40,40,0);
+		int i = 5;
+		Unit person;
+		person = new Unit(60, 0, i, i);
+		f.add(person);
+		while(true) {
+			person.moveUnit(i,i,0);
+			Thread.sleep(500);
+			i+=3;
+			person.moveUnit(i,i,1);
+			Thread.sleep(500);
+			i+=3;
+		}
 	}
 }
