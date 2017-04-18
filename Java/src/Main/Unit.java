@@ -5,7 +5,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 
-public class Unit extends JComponent
+public class Unit extends JPanel
 {
 	public int PID;
 	public int status;
@@ -25,7 +25,7 @@ public class Unit extends JComponent
 		status = sickness;
 		x = newx;
 		y = newy;
-		repaint(x,y,newx,newy);
+		repaint();
 	}
 
 	public int pid()
@@ -35,7 +35,6 @@ public class Unit extends JComponent
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
 		if(status == 0) {
 			g.setColor(INFECTED);
 		}

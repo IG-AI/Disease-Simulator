@@ -44,7 +44,7 @@ public class GUIsim extends JPanel
 		int i = 5;
 		Unit person;
 		person = new Unit(60, 0, windowPosX + i, windowPosY + i);
-		f.getContentPane().add(person);
+		f.add(person);
 		while(true) {
 			person.moveUnit(windowPosX + i,windowPosY + i,0);
 			Thread.sleep(500);
