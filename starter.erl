@@ -19,19 +19,36 @@ start() ->
 	case JavaConnection of
 		false -> w(10);	%failed connection
 
-		_ ->	% We could connect to the java server
-			case get_map(JavaConnectionString, Map) of	% check if we get information about a map
-				{Width, Height, Walls, Hospital} ->	% information about map aquired
-					
-					% Dump information about the newly read map.
-					io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
-					io:format("Map: ~p\n", [Walls]),
-					io:format("Hospital: ~p\n", [Hospital]);
-				_ ->	% No map information =(
-					w(10)	%just to do something..
-			end
+	    _ ->	% We could connect to the java server
+		case get_map(JavaConnectionString, Map) of	% check if we get information about a map
+		    {Width, Height, Walls, Hospital} ->	% information about map aquired
+
+						% Dump information about the newly read map.
+			io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
+			io:format("Map: ~p\n", [Walls]),
+			io:format("Hospital: ~p\n", [Hospital]);
+		    _ ->	% No map information =(
+			w(10)	%just to do something..
+		end,
+		java_position_test(JavaConnectionString, 5)
+		    
+		    
 	end,
-	w(10).	%just to do something..
+    w(10).	%just to do something..
+
+java_position_test(JavaConnection, 0) -> 
+    JavaConnection ! {simulation_done};
+java_position_test(JavaConnection, I) ->
+    receive
+	ready_for_positions ->
+	    io:format("Got position request...\n"),
+	    JavaConnection ! {updated_positions, [
+						  {self(), 1, 2, 2},
+						  {self(), 2, 3, 4},
+						  {self(), 5, 6, 7}
+						 ]},
+	    java_position_test(JavaConnection, I-1)
+    end.
 
 initialise_network() ->
 	%Startup node

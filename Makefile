@@ -26,6 +26,10 @@ erun: starter.beam
 erun_one: starter.beam
 	$(ERUN) starter start  $(ESTOP) map_one.bmp
 
+run_all: starter.beam Main.class MapParser.class
+	gedit &
+	java $(JINTERJARS) Main &
+	$(ERUN) starter start  $(ESTOP) map_zero.bmp
 
 # CLEANUP
 .PHONY: clean

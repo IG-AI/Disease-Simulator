@@ -1,6 +1,7 @@
 import com.ericsson.otp.erlang.*;
 import java.util.*;
 import java.io.*;
+import java.lang.Thread.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -91,6 +92,35 @@ public class Main {
                     System.out.println("Got unknown request");
                 }
             }
+
+	    while(true){
+		OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
+		myOtpMbox.send(lastPid, message);
+                System.out.println("Waiting for positions.");
+                OtpErlangTuple tuple = (OtpErlangTuple) myOtpMbox.receive();
+                OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
+		if(dispatch.atomValue().equals("updated_positions")) {
+		    OtpErlangList new_positions = (OtpErlangList) tuple.elementAt(1);
+		    Iterator itr = new_positions.iterator();
+		    while(itr.hasNext()){
+			OtpErlangTuple individual = (OtpErlangTuple) itr.next();
+			OtpErlangPid pid = (OtpErlangPid) individual.elementAt(0);
+			int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
+			int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
+			int y = ((OtpErlangLong) individual.elementAt(3)).intValue();
+			System.out.println("PID: "+pid+" Sickness: "+sickness+" X: "+x+" Y: "+y);
+		    }
+
+		    //System.out.println("ASD" + new_positions);
+		}else if(dispatch.atomValue().equals("simulation_done")){
+		    System.out.println("Simulation done");
+		    break;
+		}else{
+		    System.out.println("Got unknown request");
+		    break;
+		}
+		Thread.sleep(1000);
+	    }
             
         } catch (Exception e) {  //If we come here something is wrong =(
             e.printStackTrace();
