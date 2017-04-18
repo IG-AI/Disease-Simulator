@@ -13,6 +13,7 @@ public class Unit extends JPanel
 	public int y;
 	public static final Color INFECTED = Color.RED;
 	public static final Color HEALTHY  = Color.GREEN;
+	public static final Color TRANSPARENT = new Color(255,255,255,255);
 
 	public Unit(int pid, int sickness, int posx, int posy) {
 		PID = pid;
@@ -35,13 +36,16 @@ public class Unit extends JPanel
 
 	@Override
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		if(status == 0) {
 			g.setColor(INFECTED);
 		}
-		else {
+		else if(status ==1) {
 			g.setColor(HEALTHY);
 		}
-		g.fillOval(x,y,3,3);
+		else
+			g.setColor(TRANSPARENT);
+		g.fillOval(x,y,9,9);
 	}
 }
 

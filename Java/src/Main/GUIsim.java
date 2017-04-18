@@ -11,6 +11,7 @@ public class GUIsim extends JPanel
 	public static final int windowPosX = 0;
 	public static final int windowPosY = 0;
 
+
 	public GUIsim()
 	{
 		super();
@@ -37,7 +38,7 @@ public class GUIsim extends JPanel
 		map = args[0];
 		f.getContentPane().add(new GUIsim());
 		f.setSize(image.getWidth(), image.getHeight());
-		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+ 		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		f.setUndecorated(true);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,9 +50,14 @@ public class GUIsim extends JPanel
 			person.moveUnit(windowPosX + i,windowPosY + i,0);
 			Thread.sleep(500);
 			i+=3;
+			
+			person.moveUnit(windowPosX, windowPosY, 2);
+
 			person.moveUnit(windowPosX + i,windowPosY + i,1);
 			Thread.sleep(500);
 			i+=3;
+			
+			person.moveUnit(windowPosX, windowPosY, 2);
 		}
 	}
 }
