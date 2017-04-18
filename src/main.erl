@@ -70,7 +70,6 @@ wait_fun(State, Receiver, Num) ->
 %%     PID = spawn(fun() -> people({S,X,Y}, {Xmax,Ymax}) end),
 %%     spawn_people([{PID,{S,X,Y}} | State], N-1, {Xmax,Ymax}).
 
-
 -spec spawn_people(State :: state(), N :: integer(), Bounds :: bounds(), [position()]) -> state().
 spawn_people(State, 0, _, _) ->
     State;
@@ -87,7 +86,9 @@ people({S,X,Y}, Bounds) ->
         ready ->           
             {X_new, Y_new} = new_rand_position(X,Y,Bounds),           
             master ! {work, {self(), {S,X_new,Y_new}}},            
-            people({S, X_new, Y_new}, Bounds)          
+            people({S, X_new, Y_new}, Bounds);          
+        stop ->
+            done
     end.
 
 -spec new_position(X :: integer(), Y :: integer(), Position :: integer()) -> {integer(),integer()}.
@@ -146,7 +147,6 @@ validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
 %%         true -> 
 %%             true
 %%     end.
-
 
 -spec send_to_all(Msg :: term(),state()) -> ok.
 send_to_all(_, []) ->
@@ -442,9 +442,19 @@ start_test() ->
     lists:foreach(Check,Result),
     ?assertEqual(Nr_of_processes,length(Result)).
 
+%% %%
+%% %% Test master_call_all
+%% %%
+%% master_call_all_test() ->
+%%     register(master,self()),
+%%     Check = fun () ->  end
 
-%%
-%% Test master_call_all
-%%
-master_call_all_test() ->
-    ok.
+%%     Bounds = {10,10},
+%%     Amount = 5,
+%%     Start_positions = generate_start_positions(Amount,Bounds,[]),
+%%     State  = spawn_people([],Amount, Bounds,Start_positions),
+%%     Result1 = master_call_all(State),
+%%     lists:zip(State,Result1),
+%%     send_to_all(stop,State),
+%%     unregister(master),
+%%     ok.
