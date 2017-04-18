@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.io.*;
 import java.awt.*;
@@ -9,6 +8,8 @@ public class GUIsim extends JPanel
 {
 	public static BufferedImage image;
 	public static String map;
+	public static final int windowPosX = 0;
+	public static final int windowPosY = 0;
 
 	public GUIsim()
 	{
@@ -26,7 +27,7 @@ public class GUIsim extends JPanel
 	@Override
 	public void paintComponent(Graphics g)
 	{
-		g.drawImage(image, 0, 0, null);
+		g.drawImage(image, windowPosX, windowPosY, null);
 	}
 
 	public static void main(String []args)
@@ -42,13 +43,13 @@ public class GUIsim extends JPanel
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		int i = 5;
 		Unit person;
-		person = new Unit(60, 0, i, i);
-		f.add(person);
+		person = new Unit(60, 0, windowPosX + i, windowPosY + i);
+		f.getContentPane().add(person);
 		while(true) {
-			person.moveUnit(i,i,0);
+			person.moveUnit(windowPosX + i,windowPosY + i,0);
 			Thread.sleep(500);
 			i+=3;
-			person.moveUnit(i,i,1);
+			person.moveUnit(windowPosX + i,windowPosY + i,1);
 			Thread.sleep(500);
 			i+=3;
 		}
