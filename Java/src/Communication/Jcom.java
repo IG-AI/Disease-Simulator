@@ -5,12 +5,13 @@ import java.util.*;
 import java.io.*;
 
 public class Jcom {
+   public OtpErlangPid lastPid = null;
+   public OtpErlangPid myPid = null;
+   public OtpMbox myOtpMbox = null;
+   public OtpNode myOtpNode = null;
+
     public Jcom(String[] args) {
         //Vars we wanna use..
-        OtpErlangPid lastPid = null;
-        OtpErlangPid myPid = null;
-        OtpMbox myOtpMbox = null;
-        OtpNode myOtpNode = null;
 
         try {
             //Register the server as a node.
@@ -128,5 +129,13 @@ public class Jcom {
         }
 
         return map_objects;
+    }
+
+
+    public OtpErlangList receive() throws OtpErlangExit, OtpErlangDecodeException {
+        OtpErlangObject erlangObject = myOtpMbox.receive();
+        OtpErlangList erlangList = (OtpErlangList) erlangObject;
+
+        return erlangList;
     }
 }
