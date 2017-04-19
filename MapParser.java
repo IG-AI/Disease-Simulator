@@ -8,7 +8,7 @@ import java.util.*;
 
 public class MapParser {
 
-    //vars that wil hold information so we can pass it
+    //vars that will hold information so we can pass it
     Map<Integer, ArrayList> walls = new HashMap<Integer, ArrayList>();
     Map<Integer, ArrayList> hospital = new HashMap<Integer, ArrayList>();
     int width;

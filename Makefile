@@ -10,12 +10,20 @@ all: Main.class starter.beam MapParser.class
 Main.class: Main.java
 	$(JC) $(JINTERJARS) $^
 
+TestCommunication.class: TestCommunication.java
+	$(JC) $(JINTERJARS) $^
+
+JavaErlangCommunication.class: JavaErlangCommunication.java
+	$(JC) $(JINTERJARS) $^
+
 MapParser.class: MapParser.java
 	$(JC) $(JINTERJARS) $^
 
 starter.beam: starter.erl
 	$(EC) $^
 
+jtest: TestCommunication.class JavaErlangCommunication.class MapParser.class
+	java $(JINTERJARS) TestCommunication
 
 jrun: Main.class MapParser.class
 	java $(JINTERJARS) Main
