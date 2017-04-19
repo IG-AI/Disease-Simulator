@@ -5,7 +5,40 @@
 -include("includes.hrl").
 
 -spec start(Amount :: integer(),Times :: integer(), Bounds :: bounds()) -> state().
-start(Amount, Times, Bounds) ->   
+start(Amount, Times, Bounds) -> 
+
+    % Setting the java servers' information
+    JavaConnectionString = {'java_server', 'java_server@localhost'},
+
+    % Handling arguments sent through command line.
+    Args = init:get_plain_arguments(),
+    % The map file is sent through command line.
+    Map = hd(Args),
+
+    %Here we start up the net thingy
+    java_connection:initialise_network(),
+
+    %Connect to the java server and get the server PID
+    JavaConnection = java_connention:connect_java(JavaConnectionString, 15),
+
+    case JavaConnection of
+        false -> timer:sleep(10);	%failed connection
+
+        _ ->	% We could connect to the java server
+            case map_handler:get_map(JavaConnectionString, Map) of	% check if we get information about a map
+                {Width, Height, Walls, Hospital} ->	% information about map aquired
+
+                    % Dump information about the newly read map.
+                    io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
+                    io:format("Map: ~p\n", [Walls]),
+                    io:format("Hospital: ~p\n", [Hospital]);
+                _ ->	% No map information =(
+                    timer:sleep(10)	%just to do something..
+            end,
+            java_connection:java_position_test(JavaConnectionString, 5)	    
+
+    end,
+
     Start_positions = movement:generate_start_positions(Amount,Bounds,[]),
     State  = people:spawn_people([],Amount, Bounds,Start_positions),  
     register(master, self()),
