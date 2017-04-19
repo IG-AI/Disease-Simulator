@@ -158,10 +158,10 @@ public class JavaErlangCommunication {
                 int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
                 int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
                 int y = ((OtpErlangLong) individual.elementAt(3)).intValue();
-                listpos.add(y);
-                listpos.add(x);
-                listpos.add(sickness);
                 listpos.add(pid);
+                listpos.add(sickness);
+                listpos.add(x);
+                listpos.add(y);
                 list.add((ArrayList) listpos);
             }
 
