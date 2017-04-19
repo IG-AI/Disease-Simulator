@@ -164,8 +164,6 @@ public class JavaErlangCommunication {
                 listpos.add(y);
                 list.add(listpos);
             }
-
-
         }
         return list;
     }
