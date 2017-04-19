@@ -9,7 +9,7 @@ public class JavaErlangCommunication {
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
 
-    public JavaErlangCommunication(String[] args) {
+    public JavaErlangCommunication() {
         //Vars we wanna use..
 
         try {
@@ -29,7 +29,7 @@ public class JavaErlangCommunication {
             //With error handling that should be the case..
             //Now we just crash if we don't get what we want..
             while (erlangPid == null) {
-
+                System.out.println("Waiting for Erlang connection");
                 //We get something.. hopefully a tuple
                 OtpErlangTuple tuple = (OtpErlangTuple) myOtpMbox.receive();
                 //Second argument of tuple is a message!
@@ -132,28 +132,32 @@ public class JavaErlangCommunication {
 
 
     public ArrayList receive() throws OtpErlangRangeException {
-        OtpErlangObject erlangObject = null;
+        System.out.println("Waiting for positions");
+        OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
+        myOtpMbox.send(erlangPid, message);
+        OtpErlangTuple erlangTuple = null;
+
         try {
-            erlangObject = myOtpMbox.receive();
+            erlangTuple = (OtpErlangTuple) myOtpMbox.receive();
         } catch (OtpErlangExit otpErlangExit) {
             otpErlangExit.printStackTrace();
         } catch (OtpErlangDecodeException e) {
             e.printStackTrace();
         }
 
-        OtpErlangTuple erlangTuple = (OtpErlangTuple) erlangObject;
-
         return convertPosErlangJava(erlangTuple);
     }
 
     protected ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
-        ArrayList<Object> listpos = new ArrayList<Object>();
+
         ArrayList<ArrayList> list = new ArrayList<ArrayList>();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
         if (dispatch.atomValue().equals("updated_positions")) {
             OtpErlangList new_positions = (OtpErlangList) tuple.elementAt(1);
-            for (Object new_position : new_positions) {
-                OtpErlangTuple individual = (OtpErlangTuple) new_position;
+            Iterator itr = new_positions.iterator();
+            while(itr.hasNext()){
+                ArrayList<Object> listpos = new ArrayList<Object>();
+                OtpErlangTuple individual = (OtpErlangTuple) itr.next();
                 OtpErlangPid pid = (OtpErlangPid) individual.elementAt(0);
                 int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
                 int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
@@ -164,7 +168,10 @@ public class JavaErlangCommunication {
                 listpos.add(y);
                 list.add(listpos);
             }
+            return list;
         }
-        return list;
+        else {
+            return null;
+        }
     }
 }
