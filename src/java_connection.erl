@@ -1,4 +1,7 @@
 % @author Project Snowfox
+% @doc This module provides functionality to connect to a java process
+% running on the same machine.
+
 -module(java_connection).
 
 -export([connect_java/2, initialise_network/0]).
