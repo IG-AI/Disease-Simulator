@@ -1,77 +1,67 @@
+% @author Project Snowfox
 -module(java_connection).
 
--export([connect_java/2, initialise_network/0, java_position_test/2]).
+-export([connect_java/2, initialise_network/0]).
 
 -include("includes.hrl").
 
-% Connects to the provided java server.
-% Timeout is the number of seconds we'll try before we give up..
+% @doc Connects to the a java process.
+% It will try to connect once every second for the provided amount of time.
+% @param Name is the variable used to connect to the process.
+% @param Timeout is the number of seconds the function will try
+% connecting before giving up.
+% @returns Returns the PID of the responding Java process.
+% @todo Get the returned PID to work for communication.
 connect_java(Name, Timeout) ->
     io:format("Java server: ~p\n", [Name]),
     io:fwrite("Connecting to Java"),	
     connect_java_aux(Name, Timeout).
 
-                                                % No connection =(
+% @private
+% No connection =(
 connect_java_aux(_, Timeout) when Timeout =< 0 -> 
     io:format("\nConnection to Java failed.\n"),
     false;
 
-                                                % Try to connect...
+
+% @private
+% Try to connect to the java process
 connect_java_aux(Name, Timeout) ->
     Name ! {self(), 'ping'},    % we send a ping
-    receive %And hopefully receive a pong together with the JavaPid.
+    receive % And hopefully receive a pong together with the JavaPid.
         {JavaPid, pong} ->
             io:format("\nConnected to Java on Pid: ~p\n", [JavaPid]),
             JavaPid % Return JavaPid
-    after 1000 ->   % Tick.. tock...
+    after 1000 ->   % Will wait for a reply (pong) 1000ms before trying again.
             io:fwrite("."),
             connect_java_aux(Name, Timeout - 1)
     end.
 
-
+% @doc Initialise the network part of the code to allow for inter-process communication.
+% Will register the process with the name 'master' as an atom.
+% The cookie will be set to the atom 'secret'.
 initialise_network() ->
-	%Startup node
+	% Startup node
 	net_kernel:start([master@localhost, shortnames]),
 
-	% Cookies allows us to communicate only with 
-	% others with the same secret.
-	% We want to run the following code, but it might fail
-	% if run immediately if the node is not created yet.
-	% Therefor cookie() checks if node is created and then
-	% set the cookie.
-	% erlang:set_cookie(node(), secret),	
+    % Set the cookie.	
 	cookie(false),
 
-	% if we register the process we can recieve messages
-	% sent to the named process
+	% If we register the process we can recieve messages
+	% sent to the named process.
 	register(master, self()).
 
 
-% Waits for the node to get started properly
-% and then set the cookie! Omnomnom! =O
+% @doc Waits for the node to get started properly and then set the cookie!
+% Cookies allows us to communicate only with 
+% others with the same secret.
+% If the node is not created before we try to set the cookie the code might fail.
+% Therefor cookie() checks if node is created and then
+% set the cookie.
 cookie(true) ->
 	erlang:set_cookie(node(), secret);
 cookie(_) ->
-	timer:sleep(100), %small delay just because..
+	timer:sleep(100), %small delay before trying to set the cookie again.
 	cookie(is_alive()).
 
-
-
-%%
-%% Tests
-%%
-java_position_test(JavaConnection, 0) -> 
-    JavaConnection ! {simulation_done};
-
-java_position_test(JavaConnection, I) ->
-    receive
-	ready_for_positions ->
-	    io:format("Got position request...\n"),
-	    JavaConnection ! {updated_positions, [
-						  {self(), 1, 2, 2},
-						  {self(), 2, 3, 4},
-						  {self(), 5, 6, 7}
-						 ]},
-	    java_position_test(JavaConnection, I-1)
-end.
 
