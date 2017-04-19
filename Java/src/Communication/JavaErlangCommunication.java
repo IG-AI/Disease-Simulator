@@ -143,10 +143,10 @@ public class JavaErlangCommunication {
 
         OtpErlangTuple erlangTuple = (OtpErlangTuple) erlangObject;
 
-        return fromErlang(erlangTuple);
+        return converter(erlangTuple);
     }
 
-    protected ArrayList fromErlang(OtpErlangTuple tuple) throws OtpErlangRangeException {
+    protected ArrayList converter(OtpErlangTuple tuple) throws OtpErlangRangeException {
         ArrayList list1 = new ArrayList();
         ArrayList<ArrayList> list2 = new ArrayList();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
