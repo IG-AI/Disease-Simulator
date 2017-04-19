@@ -147,7 +147,7 @@ public class JavaErlangCommunication {
     }
 
     protected ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
-        List<Object> listpos = new ArrayList<Object>();
+        ArrayList<Object> listpos = new ArrayList<Object>();
         ArrayList<ArrayList> list = new ArrayList<ArrayList>();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
         if (dispatch.atomValue().equals("updated_positions")) {
@@ -162,7 +162,7 @@ public class JavaErlangCommunication {
                 listpos.add(sickness);
                 listpos.add(x);
                 listpos.add(y);
-                list.add((ArrayList) listpos);
+                list.add(listpos);
             }
 
 
