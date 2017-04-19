@@ -4,7 +4,7 @@ import com.ericsson.otp.erlang.*;
 import java.util.*;
 
 public class JavaErlangCommunication {
-    public OtpErlangPid lastPid = null;
+    public OtpErlangPid erlangPid = null;
     public OtpErlangPid myPid = null;
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
@@ -28,7 +28,7 @@ public class JavaErlangCommunication {
             //Loop until we get a request from which we can get a Pid.
             //With error handling that should be the case..
             //Now we just crash if we don't get what we want..
-            while (lastPid == null) {
+            while (erlangPid == null) {
 
                 //We get something.. hopefully a tuple
                 OtpErlangTuple tuple = (OtpErlangTuple) myOtpMbox.receive();
@@ -37,14 +37,14 @@ public class JavaErlangCommunication {
 
                 if(dispatch.atomValue().equals("ping")) { //Yay we got a ping!
                     //Get the pid (first element of tuple) from the sending process
-                    lastPid = (OtpErlangPid) tuple.elementAt(0);
+                    erlangPid = (OtpErlangPid) tuple.elementAt(0);
                     System.out.println("Got connection from Erlang!");
 
                     //Put together a response and send it..
                     OtpErlangAtom pong = new OtpErlangAtom("pong");
                     OtpErlangObject[] sendArray = {myPid, pong};
                     OtpErlangTuple send = new OtpErlangTuple(sendArray);
-                    myOtpMbox.send(lastPid, send);
+                    myOtpMbox.send(erlangPid, send);
                 }
             }
 
@@ -85,7 +85,7 @@ public class JavaErlangCommunication {
                             map_walls, map_hospital};
                     OtpErlangTuple send = new OtpErlangTuple(sendArray);
                     //And send it..
-                    myOtpMbox.send(lastPid, send);
+                    myOtpMbox.send(erlangPid, send);
 
                     break; //We're done with map..
 
@@ -143,12 +143,12 @@ public class JavaErlangCommunication {
 
         OtpErlangTuple erlangTuple = (OtpErlangTuple) erlangObject;
 
-        return converter(erlangTuple);
+        return convertPosErlangJava(erlangTuple);
     }
 
-    protected ArrayList converter(OtpErlangTuple tuple) throws OtpErlangRangeException {
-        ArrayList list1 = new ArrayList();
-        ArrayList<ArrayList> list2 = new ArrayList();
+    protected ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
+        List<Object> listpos = new ArrayList<Object>();
+        ArrayList<ArrayList> list = new ArrayList<ArrayList>();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
         if (dispatch.atomValue().equals("updated_positions")) {
             OtpErlangList new_positions = (OtpErlangList) tuple.elementAt(1);
@@ -158,15 +158,15 @@ public class JavaErlangCommunication {
                 int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
                 int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
                 int y = ((OtpErlangLong) individual.elementAt(3)).intValue();
-                list1.add(y);
-                list1.add(x);
-                list1.add(sickness);
-                list1.add(pid);
-                list2.add(list1);
+                listpos.add(y);
+                listpos.add(x);
+                listpos.add(sickness);
+                listpos.add(pid);
+                list.add((ArrayList) listpos);
             }
 
 
         }
-        return list2;
+        return list;
     }
 }
