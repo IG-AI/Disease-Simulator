@@ -1,3 +1,5 @@
+package Main;
+
 import javax.swing.*;
 import java.io.*;
 import java.awt.*;
@@ -45,13 +47,13 @@ public class GUIsim extends JPanel
 		Unit person;
 		person = new Unit(60, 0, windowPosX + i, windowPosY + i);
 		f.getContentPane().add(person);
-		while(true) {
-			person.moveUnit(windowPosX + i,windowPosY + i,0);
+		while (true) {
+			person.moveUnit(windowPosX + i, windowPosY + i, 0);
 			Thread.sleep(500);
-			i+=3;
-			person.moveUnit(windowPosX + i,windowPosY + i,1);
+			i += 3;
+			person.moveUnit(windowPosX + i, windowPosY + i, 1);
 			Thread.sleep(500);
-			i+=3;
+			i += 3;
 		}
 	}
 }

@@ -2,13 +2,12 @@ package Communication;
 
 import com.ericsson.otp.erlang.*;
 import java.util.*;
-import java.io.*;
 
 public class Jcom {
-   public OtpErlangPid lastPid = null;
-   public OtpErlangPid myPid = null;
-   public OtpMbox myOtpMbox = null;
-   public OtpNode myOtpNode = null;
+    public OtpErlangPid lastPid = null;
+    public OtpErlangPid myPid = null;
+    public OtpMbox myOtpMbox = null;
+    public OtpNode myOtpNode = null;
 
     public Jcom(String[] args) {
         //Vars we wanna use..
@@ -103,7 +102,7 @@ public class Jcom {
 
 
     //Method used to format map data before we send it back..
-    private static OtpErlangMap areaToErlang(Map<Integer, ArrayList> mapArea){
+    private static OtpErlangMap areaToErlang(Map<Integer, ArrayList> mapArea) {
 
         //This map is not a map but a Map (the datatype)..
         OtpErlangMap map_objects = new OtpErlangMap();
@@ -132,10 +131,42 @@ public class Jcom {
     }
 
 
-    public OtpErlangList receive() throws OtpErlangExit, OtpErlangDecodeException {
-        OtpErlangObject erlangObject = myOtpMbox.receive();
-        OtpErlangList erlangList = (OtpErlangList) erlangObject;
+    public ArrayList receive() throws OtpErlangRangeException {
+        OtpErlangObject erlangObject = null;
+        try {
+            erlangObject = myOtpMbox.receive();
+        } catch (OtpErlangExit otpErlangExit) {
+            otpErlangExit.printStackTrace();
+        } catch (OtpErlangDecodeException e) {
+            e.printStackTrace();
+        }
 
-        return erlangList;
+        OtpErlangTuple erlangTuple = (OtpErlangTuple) erlangObject;
+
+        return fromErlang(erlangTuple);
+    }
+
+    protected ArrayList fromErlang(OtpErlangTuple tuple) throws OtpErlangRangeException {
+        ArrayList list1 = new ArrayList();
+        ArrayList<ArrayList> list2 = new ArrayList();
+        OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
+        if (dispatch.atomValue().equals("updated_positions")) {
+            OtpErlangList new_positions = (OtpErlangList) tuple.elementAt(1);
+            for (Object new_position : new_positions) {
+                OtpErlangTuple individual = (OtpErlangTuple) new_position;
+                OtpErlangPid pid = (OtpErlangPid) individual.elementAt(0);
+                int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
+                int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
+                int y = ((OtpErlangLong) individual.elementAt(3)).intValue();
+                list1.add(y);
+                list1.add(x);
+                list1.add(sickness);
+                list1.add(pid);
+                list2.add(list1);
+            }
+
+
+        }
+        return list2;
     }
 }
