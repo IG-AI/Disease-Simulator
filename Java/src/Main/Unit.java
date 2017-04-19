@@ -7,7 +7,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 
-public class Unit extends JComponent
+public class Unit extends JPanel
 {
 	public int PID;
 	public int status;
@@ -15,6 +15,7 @@ public class Unit extends JComponent
 	public int y;
 	public static final Color INFECTED = Color.RED;
 	public static final Color HEALTHY  = Color.GREEN;
+	public static final Color TRANSPARENT = new Color(255,255,255,255);
 
 	public Unit(int pid, int sickness, int posx, int posy) {
 		PID = pid;
@@ -27,7 +28,7 @@ public class Unit extends JComponent
 		status = sickness;
 		x = newx;
 		y = newy;
-		repaint(x,y,newx,newy);
+		repaint();
 	}
 
 	public int pid()
@@ -41,10 +42,12 @@ public class Unit extends JComponent
 		if(status == 0) {
 			g.setColor(INFECTED);
 		}
-		else {
+		else if(status ==1) {
 			g.setColor(HEALTHY);
 		}
-		g.fillOval(x,y,3,3);
+		else
+			g.setColor(TRANSPARENT);
+		g.fillOval(x,y,9,9);
 	}
 }
 
