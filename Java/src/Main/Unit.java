@@ -1,5 +1,7 @@
 package Main;
 
+import com.ericsson.otp.erlang.OtpErlangPid;
+
 import javax.swing.*;
 import java.io.*;
 import java.awt.*;

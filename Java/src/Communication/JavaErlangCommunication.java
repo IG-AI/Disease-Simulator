@@ -3,13 +3,13 @@ package Communication;
 import com.ericsson.otp.erlang.*;
 import java.util.*;
 
-public class JavaCommunication {
+public class JavaErlangCommunication {
     public OtpErlangPid lastPid = null;
     public OtpErlangPid myPid = null;
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
 
-    public JavaCommunication(String[] args) {
+    public JavaErlangCommunication(String[] args) {
         //Vars we wanna use..
 
         try {
