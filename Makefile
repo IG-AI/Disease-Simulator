@@ -8,7 +8,13 @@ SOURCES=$(wildcard Erlang/src/*.erl)
 HEADERS=$(wildcard Erlang/src/*.hrl)
 OBJECTS:=$(SOURCES:Erlang/src/%.erl=Erlang/ebin/%.beam)
 
+### SPECIAL FLAGS ###
+
 .PHONY: doc doc_url skeleton coverage clean
+
+mkdir:
+	mkdir -p Erlang/ebin Erlang/doc
+
 ### SPECIAL VARS ###
 
 ESMALLRUN = map_one.bmp 5 5 # ARGS FOR ERLANG
@@ -17,7 +23,7 @@ ESMALLRUN = map_one.bmp 5 5 # ARGS FOR ERLANG
 
 ### COMPILATION ###
 
-all: $(OBJECTS)
+all: mkdir $(OBJECTS)
 
 Erlang/ebin/%.beam: Erlang/src/%.erl 
 	erlc $(ERLC_FLAGS) -o Erlang/ebin/ $<
@@ -56,15 +62,15 @@ space:= $(empty) $(empty)
 
 OBJECTS_LIST:= $(subst $(space),$(comma),$(OBJECTS:Erlang/ebin/%.beam=%))
 
-test: $(OBJECTS)
+test: mkdir $(OBJECTS)
 	erl -noshell -pa Erlang/ebin -eval 'eunit:test([$(OBJECTS_LIST)], [])' -s init stop
 
-testv: $(OBJECTS)
+testv: mkdir $(OBJECTS)
 	erl -noshell -pa Erlang/ebin -eval 'eunit:test([$(OBJECTS_LIST)], [verbose])' -s init stop
 
-test_%: Erlang/ebin/%.beam
+test_%: mkdir Erlang/ebin/%.beam
 	erl -noshell -pa Erlang/ebin -eval "eunit:test($(subst test_,, $@), [])" -s init stop
 
-testv_%: Erlang/ebin/%.beam
+testv_%: mkdir Erlang/ebin/%.beam
 	erl -noshell -pa Erlang/ebin -eval "eunit:test($(subst testv_,, $@), [verbose])" -s init stop
 
