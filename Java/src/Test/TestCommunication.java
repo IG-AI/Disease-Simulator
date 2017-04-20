@@ -5,6 +5,7 @@ import java.util.*;
 import Communication.JavaErlangCommunication;
 
 public class TestCommunication {
+    /*Testing that the communication bewteen Java and Erlang works correct*/
     public static void main(String[] args) throws OtpErlangRangeException {
         JavaErlangCommunication javaErlangCommunicator = new JavaErlangCommunication();
 
