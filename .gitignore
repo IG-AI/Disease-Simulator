@@ -8,7 +8,9 @@
 *.beam
 erl_crash.dump
 /Erlang/ebin/
+/Erlang/doc/
 
 #Java files
 *.class
 /Java/bin/
+/Java/doc/
