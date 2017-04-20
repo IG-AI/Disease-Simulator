@@ -1,9 +1,8 @@
 package Main;
 
-import com.ericsson.otp.erlang.OtpErlangPid;
-
 import javax.swing.*;
 import java.awt.*;
+import com.ericsson.otp.erlang.OtpErlangPid;
 
 /**
  * The Unit class of the program, that will represent the people in the simulation.

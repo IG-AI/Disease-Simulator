@@ -2,6 +2,7 @@ package Test;
 
 import com.ericsson.otp.erlang.*;
 import java.util.*;
+
 import Communication.JavaErlangCommunication;
 
 /*

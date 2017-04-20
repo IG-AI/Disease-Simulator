@@ -75,7 +75,7 @@ public class JavaErlangCommunication {
 
                     //Remove unwanted chars (Erlang strings will be wrapped in "")
                     requested_map = requested_map.replaceAll("[^A-Za-z0-9_.-]", "");
-                    mapName = "Java/data/" + requested_map;
+                    mapName = "data/" + requested_map;
                     System.out.println("Requested map: "+requested_map);
 
                     //Create a new map object of the wanted map

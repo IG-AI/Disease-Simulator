@@ -1,14 +1,16 @@
 package Main;
 
 import javax.swing.*;
-import java.io.*;
+import java.awt.image.BufferedImage;
 import java.awt.*;
-import java.awt.image.*;
+import java.io.*;
 import java.util.ArrayList;
 import javax.imageio.*;
-import Communication.JavaErlangCommunication;
 import com.ericsson.otp.erlang.OtpErlangPid;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
+
+import Communication.JavaErlangCommunication;
+
 
 /**
  * The main class that will start and drive the program.
@@ -63,8 +65,7 @@ public class GUIsim extends JPanel
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		ArrayList<Unit> personList = new ArrayList<Unit>();
-		ArrayList unitList;
-		unitList = javaErlangCommunicator.receivePos();
+		ArrayList unitList = javaErlangCommunicator.receivePos();
 		for(int i = 0; i < unitList.size(); i++) {
 			ArrayList unit = (ArrayList) unitList.get(i);
 			OtpErlangPid PID = (OtpErlangPid) unit.get(0);
