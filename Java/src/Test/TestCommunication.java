@@ -4,7 +4,7 @@ import com.ericsson.otp.erlang.*;
 import java.util.*;
 import Communication.JavaErlangCommunication;
 
-/**
+/*
  * Provides simple tests for communication.
  */
 public class TestCommunication {
