@@ -1,13 +1,24 @@
 -module(map_handler).
 
 -include("includes.hrl").
-
 -export([get_map/2]).
 
-get_map(JavaConnection, Map) ->
+%%
+%% @doc Sends the name of a Map to the Java server and then waits to receive information about the Map. 
+%% If the map information is received the function returns that information. 
+%% If no information have been received after 30 seconds, false is returned instead. 
+%%
+%% @param Java_connection the information used to send messages to the Java server 
+%% @param Map the name of a map
+%%
+%% @returns a tuple containing the width of the Map, the heigth of the Map, a map of 'wallpixels' and a map of 'hospitalpixels' 
+%% if a Map was received, false otherwise   
+%%
+-spec get_map({Java_connection :: [integer()],[integer()]}, Map :: [integer()]) -> {integer(),integer(),map(),map()} | false.
+get_map(Java_connection, Map) ->
     % Use provided connection to ask the server for information
     % regarding the specified map.
-	JavaConnection ! {self(), 'map_please', Map},
+	Java_connection ! {self(), 'map_please', Map},
 	io:fwrite("Waiting for map.\n"),
 	receive % We got something!
 		{_, here_is_map, Width, Height, Walls, Hospital} ->
