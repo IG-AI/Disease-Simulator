@@ -72,6 +72,7 @@ public class GUIsim extends JPanel
 			int x = (Integer) unit.get(2);
 			int y = (Integer) unit.get(3);
 			Unit person = new Unit(PID, sickness, x, y);
+			person.paint();
 			personList.add(person);
 		}
 
