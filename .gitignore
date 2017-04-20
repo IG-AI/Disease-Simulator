@@ -1,0 +1,14 @@
+#Files or patterns that should be ignored by Git
+
+#General ignore for editor files
+*~
+*.iml
+
+#Erlang specific files
+*.beam
+erl_crash.dump
+/Erlang/ebin/
+
+#Java files
+*.class
+/Java/bin/
