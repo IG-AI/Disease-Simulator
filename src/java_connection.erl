@@ -15,6 +15,7 @@
 % connecting before giving up.
 % @returns Returns the PID of the responding Java process.
 % @todo Get the returned PID to work for communication.
+-spec connect_java(Name :: {[integer()],[integer()]}, Timeout :: integer()) -> pid()|boolean().
 connect_java(Name, Timeout) ->
     io:format("Java server: ~p\n", [Name]),
     io:fwrite("Connecting to Java"),	
@@ -22,6 +23,7 @@ connect_java(Name, Timeout) ->
 
 % @private
 % No connection =(
+-spec connect_java_aux(Name :: {[integer()],[integer()]}, Timeout :: integer()) -> pid()|boolean().
 connect_java_aux(_, Timeout) when Timeout =< 0 -> 
     io:format("\nConnection to Java failed.\n"),
     false;
@@ -43,6 +45,7 @@ connect_java_aux(Name, Timeout) ->
 % @doc Initialise the network part of the code to allow for inter-process communication.
 % Will register the process with the name 'master' as an atom.
 % The cookie will be set to the atom 'secret'.
+-spec initialise_network() -> true.
 initialise_network() ->
 	% Startup node
 	net_kernel:start([master@localhost, shortnames]),
@@ -61,6 +64,7 @@ initialise_network() ->
 % If the node is not created before we try to set the cookie the code might fail.
 % Therefor cookie() checks if node is created and then
 % set the cookie.
+-spec cookie(boolean()) -> true.
 cookie(true) ->
 	erlang:set_cookie(node(), secret);
 cookie(_) ->
