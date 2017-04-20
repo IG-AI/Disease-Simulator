@@ -4,11 +4,10 @@ import com.ericsson.otp.erlang.*;
 import java.util.*;
 import Communication.JavaErlangCommunication;
 
-/**
+/*
  * Provides simple tests for communication.
  */
 public class TestCommunication {
-    /*Testing that the communication bewteen Java and Erlang works correct*/
     public static void main(String[] args) throws OtpErlangRangeException {
 	//Create the object for communication
         JavaErlangCommunication javaErlangCommunicator = new JavaErlangCommunication();
