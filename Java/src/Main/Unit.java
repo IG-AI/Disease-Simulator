@@ -1,11 +1,13 @@
 package Main;
 
+import com.ericsson.otp.erlang.OtpErlangPid;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Unit extends JPanel
 {
-	public int PID;
+	public OtpErlangPid PID;
 	public int status;
 	public int x;
 	public int y;
@@ -13,7 +15,7 @@ public class Unit extends JPanel
 	public static final Color HEALTHY  = Color.GREEN;
 	public static final Color TRANSPARENT = new Color(255,255,255,255);
 
-	public Unit(int pid, int sickness, int posx, int posy) {
+	public Unit(OtpErlangPid pid, int sickness, int posx, int posy) {
 		PID = pid;
 		status = sickness;
 		x = posx;
@@ -27,7 +29,7 @@ public class Unit extends JPanel
 		repaint();
 	}
 
-	public int pid()
+	public OtpErlangPid pid()
 	{
 		return PID;
 	}
@@ -43,7 +45,7 @@ public class Unit extends JPanel
 		}
 		else
 			g.setColor(TRANSPARENT);
-		g.fillOval(x,y,9,9);
+		g.fillOval(x,y,5,5);
 	}
 }
 

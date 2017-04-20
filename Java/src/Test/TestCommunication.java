@@ -9,7 +9,7 @@ public class TestCommunication {
         JavaErlangCommunication javaErlangCommunicator = new JavaErlangCommunication();
 
         while(true){
-            ArrayList receive = javaErlangCommunicator.receive();
+            ArrayList receive = javaErlangCommunicator.receivePos();
             if(receive != null){
                 System.out.println("Asking for new positions");
                 System.out.println(receive);

@@ -8,6 +8,7 @@ public class JavaErlangCommunication {
     public OtpErlangPid myPid = null;
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
+    private String mapName = null;
 
     public JavaErlangCommunication() {
         //Vars we wanna use..
@@ -65,6 +66,7 @@ public class JavaErlangCommunication {
 
                     //Remove unwanted chars (Erlang strings will be wrapped in "")
                     requested_map = requested_map.replaceAll("[^A-Za-z0-9_.-]", "");
+                    mapName = requested_map;
                     System.out.println("Requested map: "+requested_map);
 
                     //Create a new map object of the wanted map
@@ -131,7 +133,7 @@ public class JavaErlangCommunication {
     }
 
 
-    public ArrayList receive() throws OtpErlangRangeException {
+    public ArrayList receivePos() throws OtpErlangRangeException {
         System.out.println("Waiting for positions");
         OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
         myOtpMbox.send(erlangPid, message);
@@ -148,7 +150,7 @@ public class JavaErlangCommunication {
         return convertPosErlangJava(erlangTuple);
     }
 
-    protected ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
+    private ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
 
         ArrayList<ArrayList> list = new ArrayList<ArrayList>();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
@@ -170,8 +172,15 @@ public class JavaErlangCommunication {
             }
             return list;
         }
+        else if (dispatch.atomValue().equals("simulation_done")) {
+            return null;
+        }
         else {
             return null;
         }
+    }
+
+    public String getMapName() {
+        return mapName;
     }
 }
