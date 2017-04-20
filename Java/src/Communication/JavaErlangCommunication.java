@@ -8,6 +8,7 @@ import java.util.*;
  * @author Project Snowfox
  */
 public class JavaErlangCommunication {
+    //Vars we want to use.
     public OtpErlangPid erlangPid = null;
     public OtpErlangPid myPid = null;
     public OtpMbox myOtpMbox = null;
@@ -20,7 +21,6 @@ public class JavaErlangCommunication {
      * and parse the map Erlang is requesting.
      */
     public JavaErlangCommunication() {
-        //Vars we wanna use..
 
         try {
             //Register the server as a node.
