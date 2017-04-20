@@ -33,7 +33,7 @@ jhrt: all
 ### FASTER BUT WILL ALWAYS RECOMPILE ###
 jcompile: mkdir sources.txt
 	javac $(JAVAPACKAGE) @Java/sources.txt -d Java/bin
-jcompile_test: sources_test.txt
+jcompile_test: mkdir sources_test.txt
 	javac $(JAVATESTPACKAGES) @Java/sources_test.txt -d Java/bin
 
 jrun: jcompile
