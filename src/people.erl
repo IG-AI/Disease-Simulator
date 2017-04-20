@@ -3,6 +3,17 @@
 
 -include("includes.hrl").
 
+%%
+%% @doc Spawn the people that will be used in the simulation. 
+%%
+%% @param State The current state that you would like to add people to. Will be empty most of the time.
+%% @param Amount The amount of people that you would like to spawn.
+%% @param Bounds a tuple with the maximum X and Y coordinates of the map that the people will be in.
+%% @param Positions a list with starting positions for the people. The positions should be smaller than the X and Y 
+%% coordinates in Bounds and the same length as Amount.
+%% 
+%% @returns A state with Amount number of people with their status set to 0. 
+%%
 -spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()]) -> state().
 spawn_people(State, 0, _, _) ->
     State;
@@ -10,10 +21,20 @@ spawn_people(State, 0, _, _) ->
 spawn_people(State, Amount, {X_max, Y_max}, [{X,Y} | Positions]) ->
     S = 0,  
     PID = spawn(fun() -> people({S,X,Y}, {X_max,Y_max}) end),
-    %spawn_people([{PID,{S,X,Y}} | State], N-1, {X_max,Y_max}, Positions).
     spawn_people(State ++ [{PID,{S,X,Y}}], Amount-1, {X_max,Y_max}, Positions).
 
--spec people(person(), Bounds :: bounds()) -> any().
+%%
+%% @doc Loop untill it receives the atom stop. The process will update @see X and @see Y with a new random position
+%% and send a tagged tuple with its new position and its pid to the registred processes master if it receives the atom ready.  
+%% 
+%% @param S the new state of the person. Representing the health of the person.
+%% @param X the new x coordinate of the person.
+%% @param Y the new y coordinate of the person.
+%% @param Bounds the limits of @see X and @see Y.
+%%
+%% @returns done
+%%
+-spec people(person(), Bounds :: bounds()) -> done.
 people({S,X,Y}, Bounds) ->
     receive
         ready ->           
@@ -29,7 +50,7 @@ people({S,X,Y}, Bounds) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
-%%T esting spawn_people when no processes are spawned. 
+%% Testing spawn_people when no processes are spawned. 
 %%
 spawn_people_none_test() ->
     Bounds = {10,10},
