@@ -5,12 +5,11 @@
 -include("includes.hrl").
 
 
--spec start() -> state().
+%-spec start() -> state().
 start() -> 
   
     % Setting the java servers' information
     JavaConnectionString = {'java_server', 'java_server@localhost'},
-    %register(java_connection, JavaConnectionString),
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
@@ -47,12 +46,11 @@ start() ->
 
     end.
 
-%-spec master(State :: state(), Times :: integer()) -> state().
+-spec master(State :: state(), Times :: integer(), Java_connection :: {[integer()],[integer()]}) -> state().
 master(State, 0, Java_connection) ->
     unregister(master),
     utils:send_to_all(stop,State),
     Java_connection ! {simulation_done},
-    %unregister(java_connection),
     State;
 
 master(State, Times, Java_connection) ->     

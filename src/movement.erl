@@ -3,6 +3,17 @@
 
 -include("includes.hrl").
 
+%%
+%% @doc Generate Amonunt number of tuples and append them to Result. Each tuple containins a randomly generated x coordinate between 0 and X_max and 
+%% a randomly generated y coordinate between 0 and Y_max
+%%
+%% @param Amount the amount of positions to be generated
+%% @param X_max the upper bound of the x-axis
+%% @param Y_max the upper bound of the Y-axis
+%% @param Result the list to which the new positions are to be appended	
+%%
+%% @returns Result with the new positions appended to it
+%%
 -spec generate_start_positions(Amount :: integer(), bounds(), [position()]) -> [position()].
 generate_start_positions(0,_,Result) ->
     Result;
@@ -10,6 +21,16 @@ generate_start_positions(0,_,Result) ->
 generate_start_positions(Amount, {X_max,Y_max}, Result) ->
     generate_start_positions(Amount-1, {X_max, Y_max},[{rand:uniform(X_max), rand:uniform(Y_max)} | Result]).
 
+%%
+%% @doc Generate new x and y coordinates of a process based on its current x and y coordinates and a Direction. 
+%% The new coordinates will be one grid away from the original coordinates or the same as the original coordinates.  
+%%
+%% @param X the current coordinate on the x-axis 
+%% @param Y the current coordinate on the y-axis 
+%% @param Direction an integer between 1 and 9 
+%%
+%% @returns a tuple containing new x and y coordinates
+%%
 -spec new_position(X :: integer(), Y :: integer(), Position :: integer()) -> {integer(),integer()}.
 new_position(X, Y, Position) ->
     case Position of 
@@ -33,11 +54,35 @@ new_position(X, Y, Position) ->
             {X+1, Y-1}
         end.
 
+%%
+%% @doc Randomly generates new x and y coordinates of a process based on its current x and y coordinates and the upper bounds of the x-axis and y-axis. 
+%% The new coordinates will be one grid away from the original coordinates or the same as the original coordinates. 
+%% All coordinates will be larger or equal to 0 and smaller or equal to the upper bound on both the x-axis and the y-axis
+%%
+%% @param X the current coordinate on the x-axis 
+%% @param Y the current coordinate on the y-axis 
+%% @param X_max the upper bound of the x-axis
+%% @param Y_max the upper bound of the Y-axis
+%%
+%% @returns a tuple containing new x and y coordinates
+%%
 -spec new_rand_position(X :: integer(), Y :: integer(), bounds()) -> {integer(),integer()}.
 new_rand_position(X, Y, {X_max, Y_max}) ->
     {X_new, Y_new} = new_position(X, Y, rand:uniform(9)),
     validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
     
+%%
+%% @doc Returns  {X_new, Y_new} if X-new is greater or equal than 0 and smaller or equal to the upper bounds, X_max and Y_max respectively, otherwise it returns {X_old, Y_old} 
+%%
+%% @param X_old the current coordinate on the x-axis 
+%% @param Y_old the current coordinate on the y-axis 
+%% @param X_new the coordinate on the x-axis that is to be validated 
+%% @param Y_new the coordinate on the x-axis that is to be validated
+%% @param X_max the upper bound of the x-axis
+%% @param Y-max the upper bound of the Y-axis
+%%
+%% @returns a tuple with the validated coordinates
+%%
 -spec validate_position(X_old :: integer(), Y_old :: integer(), X_new :: integer(), X_new :: integer(), bounds()) -> {integer(),integer()}.
 validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
     if
