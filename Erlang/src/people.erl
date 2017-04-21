@@ -23,8 +23,10 @@ spawn_people(State, 0, _, _, _) ->
     State;
 
 spawn_people(State, Amount, {X_max, Y_max}, [S | Status],[{X,Y} | Positions]) ->
-    PID = spawn(fun() -> people({S, X, Y}, {X_max,Y_max}) end),
+    Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
+    PID = spawn(fun() -> people({S,X,Y, Direction}, {X_max,Y_max}) end),
     spawn_people(State ++ [{PID, S,X,Y}], Amount-1, {X_max,Y_max}, Status, Positions).
+
 
 %%
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
@@ -38,12 +40,13 @@ spawn_people(State, Amount, {X_max, Y_max}, [S | Status],[{X,Y} | Positions]) ->
 %% @returns done
 %%
 -spec people(person(), Bounds :: bounds()) -> done.
-people({S,X,Y}, Bounds) ->
+people({S,X,Y,Direction}, Bounds) ->
     receive
         ready ->           
-            {X_new, Y_new} = movement:new_rand_position(X,Y,Bounds),           
+            {X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds),          
             master ! {work, {self(), S, X_new, Y_new}},            
-            people({S, X_new, Y_new}, Bounds);  
+            people({S, X_new, Y_new, Direction_new}, Bounds); 
+      
         {infect_people, Probability, Targets} ->
             P = fun (Z) -> if
                                Z =< Probability -> true;
@@ -51,10 +54,10 @@ people({S,X,Y}, Bounds) ->
                            end                           
                 end,
             [PID ! get_infected || P(rand:uniform()) ,PID <- Targets],
-            people({S, X, Y}, Bounds);
+            people({S, X, Y, Direction}, Bounds);
 
         get_infected ->
-            people({1, X, Y}, Bounds);
+            people({1, X, Y, Direction}, Bounds);
 
         stop ->
             done
