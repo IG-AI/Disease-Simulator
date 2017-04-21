@@ -1,11 +1,7 @@
 package Main;
 
 import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
-import javax.imageio.*;
 import com.ericsson.otp.erlang.OtpErlangPid;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
 
@@ -25,9 +21,7 @@ public class GUIsim extends JPanel
 	 * Running the program.
 	 * @param args input from commandline.
 	 */
-	public static void main(String []args)
-		throws InterruptedException, OptErlangRangeExcetion 
-	{
+	public static void main(String []args) throws InterruptedException, OtpErlangRangeException {
 		//Initialize communication between SIMengine and GUIengine
 		JavaErlangCommunication javaErlangCommunicator = new JavaErlangCommunication();
 		//Command for creating bufferedimage of map
