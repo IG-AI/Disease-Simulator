@@ -20,9 +20,11 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_probability] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
+    Nr_of_infected = list_to_integer(S_nr_of_infected),
+    Probability = list_to_integer(S_probability),
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
@@ -41,8 +43,9 @@ start() ->
                     io:format("Map: ~p\n", [Walls]),
                     io:format("Hospital: ~p\n", [Hospital]),
                     Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
-                    State  = people:spawn_people([], Amount, {Width, Height}, Start_positions),  %spawn people processes
-                    master(State, Times, Java_connection_string); %start master
+                    Start_status = utils:generate_start_status(Amount, Nr_of_infected, []),
+                    State  = people:spawn_people([], Amount, {Width, Height}, Start_status, Start_positions),  %spawn people processes
+                    master(State, Times, Java_connection_string, Probability); %start master
 
                 _ ->	% No map information =(
                     false	%just to do something..
@@ -58,30 +61,51 @@ start() ->
 %% @param State the state of the simulation
 %% @param Times The amount of 'ticks' the simulation shall run for
 %% @param Java_connection the information used to send messages to the Java server
+%% @param Posibility the posibility that a process will be infected (between 0 and 1)
 %%
-%% @returns 
+%% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: {[integer()],[integer()]}) -> state().
-master(State, 0, Java_connection) ->
+-spec master(State :: state(), Times :: integer(), Java_connection :: {[integer()],[integer()]}, Probability :: float()) -> state().
+master(State, 0, Java_connection, _) ->
     unregister(master), %remove master from the list of named processes 
-    utils:send_to_all(stop,State), %send ending signal to all proccesses in State
+    utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
+    io:format("Simulation done ~n"),
     State;
 
-master(State, Times, Java_connection) ->     
+master(State, Times, Java_connection, Probability) ->     
     master_call_all(State), %send starting message to all processes in State
     receive
         {result, New_state} ->  
 
 	receive 
             ready_for_positions ->
-                io:format("Got position request...\n"),
-                Java_formatted_state  = [{PID,S,X,Y} || {PID,{S,X,Y}} <- State], %reformat the state to fit the frontend 
-                Java_connection ! {updated_positions, Java_formatted_state}, %send new state to the java server 
-                master(New_state, Times-1, Java_connection)
+                io:format("Got position request...\n"),             
+                Java_connection ! {updated_positions, New_state}, %send new state to the java server 
+                calculate_targets(State, Probability),
+                master(New_state, Times-1, Java_connection, Probability)
         end
             
     end.
+
+
+calculate_targets(State, Probability) ->
+    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 1],
+    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 0],
+    Offset = 3,
+    calculate_targets_aux(Infected, Healthy, Offset, Probability).
+
+calculate_targets_aux([], _, _, _) ->
+    done;
+
+calculate_targets_aux([{PID, _, X, Y} | Infected], Healthy, Offset, Probability) ->
+    Target_list = [PID_target || {PID_target, _, X_target, Y_target} <- Healthy, 
+                                 ((X >= X_target-Offset) andalso (X =< X_target+Offset) andalso (Y >= Y_target-Offset) 
+                                  andalso (Y =< Y_target-Offset))],
+    PID ! {infect_people, Probability, Target_list},
+    calculate_targets_aux(Infected, Healthy, Offset, Probability).
+    
+
 
 %%
 %% @doc Sends a message to each process in State and tells it to uppdate its position. It then waits for a message from each process to ensure that each
