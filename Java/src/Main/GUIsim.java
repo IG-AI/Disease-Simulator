@@ -1,11 +1,12 @@
-package Main;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import com.ericsson.otp.erlang.OtpErlangPid;
-import com.ericsson.otp.erlang.OtpErlangRangeException;
+import java.io.*;
+import java.awt.*;
+import java.awt.image.*;
+import javax.imageio.*;
 
-import Communication.JavaErlangCommunication;
+
 
 
 /**
@@ -21,21 +22,21 @@ public class GUIsim extends JPanel
 	 * Running the program.
 	 * @param args input from commandline.
 	 */
-	public static void main(String []args) throws InterruptedException, OtpErlangRangeException {
-		//Initialize communication between SIMengine and GUIengine
-		JavaErlangCommunication javaErlangCommunicator = new JavaErlangCommunication();
+	public static void main(String []args) throws InterruptedException {
 		//Command for creating bufferedimage of map
-		Background map = new Background(javaErlangCommunicator.getMapName(), winX, winY);
+		Background map = new Background(args[0], winX, winY);
 		JFrame f = new JFrame("Project-Snowfox");
-		f.setContentPane(map);
 		f.setSize(map.getWidth(), map.getHeight());
+		f.getContentPane().add(map);
 		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		f.setUndecorated(false);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		
+		/*
 		ArrayList<Unit> personList = new ArrayList<Unit>();
-		ArrayList unitList = javaErlangCommunicator.receivePos();
+		ArrayList unitList = "Någon array";
 		for(int i = 0; i < unitList.size(); i++) {
 			ArrayList unit = (ArrayList) unitList.get(i);
 			OtpErlangPid PID = (OtpErlangPid) unit.get(0);
@@ -62,5 +63,6 @@ public class GUIsim extends JPanel
 				}
 			}
 		}
+		*/
 	}
 }

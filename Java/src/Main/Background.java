@@ -1,4 +1,3 @@
-package Main;
 
 import javax.swing.*;
 import java.io.*;

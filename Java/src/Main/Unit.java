@@ -1,8 +1,10 @@
-package Main;
 
 import javax.swing.*;
+import java.io.*;
 import java.awt.*;
-import com.ericsson.otp.erlang.OtpErlangPid;
+import java.awt.image.*;
+import javax.imageio.*;
+
 
 /**
  * The Unit class of the program, that will represent the people in the simulation.
@@ -11,7 +13,7 @@ import com.ericsson.otp.erlang.OtpErlangPid;
 
 public class Unit extends JComponent
 {
-	public OtpErlangPid PID;
+	public int PID;
 	public int status;
 	public int x;
 	public int y;
@@ -26,7 +28,7 @@ public class Unit extends JComponent
 	 * @param posx the x-position of the Unit as a int.
 	 * @param posy the y-position of the Unit as a int.
 	 */
-	public Unit(OtpErlangPid pid, int sickness, int posx, int posy) {
+	public Unit(int pid, int sickness, int posx, int posy) {
 		PID = pid;
 		status = sickness;
 		x = posx;
@@ -57,7 +59,7 @@ public class Unit extends JComponent
 	 * Returning the PID of a Unit.
 	 * @return The PID of a Unit as a OtpErlangPid.
 	 */
-	public OtpErlangPid pid()
+	public int pid()
 	{
 		return PID;
 	}
