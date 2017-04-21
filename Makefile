@@ -29,6 +29,8 @@ TICKS?=20 #Default length of the simulation
 ESMALLRUN = $(MAP) $(IND) $(TICKS) $(INF) $(INFC) # ARGS FOR ERLANG
 ETINY = map_zero.bmp 3 20 0 0
 
+
+
 ### SPECIAL RUNS ###
 erun_tiny: epmd_run all
 	$(ERUN) main start $(ESTOP) $(EEXTRA) $(ETINY)
