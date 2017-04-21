@@ -15,6 +15,9 @@ OBJECTS:=$(SOURCES:Erlang/src/%.erl=Erlang/ebin/%.beam)
 mkdir:
 	mkdir -p Erlang/ebin Erlang/doc
 
+epmd_run:
+	Bash/epmd_startup.sh
+
 ### SPECIAL VARS ###
 
 ESMALLRUN = map_one.bmp 5 5 # ARGS FOR ERLANG
@@ -29,7 +32,7 @@ Erlang/ebin/%.beam: Erlang/src/%.erl
 	erlc $(ERLC_FLAGS) -o Erlang/ebin/ $<
 
 ### RUNNING ###
-erun: all
+erun: epmd_run all 
 	$(ERUN) main start $(ESTOP) $(EEXTRA) $(ESMALLRUN)
 
 
