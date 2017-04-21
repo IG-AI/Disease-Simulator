@@ -1,5 +1,5 @@
 -module(utils).
--export([send_to_all/2,wait_fun/3]).
+-export([send_to_all/2, wait_fun/3, generate_start_status/3]).
 
 -include("includes.hrl").
 
@@ -16,7 +16,7 @@
 send_to_all(_, []) ->
     ok;
 
-send_to_all(Msg, [{PID,_} | Elems]) ->
+send_to_all(Msg, [{PID,_,_,_} | Elems]) ->
     PID ! Msg,
     send_to_all(Msg, Elems).  
 
@@ -38,10 +38,30 @@ wait_fun(State, Receiver, 0) ->
 
 wait_fun(State, Receiver, Num) ->
     receive
-       {work, {PID, Value}} ->
-            New_state = lists:keyreplace(PID, 1, State, {PID,Value}),
+       {work, {PID, S, X, Y}} ->
+            New_state = lists:keyreplace(PID, 1, State, {PID, S, X, Y}),
             wait_fun(New_state, Receiver, Num-1)
     end.
+
+%%
+%% @doc Generate Amount number of integers, the first Nr_of_infected are 1 the others are 0
+%%
+%% @param Amount the amount of statuses to be generated
+%% @param Nr_of_infected the amount of infected people to start with
+%% @param Result the list to which the new statuses are to be appended
+%%
+%% @returns Result with the statuses appended to it
+%%
+%-spec generate_start_status(Amount :: non_neg_integer(),Nr_of_infected :: non_neg_integer(), Result :: [0 | 1]) -> [0 | 1].
+generate_start_status(0, _, Result) ->
+    Result;
+
+generate_start_status(Amount,0,Result) ->
+    generate_start_status(Amount-1, 0, [0 | Result]);
+
+generate_start_status(Amount, Nr_of_infected, Result) ->
+    generate_start_status(Amount-1, Nr_of_infected-1, [1 | Result]).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         EUnit Test Cases                                  %%

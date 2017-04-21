@@ -20,8 +20,9 @@ epmd_run:
 
 ### SPECIAL VARS ###
 
-ESMALLRUN = map_one.bmp 5 5 # ARGS FOR ERLANG
+ESMALLRUN = map_one.bmp 5 5 2 1 # ARGS FOR ERLANG
 ETINY = map_zero.bmp 3 20
+
 
 ### SPECIAL RUNS ###
 erun_tiny: epmd_run all

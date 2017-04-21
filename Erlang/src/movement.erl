@@ -4,7 +4,7 @@
 -include("includes.hrl").
 
 %%
-%% @doc Generate Amonunt number of tuples and append them to Result. Each tuple containins a randomly generated x coordinate between 0 and X_max and 
+%% @doc Generates Amonunt number of tuples and append them to Result. Each tuple containins a randomly generated x coordinate between 0 and X_max and 
 %% a randomly generated y coordinate between 0 and Y_max
 %%
 %% @param Amount the amount of positions to be generated
@@ -19,7 +19,10 @@ generate_start_positions(0,_,Result) ->
     Result;
 
 generate_start_positions(Amount, {X_max,Y_max}, Result) ->
-    generate_start_positions(Amount-1, {X_max, Y_max},[{rand:uniform(X_max), rand:uniform(Y_max)} | Result]).
+    X = rand:uniform(X_max),
+    Y = rand:uniform(Y_max),
+    generate_start_positions(Amount-1, {X_max, Y_max},[{X, Y} | Result]).
+
 
 
 
