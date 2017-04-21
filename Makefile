@@ -19,9 +19,15 @@ epmd_run:
 	Bash/epmd_startup.sh
 
 ### SPECIAL VARS ###
+MAP?=map_one.bmp #Default value for map
+IND?=5 #Default number of individuals
+INF?=2 #Default number of infected individuals
+INFC?=1 #Default chanse of infection
+TICKS?=20 #Default length of the simulation
 
-ESMALLRUN = map_one.bmp 5 5 # ARGS FOR ERLANG
-ETINY = map_zero.bmp 3 20
+
+ESMALLRUN = $(MAP) $(IND) $(TICKS) $(INF) $(INFC) # ARGS FOR ERLANG
+ETINY = map_zero.bmp 3 20 0 0
 
 ### SPECIAL RUNS ###
 erun_tiny: epmd_run all
