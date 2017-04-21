@@ -6,32 +6,28 @@ import java.awt.*;
 import java.awt.image.*;
 import javax.imageio.*;
 
-public class Background extends JPanel {
+public class Background extends JComponent {
 
 	public static BufferedImage image;
 	public static String map;
 	public static int windowPosX;
 	public static int windowPosY;
 
-	public Background(String name, int winX, int winY)
-	{
+	public Background(String name, int winX, int winY) {
 		super();
 		map = name;
 		windowPosX = winX;
 		windowPosY = winY;
-		try
-		{
+		try {
 			image = ImageIO.read(new File(map));
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			//Not handlet.			
 		}
 	}
 
 	@Override
-	public void paintComponent(Graphics g)
-	{
+	public void paintComponent(Graphics g) {
 		g.drawImage(image, windowPosX, windowPosY, null);
 	}
+
 }

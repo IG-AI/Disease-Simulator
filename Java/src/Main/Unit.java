@@ -2,6 +2,9 @@ package Main;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+
 import com.ericsson.otp.erlang.OtpErlangPid;
 
 /**
@@ -69,15 +72,17 @@ public class Unit extends JComponent
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		Graphics2D g2d = (Graphics2D) g;
+		Ellipse2D circle = new Ellipse2D.Double(x, y, 25, 25);
 		if(status == 0) {
-			g.setColor(INFECTED);
+			g2d.setColor(INFECTED);
 		}
-		else if(status ==1) {
-			g.setColor(HEALTHY);
+		else if(status == 1) {
+			g2d.setColor(HEALTHY);
 		}
 		else
-			g.setColor(TRANSPARENT);
-		g.fillOval(x,y,5,5);
+			g2d.setColor(TRANSPARENT);
+			g2d.fill(circle);
 	}
 }
 
