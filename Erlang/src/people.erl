@@ -19,8 +19,9 @@ spawn_people(State, 0, _, _) ->
     State;
 
 spawn_people(State, Amount, {X_max, Y_max}, [{X,Y} | Positions]) ->
-    S = 0,  
-    PID = spawn(fun() -> people({S,X,Y}, {X_max,Y_max}) end),
+    S = 0,
+    Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
+    PID = spawn(fun() -> people({S,X,Y, Direction}, {X_max,Y_max}) end),
     spawn_people(State ++ [{PID,{S,X,Y}}], Amount-1, {X_max,Y_max}, Positions).
 
 %%
@@ -35,12 +36,12 @@ spawn_people(State, Amount, {X_max, Y_max}, [{X,Y} | Positions]) ->
 %% @returns done
 %%
 -spec people(person(), Bounds :: bounds()) -> done.
-people({S,X,Y}, Bounds) ->
+people({S,X,Y,Direction}, Bounds) ->
     receive
         ready ->           
-            {X_new, Y_new} = movement:new_rand_position(X,Y,Bounds),           
+            {X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds),
             master ! {work, {self(), {S,X_new,Y_new}}},            
-            people({S, X_new, Y_new}, Bounds);          
+            people({S, X_new, Y_new, Direction_new}, Bounds);          
         stop ->
             done
     end.
