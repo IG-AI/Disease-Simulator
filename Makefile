@@ -24,29 +24,11 @@ all : mkdir $(classes)
 Java/bin/%.class : Java/src/%.java
 	$(JAVAC) $(JPACK) -d Java/bin/ $<
 
-jhr: all
+jrun: all
 	java $(JAVAPACKAGE) Main.GUIsim
 
-jhrt: all
+jrun_test: all
 	$(TESTCMD) $(TESTS)
-
-### FASTER BUT WILL ALWAYS RECOMPILE ###
-jcompile: mkdir sources.txt
-	javac $(JAVAPACKAGE) @Java/sources.txt -d Java/bin
-jcompile_test: mkdir sources_test.txt
-	javac $(JAVATESTPACKAGES) @Java/sources_test.txt -d Java/bin
-
-jrun: jcompile
-	java $(JAVAPACKAGE) Main.GUIsim
-
-jrun_test: jcompile_test
-	$(TESTCMD) $(TESTS)
-
-sources.txt:
-	find Java -name "*.java" > Java/sources.txt
-
-sources_test.txt:
-	find Java -name "*.java" > Java/sources_test.txt
 
 ### DOCUMENTATION ###
 doc:
