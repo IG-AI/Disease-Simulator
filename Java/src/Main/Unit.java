@@ -5,7 +5,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 
-public class Unit extends JPanel
+public class Unit extends JComponent
 {
 	public int PID;
 	public int status;
@@ -41,6 +41,7 @@ public class Unit extends JPanel
 		else {
 			g.setColor(HEALTHY);
 		}
+		
 		g.fillOval(x,y,3,3);
 	}
 }
