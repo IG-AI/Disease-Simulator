@@ -40,8 +40,8 @@ start() ->
                     io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
                     io:format("Map: ~p\n", [Walls]),
                     io:format("Hospital: ~p\n", [Hospital]),
-                    Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
-                    State  = people:spawn_people([], Amount, {Width, Height}, Start_positions),  %spawn people processes
+                    Start_positions = movement:generate_start_positions(Amount, {Width-2 ,Height-2}, []),  %generate starting positions for people processes
+                    State  = people:spawn_people([], Amount, {Width-1, Height-1}, Start_positions),  %spawn people processes
                     master(State, Times, Java_connection_string); %start master
 
                 _ ->	% No map information =(
