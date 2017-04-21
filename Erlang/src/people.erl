@@ -8,13 +8,17 @@
 %%
 %% @param State The current state that you would like to add people to. Will be empty most of the time.
 %% @param Amount The amount of people that you would like to spawn.
-%% @param Bounds a tuple with the maximum X and Y coordinates of the map that the people will be in.
-%% @param Positions a list with starting positions for the people. The positions should be smaller than the X and Y 
-%% coordinates in Bounds and the same length as Amount.
+%% @param X_max the upper bound on the x-axis
+%% @param Y_max the upper bound on the y-axis
+%% @param S the status (healthy = 0 or infected = 1) for the next process to be spawned
+%% @param Status a list with starting statuses for the people. Should be the same length as Amount.
+%% @param X the x-coordinate for the next process to be spawned, must be smaller than X_max and larger than 0
+%% @param Y the y-coordinate for the next process to be spawned, must be smaller than Y_max and larger than 0
+%% @param Positions a list with starting positions for the people. Should be the same length as Amount.
 %% 
 %% @returns A state with Amount number of people with their status set to 0. 
 %%
-%-spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()]) -> state().
+-spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [integer()], [position()]) -> state().
 spawn_people(State, 0, _, _, _) ->
     State;
 

@@ -88,21 +88,46 @@ master(State, Times, Java_connection, Probability) ->
             
     end.
 
-
+%%
+%% @doc Divides State into two lists: one for all the infected process and one for all the healthy processes, 
+%% and then calls calculate_target_aux 
+%%
+%% @param State the state of the simulation
+%% @param Probability the probability that a process will be infected
+%%
+%% @results done
+%%
 calculate_targets(State, Probability) ->
-    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 1],
-    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 0],
-    Offset = 3,
-    calculate_targets_aux(Infected, Healthy, Offset, Probability).
+    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 1], % Put all infected processes into a list
+    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 0], % Put all healthy processes into a list
+    Offset = 3, % The offset, TODO: take as parameter
+    calculate_targets_aux(Infected, Healthy, Offset, Probability),
+    done.
 
+%%
+%% @doc Compares the head of Infected with each process in Healthy and send a message to the infected process
+%%  to infect the healthy processes that are close to it.  
+%%
+%% @param PID the process ID of the current infected process
+%% @param X the x coordinate of the current infected process
+%% @param Y the y coordinate of the current infected process
+%% @param Infected a list of all the infected processes
+%% @param Healthy a list of all the healthy processes
+%% @param Offset an offset uset to calculate the area in which a process can infect others
+%% @param Probability the probability of a process being infected
+%%
+%% @returns done
+%%
 calculate_targets_aux([], _, _, _) ->
     done;
 
 calculate_targets_aux([{PID, _, X, Y} | Infected], Healthy, Offset, Probability) ->
     Target_list = [PID_target || {PID_target, _, X_target, Y_target} <- Healthy, 
-                                 ((X >= X_target-Offset) andalso (X =< X_target+Offset) andalso (Y >= Y_target-Offset) 
-                                  andalso (Y =< Y_target-Offset))],
-    PID ! {infect_people, Probability, Target_list},
+                                 ((X >= X_target-Offset) 
+                                  andalso (X =< X_target+Offset)
+                                  andalso (Y >= Y_target-Offset) 
+                                  andalso (Y =< Y_target-Offset))], % Put all healthy processes that are within three squares into a list
+    PID ! {infect_people, Probability, Target_list}, % Send list to the infected process
     calculate_targets_aux(Infected, Healthy, Offset, Probability).
     
 

@@ -17,7 +17,7 @@ mkdir:
 
 ### SPECIAL VARS ###
 
-ESMALLRUN = map_zero.bmp 5 5 2 1 # ARGS FOR ERLANG
+ESMALLRUN = map_one.bmp 5 5 2 1 # ARGS FOR ERLANG
 
 
 
