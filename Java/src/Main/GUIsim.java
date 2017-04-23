@@ -15,51 +15,52 @@ import javax.imageio.*;
  */
 public class GUIsim extends JPanel
 {
-	private ArrayList<Unit> unitList;
+	private static String mapname;
+	private static JFrame simulation;
+	private static Background background;
+	private static ArrayList<Unit> unitList;
+	public static int xBound;
+	public static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
 
-	public GUIsim(int winW, int winH) {
-		unitList = createUnitGraphics(winW,winH);
-		JPanel panel = new JPanel();
-		for(Unit unit : unitList) {
-			panel.add(unit);
-		}
-		setLayout(new BorderLayout());
-		while(true) {
-			for(Unit person : this.unitList) {
-				person.moveUnit(person.x+1 , person.y+1, person.status);
+	public GUIsim(int winW, int winH) {		
+	}
+
+	public static void runSimulation() throws InterruptedException {
+		int i = 0;
+		while(i < 1000) {
+			Random random = new Random();
+			for(Unit person : background.units) {
+				if(isOutOfBounds(person.x + 1, person.y + 1)) {
+					person.moveUnit(random.nextInt(xBound), random.nextInt(yBound), 1);
+				}
+				else {
+					person.moveUnit(person.x + 1, person.y + 1, random.nextInt(2));
+				}
+				background.validate();
+				background.repaint();
+				Thread.sleep(1);
 			}
-			panel.repaint();
+			++i;
 		}
 	}
 
-	public void paintComponent(Graphics g) {
-		for(Unit unit: unitList) {
-			unit.paintComponent(g);
-		}
+	public static boolean isOutOfBounds(int xpos, int ypos) {
+		if(xpos < 0 || xpos > xBound || ypos < 0 || ypos > yBound)
+			return true;
+		return false;
 	}
-	/**
-	 * Running the program.
-	 * @param args input from commandline.
-	 */
-	public static void main(String []args) throws InterruptedException {
-		//Command for creating bufferedimage of map
-		Background map = new Background(args[0], winX, winY);
-		JFrame f = new JFrame("Project-Snowfox");
-		int winW = map.getXdim();
-		int winH = map.getYdim();
-		f.setSize(winW, winH);
-		f.add(map);
-		//f.add(new GUIsim(winW,winH));
-		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		f.setUndecorated(false);
-		f.setVisible(true);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+	public static void initializeGUI() {
+		background = new Background(mapname, winX, winY);
+		xBound     = background.image.getWidth(null);
+		yBound     = background.image.getHeight(null);
+		createUnitGraphics(xBound, yBound);
 	}
 
-	public ArrayList<Unit> createUnitGraphics(int winW, int winH) {
-		ArrayList<Unit> newUnitList = new ArrayList<Unit>();
+
+	public static void createUnitGraphics(int winW, int winH) {
 		int x,y,sickness,PID;
 		Random random = new Random();
 		for(int i = 0; i < 10; i++) {
@@ -68,9 +69,36 @@ public class GUIsim extends JPanel
 			sickness = 1;
 			PID = 600;
 			Unit person = new Unit(PID, sickness, x, y);
-			person.paint();
-			newUnitList.add(person);
+			background.addUnit(person);
 		}
-		return newUnitList;
+	}
+
+	public static void createAndShowGUI() {
+		initializeGUI();
+		JFrame frame = new JFrame("Project Snowfox");
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.getContentPane().add(background);
+		frame.setSize(background.image.getWidth(null), background.image.getHeight(null));
+		frame.setVisible(true);
+	}
+
+	/**
+	 * Running the program.
+	 * @param args input from commandline.
+	 */
+	public static void runBackground() {
+		background = new Background(mapname, winX, winY);
+		JFrame frame = new JFrame("");
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.getContentPane().add(background);
+		frame.setSize(background.image.getWidth(null),background.image.getHeight(null));
+		frame.setVisible(true);
+	}
+	
+	public static void main(String []args) throws InterruptedException {
+		//Command for creating bufferedimage of map
+		mapname = args[0];
+		createAndShowGUI();
+		runSimulation();
 	}
 }

@@ -19,7 +19,7 @@ public class Unit extends JComponent
 	public int y;
 	public static final Color INFECTED = Color.RED;
 	public static final Color HEALTHY  = Color.GREEN;
-	public static final Color TRANSPARENT = new Color(255,255,255,255);
+	public static final Color ERROR = Color.BLUE;
 
 	/**
 	 * Constructor for a Unit.
@@ -76,8 +76,9 @@ public class Unit extends JComponent
 		else if(status ==1) {
 			g.setColor(HEALTHY);
 		}
-		else
-			g.setColor(TRANSPARENT);
+		else {
+			g.setColor(ERROR);
+		}
 		g.fillOval(x,y,5,5);
 	}
 }
