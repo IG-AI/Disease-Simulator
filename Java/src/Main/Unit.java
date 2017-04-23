@@ -52,7 +52,6 @@ public class Unit extends JComponent
 		status = sickness;
 		x = newx;
 		y = newy;
-		repaint();
 	}
 
 	/**

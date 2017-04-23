@@ -1,4 +1,4 @@
-
+import java.util.Random;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.io.*;
@@ -15,9 +15,30 @@ import javax.imageio.*;
  */
 public class GUIsim extends JPanel
 {
+	private ArrayList<Unit> unitList;
 	public static final int winX = 0;
 	public static final int winY = 0;
 
+	public GUIsim(int winW, int winH) {
+		unitList = createUnitGraphics(winW,winH);
+		JPanel panel = new JPanel();
+		for(Unit unit : unitList) {
+			panel.add(unit);
+		}
+		setLayout(new BorderLayout());
+		while(true) {
+			for(Unit person : this.unitList) {
+				person.moveUnit(person.x+1 , person.y+1, person.status);
+			}
+			panel.repaint();
+		}
+	}
+
+	public void paintComponent(Graphics g) {
+		for(Unit unit: unitList) {
+			unit.paintComponent(g);
+		}
+	}
 	/**
 	 * Running the program.
 	 * @param args input from commandline.
@@ -26,43 +47,30 @@ public class GUIsim extends JPanel
 		//Command for creating bufferedimage of map
 		Background map = new Background(args[0], winX, winY);
 		JFrame f = new JFrame("Project-Snowfox");
-		f.setSize(map.getWidth(), map.getHeight());
-		f.getContentPane().add(map);
+		int winW = map.getXdim();
+		int winH = map.getYdim();
+		f.setSize(winW, winH);
+		f.add(map);
+		//f.add(new GUIsim(winW,winH));
 		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		f.setUndecorated(false);
 		f.setVisible(true);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
 
-		
-		/*
-		ArrayList<Unit> personList = new ArrayList<Unit>();
-		ArrayList unitList = "Någon array";
-		for(int i = 0; i < unitList.size(); i++) {
-			ArrayList unit = (ArrayList) unitList.get(i);
-			OtpErlangPid PID = (OtpErlangPid) unit.get(0);
-			int sickness = (Integer) unit.get(1);
-			int x = (Integer) unit.get(2);
-			int y = (Integer) unit.get(3);
+	public ArrayList<Unit> createUnitGraphics(int winW, int winH) {
+		ArrayList<Unit> newUnitList = new ArrayList<Unit>();
+		int x,y,sickness,PID;
+		Random random = new Random();
+		for(int i = 0; i < 10; i++) {
+			x = random.nextInt(winW);
+			y = random.nextInt(winH);
+			sickness = 1;
+			PID = 600;
 			Unit person = new Unit(PID, sickness, x, y);
 			person.paint();
-			personList.add(person);
+			newUnitList.add(person);
 		}
-
-		while (true) {
-			unitList = javaErlangCommunicator.receivePos();
-			if (unitList == null) {
-				break;
-			}
-			for(Unit person : personList) {
-				for (int i = 0; i < unitList.size(); i++) {
-					ArrayList unit = (ArrayList) unitList.get(i);
-					int sickness = (Integer) unit.get(1);
-					int x = (Integer) unit.get(2);
-					int y = (Integer) unit.get(3);
-					person.moveUnit(x, y, sickness);
-				}
-			}
-		}
-		*/
+		return newUnitList;
 	}
 }

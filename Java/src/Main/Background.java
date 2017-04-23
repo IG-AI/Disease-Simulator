@@ -28,9 +28,18 @@ public class Background extends JPanel {
 		}
 	}
 
+	public int getXdim() {
+		return image.getWidth();
+	}
+	
+	public int getYdim() {
+		return image.getHeight();
+	}
+
 	@Override
 	public void paintComponent(Graphics g)
 	{
 		g.drawImage(image, windowPosX, windowPosY, null);
+		repaint();
 	}
 }
