@@ -21,13 +21,14 @@ epmd_run:
 ### SPECIAL VARS ###
 MAP?=map_one.bmp #Default value for map
 IND?=5 #Default number of individuals
-INF?=2 #Default number of infected individuals
-INFC?=1 #Default chanse of infection
 TICKS?=20 #Default length of the simulation
-MORT?=5 
+INF?=2 #Default number of infected individuals
+RANGE? = 3 #Default radius for the range in which processes can be infected
+PROB?=1 #Default chanse of infection
+MORT?=5 #Default nummber of ticks 
 
-ESMALLRUN = $(MAP) $(IND) $(TICKS) $(INF) $(INFC) $(MORT)# ARGS FOR ERLANG
-ETINY = map_zero.bmp 3 20 0 0 50
+ESMALLRUN = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(MORT)# ARGS FOR ERLANG
+ETINY = map_zero.bmp 3 20 0 3 0 50
 
 
 
