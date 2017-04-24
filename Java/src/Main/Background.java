@@ -15,17 +15,6 @@ public class Background extends JPanel {
 	public Background(String name, int winX, int winY)
 	{
 		super();
-		map = name;
-		windowPosX = winX;
-		windowPosY = winY;
-		try
-		{
-			image = ImageIO.read(new File(map));
-		}
-		catch(IOException e)
-		{
-			//Not handled.
-		}
 	}
 
 	public void addUnit(Unit unit) {

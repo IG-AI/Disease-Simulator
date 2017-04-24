@@ -10,13 +10,8 @@ import com.ericsson.opt.erlang.OptErlangPid;
 import Communication.JavaErlangCommunication;
 
 
-/**
- * The main class that will start and drive the program.
- * @author Project Snowfox
- */
 public class GUIsim extends JPanel
 {
-	private static String mapname;
 	private static JFrame simulation;
 	private static Background background;
 	private static ArrayList<Unit> unitList;
@@ -28,8 +23,15 @@ public class GUIsim extends JPanel
 	public GUIsim(int winW, int winH) {		
 	}
 
+
+	/**
+	 * Running the program.
+	 * @param args input from commandline.
+	 */
 	public static void runSimulation() throws InterruptedException {
 		createUnitGraphics();
+		background.validate();
+		background.repaint();
 		while(true) {
 			ArrayList erlangList = javaErlangCommunicator.recievePos();
 			if(erlangList == null) {
@@ -48,7 +50,8 @@ public class GUIsim extends JPanel
 	}
 		
 	public static void initializeGUI() {
-		background = new Background(mapname, winX, winY);
+		backgroud  = new Background();
+		background.image = javaErlangCommunicator.getMapImage();
 		xBound     = background.image.getWidth(null);
 		yBound     = background.image.getHeight(null);
 		createUnitGraphics();
@@ -96,14 +99,12 @@ public class GUIsim extends JPanel
 		frame.setVisible(true);
 	}
 
-	/**
-	 * Running the program.
-	 * @param args input from commandline.
-	 */
-
+ /**
+ * The main class that will start and drive the program.
+ * @author Project Snowfox
+ */
 	public static void main(String []args) throws InterruptedException, OtpErlangRangeException {
 		//Command for creating bufferedimage of map
-		mapname = args[0];
 		createAndShowGUI();
 		runSimulation();
 	}

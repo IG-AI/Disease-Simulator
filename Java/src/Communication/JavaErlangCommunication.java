@@ -2,6 +2,8 @@ package Communication;
 
 import com.ericsson.otp.erlang.*;
 import java.util.*;
+import java.awt.*;
+import java.awt.image.*;
 
 /**
  * Provides functionality for connecting to an Erlang process
@@ -14,6 +16,7 @@ public class JavaErlangCommunication {
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
     private String mapName = null;
+		private MapParser map = null;
 
     /**
      * Create the communication object.
@@ -79,7 +82,7 @@ public class JavaErlangCommunication {
                     System.out.println("Requested map: "+requested_map);
 
                     //Create a new map object of the wanted map
-                    MapParser map = new MapParser(mapName);
+                    map = new MapParser(mapName);
 
                     //Get some information about the map
                     OtpErlangInt map_height = new OtpErlangInt(map.get_height());
@@ -205,4 +208,8 @@ public class JavaErlangCommunication {
     public String getMapName() {
         return mapName;
     }
+
+		private Image getMapImage(){
+			return map.get_map();
+		}
 }
