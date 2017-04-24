@@ -150,7 +150,7 @@ public class JavaErlangCommunication {
      * @return false or an ArrayList containing several ArrayLists. These in turn
      * consist of [IndividualPid :: OtpErlangPid, Sickness :: int, X-coord :: int, Y-coord :: int]
      */
-    public ArrayList receivePos() throws OtpErlangRangeException {
+    public ArrayList recievePos() throws OtpErlangRangeException {
         System.out.println("Waiting for positions");
         OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
         myOtpMbox.send(erlangPid, message); //tell Erlang we're ready for new positions
@@ -208,8 +208,8 @@ public class JavaErlangCommunication {
     public String getMapName() {
         return mapName;
     }
-
-		private Image getMapImage(){
-			return map.get_map();
-		}
+    
+    public Image getMapImage(){
+	return map.get_map();
+    }
 }

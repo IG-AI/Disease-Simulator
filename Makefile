@@ -1,22 +1,50 @@
-
 # Shamelessly stolen from Karl Marklund
+
+### ERLANG ###
 ESTOP = -s init stop
 ERUN = erl -noshell -pa Erlang/ebin -run
 EEXTRA = -extra
 ERLC_FLAGS=-Wall +debug_info
-SOURCES=$(wildcard Erlang/src/*.erl)
-HEADERS=$(wildcard Erlang/src/*.hrl)
-OBJECTS:=$(SOURCES:Erlang/src/%.erl=Erlang/ebin/%.beam)
+ERLANG_SOURCES=$(wildcard Erlang/src/*.erl)
+ERLANG_HEADERS=$(wildcard Erlang/src/*.hrl)
+ERLANG_OBJECTS:=$(ERLANG_SOURCES:Erlang/src/%.erl=Erlang/ebin/%.beam)
+
+### JAVA ###
+JPACK = -cp .:Java/lib/OtpErlang.jar:Java/bin:Java/src
+JAVAPACKAGE = -cp .:Java/lib/OtpErlang.jar:Java/bin
+JAVATESTPACKAGES = -cp .:Java/lib/junit-4.12.jar:Java/lib/OtpErlang.jar
+#TEST#
+TESTSRC = $(shell find src/test -name "*.java" -printf "test.%f ")
+TESTS = $(subst .java,,$(TESTSRC))
+TESTCMD = java -cp ./Java:Java/bin:./Java/lib/junit-4.12.jar:./Java/lib/hamcrest-core-1.3.jar org.junit.runner.JUnitCore
+###
+JAVAC = javac
+JAVA_SOURCES = $(wildcard Java/src/*/*.java)
+JAVA_CLASSES = $(JAVA_SOURCES:Java/src/%.java=Java/bin/%.class)
 
 ### SPECIAL FLAGS ###
 
 .PHONY: doc doc_url skeleton coverage clean
 
 mkdir:
-	mkdir -p Erlang/ebin Erlang/doc
+	@mkdir -p Erlang/ebin Erlang/doc
+	@mkdir -p Java/bin Java/doc
 
 epmd_run:
 	Bash/epmd_startup.sh
+
+
+### JAVA ###
+Java/bin/%.class : Java/src/%.java
+	$(JAVAC) $(JPACK) -d Java/bin/ $<
+
+jrun: all
+	java $(JAVAPACKAGE) Main.GUIsim
+
+jrun_test: all
+	$(TESTCMD) $(TESTS)
+
+
 
 ### SPECIAL VARS ###
 MAP?=map_one.bmp #Default value for map
@@ -37,7 +65,7 @@ erun_tiny: epmd_run all
 
 ### COMPILATION ###
 
-all: mkdir $(OBJECTS)
+all: mkdir $(ERLANG_OBJECTS) $(JAVA_CLASSES)
 
 Erlang/ebin/%.beam: Erlang/src/%.erl 
 	erlc $(ERLC_FLAGS) -o Erlang/ebin/ $<
@@ -51,18 +79,23 @@ erun: epmd_run all
 clean:
 	rm -Rf Erlang/ebin/*
 	rm -Rf Erlang/src/*.beam
-	rm -Rf Erlang/doc/*.html
+	rm -rf Java/bin/*
 
+clean_doc:
+	rm -rf Java/doc/*
+	rm -rf Erlang/doc/*
 
 ### DOCUMENTATION ###
-doc: 
+edoc: 
 	erl -noshell -run edoc_run application "'$(APPNAME)'"  '"./Erlang/"' '[{def,{vsn,"$(VSN)"}}, {stylesheet, "my_style.css"}]'
 
-doc_url:
+edoc_url:
 	@echo 
 	@echo "EDoc index page available at file://$(PWD)/Erlang/doc/index.html"
 	@echo
 
+jdoc:
+	find ./Java/src/ -name "*.java" | xargs javadoc -d Java/doc -classpath Java/lib/OtpErlang.jar -sourcepath Java/src/ 
 
 
 ### EUnit ###

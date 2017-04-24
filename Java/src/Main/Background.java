@@ -1,3 +1,5 @@
+package Main;
+
 import java.util.ArrayList;
 import javax.swing.*;
 import java.io.*;
@@ -7,12 +9,11 @@ import javax.imageio.*;
 
 public class Background extends JPanel {
 	public static Image image;
-	public static String map;
 	public static int windowPosX;
 	public static int windowPosY;
 	public ArrayList<Unit> units = new ArrayList<>();
 
-	public Background(String name, int winX, int winY)
+	public Background(int winX, int winY)
 	{
 		super();
 	}
@@ -23,7 +24,8 @@ public class Background extends JPanel {
 	}
 
 	public void setUnitList(ArrayList<Unit> unitList) {
-		units = unitList;
+	    units = null;
+	    units = unitList;
 	}
 
 	@Override
@@ -36,4 +38,8 @@ public class Background extends JPanel {
 			}
 		}
 	}
+    @Override
+    public Dimension getPreferredSize() {
+	return (new Dimension(image.getWidth(null), image.getHeight(null)));
+    }
 }

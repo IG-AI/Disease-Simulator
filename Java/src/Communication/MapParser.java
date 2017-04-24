@@ -1,7 +1,7 @@
 package Communication;
 
-
 import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +24,7 @@ public class MapParser {
     Map<Integer, ArrayList> hospital = new HashMap<Integer, ArrayList>();
     int width;
     int height;
+    Image img;
 
     /**
      * Constructor to parse the provided map.
@@ -34,7 +35,7 @@ public class MapParser {
         //Open image (the map)
         File file = new File(map);
         BufferedImage image = ImageIO.read(file);
-
+        this.img = ImageIO.read(file);
         //Get height and width of the image
         width = image.getWidth();
         height = image.getHeight();
@@ -150,5 +151,9 @@ public class MapParser {
      */
     public int get_width(){
         return width;
+    }
+
+    public Image get_map(){
+        return img;
     }
 }
