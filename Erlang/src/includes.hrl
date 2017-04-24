@@ -1,5 +1,7 @@
 %% Includes %%
 
+-define(HEALTHY,0).
+-define(INFECTED,1).
 %% @type person(). The persons in the simulation.
 -type person() :: {status(),position(),direction()}.
 %% @type state(). The state of the simulation. 

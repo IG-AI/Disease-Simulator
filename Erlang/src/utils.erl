@@ -23,7 +23,7 @@ send_to_all(Msg, [{PID,_,_,_} | Elems]) ->
 %%
 %% @doc Loops until it have received Num number of 'work' messages. Each message reveived contains a tuple with a PID 
 %% and a Value. The element in State that have the corresponding PID will be replaced with the tuple received in the 
-%% message. Once Num messages have been reveived the State will be sent to Receiver.  
+%% message. Once Num messages have been reveived the State will be sent to Receiver. 
 %%
 %% @param State the state of the simulation
 %% @param Receiver the PID of the process that the State will be sent to once all messages have been received
@@ -38,8 +38,12 @@ wait_fun(State, Receiver, 0) ->
 
 wait_fun(State, Receiver, Num) ->
     receive
-       {work, {PID, S, X, Y}} ->
-            New_state = lists:keyreplace(PID, 1, State, {PID, S, X, Y}),
+        {work,{PID, _, _, _}, 0} -> %If the Life of the process is 0 a stop message is sent to the process
+            PID ! stop,
+            New_state = lists:delete(PID, 1, State), %remove the process from State
+            wait_fun(New_state, Receiver, Num-1);
+        {work, {PID, S, X, Y},_} ->
+            New_state = lists:keyreplace(PID, 1, State, {PID, S, X, Y}), 
             wait_fun(New_state, Receiver, Num-1)
     end.
 
@@ -57,10 +61,10 @@ generate_start_status(0, _, Result) ->
     Result;
 
 generate_start_status(Amount,0,Result) ->
-    generate_start_status(Amount-1, 0, [0 | Result]);
+    generate_start_status(Amount-1, 0, [?HEALTHY | Result]);
 
 generate_start_status(Amount, Nr_of_infected, Result) ->
-    generate_start_status(Amount-1, Nr_of_infected-1, [1 | Result]).
+    generate_start_status(Amount-1, Nr_of_infected-1, [?INFECTED | Result]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

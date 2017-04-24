@@ -20,11 +20,12 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_probability] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_probability, S_life] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
     Probability = list_to_integer(S_probability),
+    Life = list_to_integer(S_life),
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
@@ -45,7 +46,7 @@ start() ->
 
                     Start_positions = movement:generate_start_positions(Amount, {Width-2 ,Height-2}, []),  %generate starting positions for people processes
                     Start_status = utils:generate_start_status(Amount, Nr_of_infected, []), %generate starting statuses for people processes
-                    State  = people:spawn_people([], Amount, {Width-1, Height-1}, Start_status, Start_positions),  %spawn people processes
+                    State  = people:spawn_people([], Amount, {Width-1, Height-1}, Start_status, Start_positions, Life),  %spawn people processes
                     master(State, Times, Java_connection_string, Probability); %start master
 
 
@@ -100,8 +101,8 @@ master(State, Times, Java_connection, Probability) ->
 %% @results done
 %%
 calculate_targets(State, Probability) ->
-    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 1], % Put all infected processes into a list
-    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= 0], % Put all healthy processes into a list
+    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?INFECTED], % Put all infected processes into a list
+    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?HEALTHY], % Put all healthy processes into a list
     Offset = 3, % The offset, TODO: take as parameter
     calculate_targets_aux(Infected, Healthy, Offset, Probability),
     done.
