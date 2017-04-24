@@ -14,7 +14,7 @@
 %% @returns a tuple containing the width of the Map, the heigth of the Map, a map of 'wallpixels' and a map of 'hospitalpixels' 
 %% if a Map was received, false otherwise   
 %%
--spec get_map({Java_connection :: [integer()],[integer()]}, Map :: [integer()]) -> {integer(),integer(),map(),map()} | false.
+-spec get_map(Java_connection :: java_connection(), Map :: [integer()]) -> {integer(),integer(),map(),map()} | false.
 get_map(Java_connection, Map) ->
     % Use provided connection to ask the server for information
     % regarding the specified map.

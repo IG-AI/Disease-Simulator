@@ -12,7 +12,7 @@
 %%
 %% @returns true if the map information was received, false otherwise
 %%
--spec start() -> ok.
+-spec start() -> no_return().
 start() -> 
   
     % Setting the java servers' information
@@ -70,13 +70,12 @@ start() ->
 %%
 %% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: {[integer()],[integer()]}, Range :: non_neg_integer(), Probability :: float()) -> state().
+-spec master(State :: state(), Times :: integer(), Java_connection :: java_connection(), Range :: non_neg_integer(), Probability :: float()) -> no_return().
 master(State, 0, Java_connection, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
-    io:format("Simulation done ~n"),
-    State;
+    io:format("Simulation done ~n");
 
 master(State, Times, Java_connection, Range, Probability) ->     
     master_call_all(State), %send starting message to all processes in State
