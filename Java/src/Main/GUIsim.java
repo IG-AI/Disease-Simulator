@@ -5,8 +5,9 @@ import java.io.*;
 import java.awt.*;
 import java.awt.image.*;
 import javax.imageio.*;
-
-
+import com.ericsson.opt.erlang.OptErlangRangeExcetion;
+import com.ericsson.opt.erlang.OptErlangPid;
+import Communication.JavaErlangCommunication;
 
 
 /**
@@ -28,21 +29,15 @@ public class GUIsim extends JPanel
 	}
 
 	public static void runSimulation() throws InterruptedException {
-		int i = 0;
-		while(i < 1000) {
-			Random random = new Random();
-			for(Unit person : background.units) {
-				if(isOutOfBounds(person.x + 1, person.y + 1)) {
-					person.moveUnit(random.nextInt(xBound), random.nextInt(yBound), 1);
-				}
-				else {
-					person.moveUnit(person.x + 1, person.y + 1, random.nextInt(2));
-				}
-				background.validate();
-				background.repaint();
-				Thread.sleep(1);
+		createUnitGraphics();
+		while(true) {
+			ArrayList erlangList = javaErlangCommunicator.recievePos();
+			if(erlangList == null) {
+				break;
 			}
-			++i;
+			updateUnitGraphics(erlangList);
+			background.validate();
+			background.repaint();
 		}
 	}
 
@@ -56,21 +51,40 @@ public class GUIsim extends JPanel
 		background = new Background(mapname, winX, winY);
 		xBound     = background.image.getWidth(null);
 		yBound     = background.image.getHeight(null);
-		createUnitGraphics(xBound, yBound);
+		createUnitGraphics();
 	}
 
 
-	public static void createUnitGraphics(int winW, int winH) {
+	public static void createUnitGraphics() {
 		int x,y,sickness,PID;
-		Random random = new Random();
-		for(int i = 0; i < 10; i++) {
-			x = random.nextInt(winW);
-			y = random.nextInt(winH);
-			sickness = 1;
-			PID = 600;
+		while(erlangList != null) {
+			ArrayList erlangList = javaErlangCommunicator.recievePos();
+			//Wait for communication.
+		}
+		for(int i = 0; i < erlangList.size(); i++) {
+			ArrayList unit = (ArrayList) erlangList.get(i);
+			y = (Integer) unit.get(3);
+			x = (Integer) unit.get(2);
+			sickness = (Integer) unit.get(1);
+			PID = (OptErlangPid) unit.get(0);
 			Unit person = new Unit(PID, sickness, x, y);
 			background.addUnit(person);
 		}
+	}
+
+	public static void updateUnitGraphics(ArrayList erlangList) {
+		int x,y,sickness,PID;
+		ArrayList<Unit> updateList;
+		for(int i = 0; i < erlangList.size(); i++) {
+			ArrayList unit = (ArrayList) erlangList.get(i);
+			y = (Integer) unit.get(3);
+			x = (Integer) unit.get(2);
+			sickness = (Integer) unit.get(1);
+			PID = (OptErlangPid) unit.get(0);
+			Unit person = new Unit(PID, sickness, x, y);
+			updateList.add(person);
+		}
+		background.setUnitList(updateList);
 	}
 
 	public static void createAndShowGUI() {
@@ -86,16 +100,8 @@ public class GUIsim extends JPanel
 	 * Running the program.
 	 * @param args input from commandline.
 	 */
-	public static void runBackground() {
-		background = new Background(mapname, winX, winY);
-		JFrame frame = new JFrame("");
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.getContentPane().add(background);
-		frame.setSize(background.image.getWidth(null),background.image.getHeight(null));
-		frame.setVisible(true);
-	}
-	
-	public static void main(String []args) throws InterruptedException {
+
+	public static void main(String []args) throws InterruptedException, OtpErlangRangeException {
 		//Command for creating bufferedimage of map
 		mapname = args[0];
 		createAndShowGUI();

@@ -70,10 +70,10 @@ public class Unit extends JComponent
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if(status == 0) {
+		if(status == 1) {
 			g.setColor(INFECTED);
 		}
-		else if(status ==1) {
+		else if(status == 0) {
 			g.setColor(HEALTHY);
 		}
 		else {
