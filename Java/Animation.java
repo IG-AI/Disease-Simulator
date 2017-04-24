@@ -26,7 +26,11 @@ public class Animation extends JPanel {
         int radius = indSize;
         individuals = new ArrayList<Individual>();
         for(int i = 0; i < indNum; i++){
-            individuals.add(new Individual(radius, Color.GREEN, world));
+	    if(((i % 99) == 0) && (i != 0)){
+		individuals.add(new Individual(radius, Color.RED, world));
+	    }else{
+		individuals.add(new Individual(radius, Color.GREEN, world));
+	    }
         }
    
         //get canvas to draw on

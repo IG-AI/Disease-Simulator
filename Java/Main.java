@@ -5,7 +5,7 @@ public class Main {
          public void run() {
             JFrame frame = new JFrame("Test");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(new Animation(30, 5, "map_one.bmp"));
+            frame.setContentPane(new Animation(100, 5, "map_one.bmp"));
             frame.pack();
             frame.setVisible(true);
          }
