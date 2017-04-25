@@ -1,4 +1,4 @@
-# Project-snowfox
+# Project-Snowfox
 
 ### Authors:
 | Name | E-mail |
