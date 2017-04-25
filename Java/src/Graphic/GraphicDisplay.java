@@ -17,7 +17,7 @@ public class GraphicDisplay extends JPanel
 {
     private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
 	private static JFrame simulation;
-	private static ImageComponents imageComponents = null;
+	private static ImageComponents imageComponent = null;
 	private static ArrayList<Unit> unitList;
 	public static int xBound;
 	public static int yBound;
@@ -39,8 +39,8 @@ public class GraphicDisplay extends JPanel
 	 */
     public static void runSimulation() throws InterruptedException, OtpErlangRangeException {
 		createUnitGraphics();
-		imageComponents.validate();
-		imageComponents.repaint();
+		imageComponent.validate();
+		imageComponent.repaint();
 		long startTime, stopTime, finishedTime, sleep, zero, second;
 		zero = 0;
 		second = 1000;
@@ -52,8 +52,8 @@ public class GraphicDisplay extends JPanel
 				break;
 			}
 			updateUnitGraphics(erlangList);
-			imageComponents.validate();
-			imageComponents.repaint();
+			imageComponent.validate();
+			imageComponent.repaint();
 			stopTime = System.currentTimeMillis();
 			finishedTime = stopTime - startTime;
 			sleep = Math.max(((second/frequency)-finishedTime), zero);
@@ -78,13 +78,13 @@ public class GraphicDisplay extends JPanel
  	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void initializeGUI() throws OtpErlangRangeException {
-	    while(imageComponents == null){
-		imageComponents = new ImageComponents(winX, winY);
+	    while(imageComponent == null){
+		imageComponent = new ImageComponents(winX, winY);
 	    }
-	    imageComponents.setImage(javaErlangCommunicator.getMapImage());
-	    xBound     = imageComponents.getWidth();
-	    yBound     = imageComponents.getHeight();
-	    imageComponents.setSize(xBound,yBound);
+	    imageComponent.setImage(javaErlangCommunicator.getMapImage());
+	    xBound     = imageComponent.getWidth();
+	    yBound     = imageComponent.getHeight();
+	    imageComponent.setSize(xBound, yBound);
 	    createUnitGraphics();
 	}
 
@@ -108,7 +108,7 @@ public class GraphicDisplay extends JPanel
 			sickness = (Integer) unit.get(1);
 			PID = (OtpErlangPid) unit.get(0);
 			Unit person = new Unit(PID, sickness, x, y);
-			imageComponents.addUnit(person);
+			imageComponent.addUnit(person);
 		}
 	}
 
@@ -131,7 +131,7 @@ public class GraphicDisplay extends JPanel
 			Unit person = new Unit(PID, sickness, x, y);
 			updateList.add(person);
 		}
-		imageComponents.setUnitList(updateList);
+		imageComponent.setUnitList(updateList);
 	}
 
 
@@ -143,7 +143,7 @@ public class GraphicDisplay extends JPanel
 		initializeGUI();
 		JFrame frame = new JFrame("Project Snowfox");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.getContentPane().add(imageComponents);
+		frame.getContentPane().add(imageComponent);
 		//frame.setSize(xBound, yBound);
 		frame.pack();
 		frame.setVisible(true);
