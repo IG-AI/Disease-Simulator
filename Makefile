@@ -39,7 +39,7 @@ Java/bin/%.class : Java/src/%.java
 	$(JAVAC) $(JPACK) -d Java/bin/ $<
 
 jrun: all
-	java $(JAVAPACKAGE) Main.GUIsim
+	java $(JAVAPACKAGE) Main.Main
 
 jrun_test: all
 	$(TESTCMD) $(TESTS)

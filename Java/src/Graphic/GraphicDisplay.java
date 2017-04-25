@@ -1,44 +1,46 @@
-package Main;
+package Graphic;
 
-import java.util.Random;
 import javax.swing.*;
 import java.util.ArrayList;
-import java.io.*;
-import java.awt.*;
-import java.awt.image.*;
-import javax.imageio.*;
-//import com.ericsson.otp.erlang.OptErlangRangeException;
-//import com.ericsson.otp.erlang.OptErlangPid;
 import com.ericsson.otp.erlang.*;
-import Communication.JavaErlangCommunication;
 import java.lang.System;
-import java.lang.Math.*;
 
+import Main.Main;
+import Communication.JavaErlangCommunication;
 
-public class GUIsim extends JPanel
+/**
+ * The GraphicDisplay class of the program, the will draw the graphics.
+ * @author Project Snowfox
+ */
+
+public class GraphicDisplay extends JPanel
 {
-    private static JavaErlangCommunication javaErlangCommunicator = null;
+    private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
 	private static JFrame simulation;
-	private static Background background = null;
+	private static ImageComponents imageComponents = null;
 	private static ArrayList<Unit> unitList;
 	public static int xBound;
 	public static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
     private static long frequency = 10;
-    
-	public GUIsim(int winW, int winH) {		
+
+	/**
+	 * Constructor for the GraphicDisplay class.
+	 */
+	public GraphicDisplay() {
 	}
 
 
 	/**
-	 * Running the program.
-	 * @param args input from commandline.
+	 * Start running the simulation.
+	 * @throws InterruptedException thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
+	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
     public static void runSimulation() throws InterruptedException, OtpErlangRangeException {
 		createUnitGraphics();
-		background.validate();
-		background.repaint();
+		imageComponents.validate();
+		imageComponents.repaint();
 		long startTime, stopTime, finishedTime, sleep, zero, second;
 		zero = 0;
 		second = 1000;
@@ -50,8 +52,8 @@ public class GUIsim extends JPanel
 				break;
 			}
 			updateUnitGraphics(erlangList);
-			background.validate();
-			background.repaint();
+			imageComponents.validate();
+			imageComponents.repaint();
 			stopTime = System.currentTimeMillis();
 			finishedTime = stopTime - startTime;
 			sleep = Math.max(((second/frequency)-finishedTime), zero);
@@ -59,24 +61,38 @@ public class GUIsim extends JPanel
 		}
 	}
 
+
+	/**
+	 * Checks if a coordination is out of bound.
+	 * @param xpos x-position as a int.
+	 * @param ypos y-position as a int.
+	 * @return true if the coordination is out of bounds, otherwise returns false.
+	 */
 	public static boolean isOutOfBounds(int xpos, int ypos) {
-		if(xpos < 0 || xpos > xBound || ypos < 0 || ypos > yBound)
-			return true;
-		return false;
+		return xpos < 0 || xpos > xBound || ypos < 0 || ypos > yBound;
 	}
-		
+
+
+	/**
+	 * Starting the GUI.
+ 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+	 */
 	public static void initializeGUI() throws OtpErlangRangeException {
-	    while(background == null){
-		background = new Background(winX, winY);
+	    while(imageComponents == null){
+		imageComponents = new ImageComponents(winX, winY);
 	    }
-	    background.image = javaErlangCommunicator.getMapImage();
-	    xBound     = background.image.getWidth(null);
-	    yBound     = background.image.getHeight(null);
-	    background.setSize(xBound,yBound);
+	    imageComponents.setImage(javaErlangCommunicator.getMapImage());
+	    xBound     = imageComponents.getWidth();
+	    yBound     = imageComponents.getHeight();
+	    imageComponents.setSize(xBound,yBound);
 	    createUnitGraphics();
 	}
 
 
+	/**
+	 * Creates the Units for the simulation.
+	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+	 */
 	public static void createUnitGraphics() throws OtpErlangRangeException {
 	    int x,y,sickness;
 	    OtpErlangPid PID;
@@ -92,10 +108,16 @@ public class GUIsim extends JPanel
 			sickness = (Integer) unit.get(1);
 			PID = (OtpErlangPid) unit.get(0);
 			Unit person = new Unit(PID, sickness, x, y);
-			background.addUnit(person);
+			imageComponents.addUnit(person);
 		}
 	}
 
+
+	/**
+	 * Updating the unitList position and status.
+	 * @param erlangList a list with a Units' position, status and PID.
+	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+	 */
 	public static void updateUnitGraphics(ArrayList erlangList) throws OtpErlangRangeException {
 	    int x,y,sickness;
 	    OtpErlangPid PID;
@@ -109,27 +131,21 @@ public class GUIsim extends JPanel
 			Unit person = new Unit(PID, sickness, x, y);
 			updateList.add(person);
 		}
-		background.setUnitList(updateList);
+		imageComponents.setUnitList(updateList);
 	}
 
+
+	/**
+	 * Displaying the GUI.
+	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+	 */
 	public static void createAndShowGUI() throws OtpErlangRangeException {
 		initializeGUI();
 		JFrame frame = new JFrame("Project Snowfox");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.getContentPane().add(background);
+		frame.getContentPane().add(imageComponents);
 		//frame.setSize(xBound, yBound);
 		frame.pack();
 		frame.setVisible(true);
-	}
-
- /**
- * The main class that will start and drive the program.
- * @author Project Snowfox
- */
-	public static void main(String []args) throws InterruptedException, OtpErlangRangeException {
-	    javaErlangCommunicator = new JavaErlangCommunication();
-	    //Command for creating bufferedimage of map
-	    createAndShowGUI();
-	    runSimulation();
 	}
 }

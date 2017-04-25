@@ -1,17 +1,13 @@
-package Main;
+package Graphic;
 
 import javax.swing.*;
-import java.io.*;
 import java.awt.*;
-import java.awt.image.*;
-import javax.imageio.*;
 import com.ericsson.otp.erlang.*;
 
 /**
  * The Unit class of the program, that will represent the people in the simulation.
  * @author Project Snowfox
  */
-
 public class Unit extends JComponent
 {
 	public OtpErlangPid PID;
@@ -21,6 +17,7 @@ public class Unit extends JComponent
 	public static final Color INFECTED = Color.RED;
 	public static final Color HEALTHY  = Color.GREEN;
 	public static final Color ERROR = Color.BLUE;
+
 
 	/**
 	 * Constructor for a Unit.
@@ -36,12 +33,14 @@ public class Unit extends JComponent
 		y = posy;
 	}
 
+
 	/**
 	 * Painting a Unit.
 	 */
 	public void paint() {
 		repaint();
 	}
+
 
 	/**
 	 * Repainting the new position and status of a Unit.
@@ -55,6 +54,7 @@ public class Unit extends JComponent
 		y = newy;
 	}
 
+
 	/**
 	 * Returning the PID of a Unit.
 	 * @return The PID of a Unit as a OtpErlangPid.
@@ -64,8 +64,9 @@ public class Unit extends JComponent
 		return PID;
 	}
 
-	/*
-	* Repainting a Unit, based on it's status.
+
+	/**
+	* Painting a Unit, based on it's status.
 	* @param g a graphic object
 	 */
 	@Override

@@ -3,7 +3,6 @@ package Communication;
 import com.ericsson.otp.erlang.*;
 import java.util.*;
 import java.awt.*;
-import java.awt.image.*;
 
 /**
  * Provides functionality for connecting to an Erlang process
@@ -16,7 +15,8 @@ public class JavaErlangCommunication {
     public OtpMbox myOtpMbox = null;
     public OtpNode myOtpNode = null;
     private String mapName = null;
-		private MapParser map = null;
+    private MapParser map = null;
+
 
     /**
      * Create the communication object.
@@ -144,6 +144,7 @@ public class JavaErlangCommunication {
         return map_objects;
     }
 
+
     /**
      * Let the user request new positions from the Erlang process.
      *
@@ -177,14 +178,14 @@ public class JavaErlangCommunication {
             while(itr.hasNext()){
                 ArrayList<Object> listpos = new ArrayList<Object>(); //create a new ArrayList every loop so it's unique.
 
-		//convert the information about an individual from Erlang data types to Java datatupes.
+                //convert the information about an individual from Erlang data types to Java datatupes.
                 OtpErlangTuple individual = (OtpErlangTuple) itr.next();
                 OtpErlangPid pid = (OtpErlangPid) individual.elementAt(0);
                 int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
                 int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
                 int y = ((OtpErlangLong) individual.elementAt(3)).intValue();
-		
-		//add all information to an ArrayList
+
+		        //add all information to an ArrayList
                 listpos.add(pid);
                 listpos.add(sickness);
                 listpos.add(x);
@@ -200,7 +201,8 @@ public class JavaErlangCommunication {
             return null;
         }
     }
-    
+
+
     /**
      * Returns the map to use.
      * @return the name and path to the requested map
