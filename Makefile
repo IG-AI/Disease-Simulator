@@ -16,7 +16,7 @@ JAVA_PACKAGE = -cp .:Java/lib/OtpErlang.jar:Java/bin
 JAVAC = javac
 JAVA_SOURCES = $(wildcard Java/src/*/*.java)
 JAVA_CLASSES = $(JAVA_SOURCES:Java/src/%.java=Java/bin/%.class)
-JAVA_MAIN = Main.GUIsim
+JAVA_MAIN = Main.Main
 #TEST#
 JAVA_TESTSRC = $(shell find src/test -name "*.java" -printf "test.%f ")
 JAVA_TESTS = $(subst .java,,$(JAVA_TESTSRC))
@@ -49,7 +49,6 @@ jcompile: mkdir $(JAVA_CLASSES)
 
 Java/bin/%.class : Java/src/%.java
 	$(JAVAC) $(JAVA_PACKAGE_SRC) -d Java/bin/ $<
-
 
 jrun: epmd_run jcompile
 	java $(JAVA_PACKAGE) $(JAVA_MAIN)

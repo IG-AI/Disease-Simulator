@@ -26,9 +26,10 @@ public class MapParser {
     int height;
     Image img;
 
+
     /**
      * Constructor to parse the provided map.
-     * @param map the name of the map
+     * @param map the name of the map as a String
      */
     public MapParser(String map)  throws IOException {
 
@@ -74,6 +75,7 @@ public class MapParser {
         }
     }
 
+
     /**
      * Matches black color.
      * If a pixel is black, it should be possible to walk on it.
@@ -83,6 +85,7 @@ public class MapParser {
     private boolean is_accessible(Color color){
         return ((color.getRed() == 0) && (color.getGreen() == 0) && (color.getBlue() == 0));
     }
+
 
     /**
      * Matches the purpleish color of hospitals.
@@ -94,6 +97,7 @@ public class MapParser {
     private boolean is_hospital(Color color){
         return ((color.getRed() == 155) && (color.getGreen() == 83) && (color.getBlue() == 111));
     }
+
 
     /**
      * The method used to get all pixels where a hospital exist.
@@ -113,6 +117,7 @@ public class MapParser {
     public Map<Integer, ArrayList> get_hospital(){
         return hospital;
     }
+
 
     /**
      * The method used to get all pixels where walls exist.
@@ -137,6 +142,7 @@ public class MapParser {
         return walls;
     }
 
+
     /**
      * Get the height of the map.
      * @return The height in pixels of the map
@@ -144,6 +150,7 @@ public class MapParser {
     public int get_height(){
         return height;
     }
+
 
     /**
      * Get the width of the map.
