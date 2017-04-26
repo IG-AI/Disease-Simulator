@@ -21,11 +21,16 @@ generate_start_positions(0,_,Result) ->
 generate_start_positions(Amount, {X_max,Y_max}, Result) ->
     X = rand:uniform(X_max),
     Y = rand:uniform(Y_max),
-    generate_start_positions(Amount-1, {X_max, Y_max},[{X, Y} | Result]).
+    case wall_checker:get_wall_collision(X, Y) of
+	true ->
+	    generate_start_positions(Amount, {X_max, Y_max}, Result);
+	false ->
+	    generate_start_positions(Amount-1, {X_max, Y_max},[{X, Y} | Result])
+    end.
 
 
 
-
+    
 %%
 %% @doc Generate new x and y coordinates of a process based on its current x and y coordinates and a Direction. 
 %% The new coordinates will be one grid away from the original coordinates or the same as the original coordinates.  
@@ -38,20 +43,31 @@ generate_start_positions(Amount, {X_max,Y_max}, Result) ->
 %%
 -spec new_position(X :: integer(), Y :: integer(), Direction :: integer(), Bounds :: bounds()) -> {integer(),integer(), integer()}.
 new_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
-    New_X = X + X_direction,
-    New_Y = Y + Y_direction,
-    case (New_X >= X_max) orelse (New_X =< 0) of
+    %X_wall_collision_max = wall_checker:get_wall_collision(X+X_direction+2, Y),
+    %X_wall_collision_min = wall_checker:get_wall_collision(X+X_direction-2, Y),
+    X_wall_collision = wall_checker:get_wall_collision(X+X_direction, Y),
+    Y_wall_collision = wall_checker:get_wall_collision(X, Y + Y_direction),
+    %Y_wall_collision_max = wall_checker:get_wall_collision(X, Y + Y_direction+2),
+    %Y_wall_collision_min = wall_checker:get_wall_collision(X, Y + Y_direction-2),
+
+
+    case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (X_wall_collision) of
 	true ->
+	    %{_, _, {New_X_direction, _}} = new_position(X,Y,people:gen_direction(),{X_max, Y_max});
 	    New_X_direction = X_direction*(-1);
 	_ ->
 	    New_X_direction = X_direction
     end,
-    case (New_Y >= Y_max) orelse (New_Y =< 0) of 
+    case (Y+Y_direction >= Y_max) orelse (Y + Y_direction =< 0) orelse (Y_wall_collision) of 
 	true ->
+	    %{_, _, {_, New_Y_direction}} = new_position(X,Y,people:gen_direction(),{X_max, Y_max});
 	    New_Y_direction = Y_direction*(-1);
 	_ ->
 	    New_Y_direction = Y_direction
     end,
+    New_X = X + New_X_direction,
+    New_Y = Y + New_Y_direction,
+
     {New_X, New_Y, {New_X_direction, New_Y_direction}}.
 
     %% case Direction of 

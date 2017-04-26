@@ -3,6 +3,7 @@ package Graphic;
 import javax.swing.*;
 import java.awt.*;
 import com.ericsson.otp.erlang.*;
+import java.lang.Math.*;
 
 /**
  * The Unit class of the program, that will represent the people in the simulation.
@@ -81,7 +82,8 @@ public class Unit extends JComponent
 		else {
 			g.setColor(ERROR);
 		}
-		g.fillOval(x,y,5,5);
+		int diameter = 5;
+		g.fillOval(x-(diameter%2)-(diameter/2), y- (int)Math.ceil(5/2.0), diameter, diameter);
 	}
 }
 
