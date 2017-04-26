@@ -41,7 +41,7 @@ generate_start_positions(Amount, {X_max,Y_max}, Result) ->
 %%
 %% @returns a tuple containing new x and y coordinates, and the direction the person is moving.
 %%
--spec new_position(X :: integer(), Y :: integer(), Direction :: integer(), Bounds :: bounds()) -> {integer(),integer(), integer()}.
+-spec new_position(X :: integer(), Y :: integer(), {X_direction :: integer(), Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), integer()}.
 new_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
     X_wall_collision = wall_checker:get_wall_collision(X+X_direction, Y),
     Y_wall_collision = wall_checker:get_wall_collision(X, Y + Y_direction),

@@ -27,7 +27,12 @@ spawn_people(State, Amount, {X_max, Y_max}, [S | Status],[{X,Y} | Positions]) ->
     PID = spawn(fun() -> people({S,X,Y, Direction}, {X_max,Y_max}) end),
     spawn_people(State ++ [{PID, S,X,Y}], Amount-1, {X_max,Y_max}, Status, Positions).
 
-
+%%
+%% @doc Generate a direction where both X and Y movement is not equal to 0
+%%
+%% @return A new direction
+%% 
+-spec get_direction() -> direction().
 gen_direction() ->
     Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
     case Direction of
