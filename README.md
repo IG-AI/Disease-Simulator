@@ -1,8 +1,7 @@
 # Project-Snowfox
-To run the program, go in to the Project-snowfox folder with bash and write #####make #####run .
-
-
-### Authors:
+To run the program, go in to the Project-snowfox folder with bash and write #### make #### run .
+------
+## Authors:
 | Name | E-mail |
 | ------ | ------ |
 | Henrik Bergendal | henrik.bergendal.5651@student.uu.se | 
