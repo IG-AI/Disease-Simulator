@@ -1,7 +1,7 @@
 package Communication;
 
+
 import java.awt.image.BufferedImage;
-import java.awt.Image;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -24,19 +24,17 @@ public class MapParser {
     Map<Integer, ArrayList> hospital = new HashMap<Integer, ArrayList>();
     int width;
     int height;
-    Image img;
-
 
     /**
      * Constructor to parse the provided map.
-     * @param map the name of the map as a String
+     * @param map the name of the map
      */
     public MapParser(String map)  throws IOException {
 
         //Open image (the map)
         File file = new File(map);
         BufferedImage image = ImageIO.read(file);
-        this.img = ImageIO.read(file);
+
         //Get height and width of the image
         width = image.getWidth();
         height = image.getHeight();
@@ -75,7 +73,6 @@ public class MapParser {
         }
     }
 
-
     /**
      * Matches black color.
      * If a pixel is black, it should be possible to walk on it.
@@ -85,7 +82,6 @@ public class MapParser {
     private boolean is_accessible(Color color){
         return ((color.getRed() == 0) && (color.getGreen() == 0) && (color.getBlue() == 0));
     }
-
 
     /**
      * Matches the purpleish color of hospitals.
@@ -97,7 +93,6 @@ public class MapParser {
     private boolean is_hospital(Color color){
         return ((color.getRed() == 155) && (color.getGreen() == 83) && (color.getBlue() == 111));
     }
-
 
     /**
      * The method used to get all pixels where a hospital exist.
@@ -117,7 +112,6 @@ public class MapParser {
     public Map<Integer, ArrayList> get_hospital(){
         return hospital;
     }
-
 
     /**
      * The method used to get all pixels where walls exist.
@@ -142,7 +136,6 @@ public class MapParser {
         return walls;
     }
 
-
     /**
      * Get the height of the map.
      * @return The height in pixels of the map
@@ -151,16 +144,11 @@ public class MapParser {
         return height;
     }
 
-
     /**
      * Get the width of the map.
      * @return The width in pixels of the map
      */
     public int get_width(){
         return width;
-    }
-
-    public Image get_map(){
-        return img;
     }
 }
