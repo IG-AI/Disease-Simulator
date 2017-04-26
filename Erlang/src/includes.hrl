@@ -17,6 +17,6 @@
 %% @type position. coordinates for a position on the map.
 -type position() :: {integer(), integer()}.
 %% @type the java_connection 
--type java_connection() :: atom() | pid() | port() | {atom(),atom()}. 
+-type java_connection() :: {atom(),atom()}. 
 -include_lib("eunit/include/eunit.hrl").
 

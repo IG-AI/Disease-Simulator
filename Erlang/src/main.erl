@@ -25,7 +25,7 @@ start() ->
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
     Range = list_to_integer(S_range),
-    Probability = list_to_integer(S_probability),
+    Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
     %Here we start up the net thingy
     java_connection:initialise_network(),
@@ -70,7 +70,7 @@ start() ->
 %%
 %% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: java_connection(), Range :: non_neg_integer(), Probability :: float()) -> no_return().
+-spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float()) -> no_return().
 master(State, 0, Java_connection, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
@@ -146,11 +146,10 @@ calculate_targets_aux([{PID, _, X, Y} | Infected], Healthy, Range, Probability) 
 %%
 %% @returns returns the state with the updated positions
 %%
--spec master_call_all(State :: state()) -> state().
+-spec master_call_all(State :: state()) -> no_return().
 master_call_all(State) ->
     utils:send_to_all(ready, State),
-    Result = utils:wait_fun(State, master, length(State)),
-    Result.
+    utils:wait_fun(State, master, length(State)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
