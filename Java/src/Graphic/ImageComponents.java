@@ -41,7 +41,7 @@ public class ImageComponents extends JPanel {
 	 * @param unitList a ArrayList with all Units.
 	 */
 	public void setUnitList(ArrayList<Unit> unitList) {
-	    this.unitList = unitList;
+		this.unitList = unitList;
 	}
 
 
@@ -49,10 +49,10 @@ public class ImageComponents extends JPanel {
 	 * Creating the dimension for the background.
 	 * @return the new dimension as a Dimension class.
 	 */
-    @Override
-    public Dimension getPreferredSize() {
-	return (new Dimension(image.getWidth(null), image.getHeight(null)));
-    }
+	@Override
+	public Dimension getPreferredSize() {
+		return (new Dimension(image.getWidth(null), image.getHeight(null)));
+	}
 
 
 	/**

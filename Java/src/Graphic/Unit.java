@@ -66,8 +66,8 @@ public class Unit extends JComponent
 
 
 	/**
-	* Painting a Unit, based on it's status.
-	* @param g a graphic object
+	 * Painting a Unit, based on it's status.
+	 * @param g a graphic object
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -84,5 +84,3 @@ public class Unit extends JComponent
 		g.fillOval(x,y,5,5);
 	}
 }
-
-

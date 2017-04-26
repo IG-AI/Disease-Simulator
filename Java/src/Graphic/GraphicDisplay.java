@@ -15,7 +15,7 @@ import Communication.JavaErlangCommunication;
 
 public class GraphicDisplay extends JPanel
 {
-    private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
+	private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
 	private static JFrame simulation;
 	private static ImageComponents imageComponent = null;
 	private static ArrayList<Unit> unitList;
@@ -23,7 +23,7 @@ public class GraphicDisplay extends JPanel
 	public static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
-    private static long frequency = 10;
+	private static long frequency = 10;
 
 	/**
 	 * Constructor for the GraphicDisplay class.
@@ -37,7 +37,7 @@ public class GraphicDisplay extends JPanel
 	 * @throws InterruptedException thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
-    public static void runSimulation() throws InterruptedException, OtpErlangRangeException {
+	public static void runSimulation() throws InterruptedException, OtpErlangRangeException {
 		createUnitGraphics();
 		imageComponent.validate();
 		imageComponent.repaint();
@@ -45,10 +45,10 @@ public class GraphicDisplay extends JPanel
 		zero = 0;
 		second = 1000;
 		while(true) {
-		    startTime = System.currentTimeMillis();
+			startTime = System.currentTimeMillis();
 			ArrayList erlangList = javaErlangCommunicator.recievePos();
 			if(erlangList == null) {
-			    System.out.println("Simulation done.");
+				System.out.println("Simulation done.");
 				break;
 			}
 			updateUnitGraphics(erlangList);
@@ -57,7 +57,7 @@ public class GraphicDisplay extends JPanel
 			stopTime = System.currentTimeMillis();
 			finishedTime = stopTime - startTime;
 			sleep = Math.max(((second/frequency)-finishedTime), zero);
-       			Thread.sleep(sleep);
+			Thread.sleep(sleep);
 		}
 	}
 
@@ -75,17 +75,17 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Starting the GUI.
- 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void initializeGUI() throws OtpErlangRangeException {
-	    while(imageComponent == null){
-		imageComponent = new ImageComponents(winX, winY);
-	    }
-	    imageComponent.setImage(javaErlangCommunicator.getMapImage());
-	    xBound     = imageComponent.getWidth();
-	    yBound     = imageComponent.getHeight();
-	    imageComponent.setSize(xBound, yBound);
-	    createUnitGraphics();
+		while(imageComponent == null){
+			imageComponent = new ImageComponents(winX, winY);
+		}
+		imageComponent.setImage(javaErlangCommunicator.getMapImage());
+		xBound     = imageComponent.getWidth();
+		yBound     = imageComponent.getHeight();
+		imageComponent.setSize(xBound, yBound);
+		createUnitGraphics();
 	}
 
 
@@ -94,8 +94,8 @@ public class GraphicDisplay extends JPanel
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void createUnitGraphics() throws OtpErlangRangeException {
-	    int x,y,sickness;
-	    OtpErlangPid PID;
+		int x,y,sickness;
+		OtpErlangPid PID;
 		ArrayList erlangList = null;
 		while(erlangList == null) {
 			erlangList = javaErlangCommunicator.recievePos();
@@ -119,9 +119,9 @@ public class GraphicDisplay extends JPanel
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void updateUnitGraphics(ArrayList erlangList) throws OtpErlangRangeException {
-	    int x,y,sickness;
-	    OtpErlangPid PID;
-	    ArrayList<Unit> updateList = new ArrayList<Unit>();
+		int x,y,sickness;
+		OtpErlangPid PID;
+		ArrayList<Unit> updateList = new ArrayList<Unit>();
 		for(int i = 0; i < erlangList.size(); i++) {
 			ArrayList unit = (ArrayList) erlangList.get(i);
 			y = (Integer) unit.get(3);
