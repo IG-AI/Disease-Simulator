@@ -1,5 +1,5 @@
 -module(people).
--export([spawn_people/6, people/3]).
+-export([spawn_people/5, people/3]).
 
 -include("includes.hrl").
 
@@ -10,8 +10,6 @@
 %% @param Amount The amount of people that you would like to spawn.
 %% @param X_max the upper bound on the x-axis
 %% @param Y_max the upper bound on the y-axis
-%% @param S the status (healthy = 0 or infected = 1) for the next process to be spawned
-%% @param Status a list with starting statuses for the people. Should be the same length as Amount.
 %% @param X the x-coordinate for the next process to be spawned, must be smaller than X_max and larger than 0
 %% @param Y the y-coordinate for the next process to be spawned, must be smaller than Y_max and larger than 0
 %% @param Positions a list with starting positions for the people. Should be the same length as Amount.
@@ -19,14 +17,14 @@
 %% 
 %% @returns A state with Amount number of people with their status set to 0. 
 %%
--spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [integer()], [position()], Life :: non_neg_integer()) -> state().
-spawn_people(State, 0, _, _, _, _) ->
+-spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
+spawn_people(State, 0, _, _, _) ->
     State;
 
-spawn_people(State, Amount, {X_max, Y_max}, [S | Status],[{X,Y} | Positions], Life) ->
+spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life) ->
     Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
-    PID = spawn(fun() -> people({S,X,Y, Direction}, {X_max,Y_max}, Life) end),
-    spawn_people(State ++ [{PID, S,X,Y}], Amount-1, {X_max,Y_max}, Status, Positions, Life).
+    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life) end),
+    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life).
 
 
 %%
@@ -46,9 +44,10 @@ people({S,X,Y,Direction}, Bounds, Life) ->
     receive
         ready ->           
             {X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds), % Get new position          
-            master ! {work, {self(), S, X_new, Y_new}},
+            master ! {work, {self(), S, X_new, Y_new},Life},
             if
-                S =:= ?INFECTED->
+               % S == ->
+                 S == ?INFECTED->
                     people({S, X_new, Y_new, Direction_new}, Bounds, Life-1); %if process infected, decrease Life
                 true -> 
                     people({S, X_new, Y_new, Direction_new}, Bounds, Life)
@@ -61,12 +60,10 @@ people({S,X,Y,Direction}, Bounds, Life) ->
                            end                           
                 end,
             [PID ! get_infected || P(rand:uniform()) ,PID <- Targets], % Try to infect processes in its proximity
-            if
-                S =:= ?INFECTED->
-                    people({S, X, Y, Direction}, Bounds, Life-1); %if process infected, decrease Life
-                true -> 
-                    people({S, X, Y, Direction}, Bounds, Life)
-            end;
+           
+            people({S, X, Y, Direction}, Bounds, Life-1);   
+            
+           
 
         get_infected ->
             people({?INFECTED, X, Y, Direction}, Bounds, Life); %Change status to infected

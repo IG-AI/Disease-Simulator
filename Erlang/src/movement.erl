@@ -1,7 +1,7 @@
 -module(movement).
 -export([new_position/4, new_rand_position/3, validate_position/5, generate_start_positions/3]).
-
 -include("includes.hrl").
+
 
 %%
 %% @doc Generates Amonunt number of tuples and append them to Result. Each tuple containins a randomly generated x coordinate between 0 and X_max and 
@@ -22,8 +22,6 @@ generate_start_positions(Amount, {X_max,Y_max}, Result) ->
     X = rand:uniform(X_max),
     Y = rand:uniform(Y_max),
     generate_start_positions(Amount-1, {X_max, Y_max},[{X, Y} | Result]).
-
-
 
 
 %%

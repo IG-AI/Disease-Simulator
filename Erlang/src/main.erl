@@ -41,13 +41,15 @@ start() ->
                 {Width, Height, Walls, Hospital} ->	% information about map aquired
 
                     % Dump information about the newly read map.
-                    io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
-                    io:format("Map: ~p\n", [Walls]),
-                    io:format("Hospital: ~p\n", [Hospital]),
-
+                    %io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
+                    %io:format("Map: ~p\n", [Walls]),
+                    %io:format("Hospital: ~p\n", [Hospital]),
                     Start_positions = movement:generate_start_positions(Amount, {Width-2 ,Height-2}, []),  %generate starting positions for people processes
-                    Start_status = utils:generate_start_status(Amount, Nr_of_infected, []), %generate starting statuses for people processes
-                    State  = people:spawn_people([], Amount, {Width-1, Height-1}, Start_status, Start_positions, Life),  %spawn people processes
+                    %%Start_status = utils:generate_start_status(Amount, Nr_of_infected, []), %generate starting statuses for people processes
+                    State  = people:spawn_people([], Amount, {Width-1, Height-1}, Start_positions, Life),  %spawn people processes                    
+
+                    Infect_list = lists:sublist(State, Nr_of_infected),
+                    utils:send_to_all(get_infected, Infect_list),
                     master(State, Times, Java_connection_string, Range, Probability); %start master
 
 
@@ -57,6 +59,10 @@ start() ->
             true	    
 
     end.
+
+
+
+
 
 
 %%
@@ -84,9 +90,10 @@ master(State, Times, Java_connection, Range, Probability) ->
 
 	receive 
             ready_for_positions ->
-                io:format("Got position request...\n"),             
-                Java_connection ! {updated_positions, New_state}, %send new state to the java server 
+                %%io:format("Got position request...\n"),             
+                Java_connection ! {updated_positions, New_state}, %send new state to the java server                
                 calculate_targets(State, Range, Probability),
+                io:format("~p ~n",[length(New_state)]),
                 master(New_state, Times-1, Java_connection, Range, Probability)
         end
             
