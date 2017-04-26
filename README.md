@@ -1,4 +1,6 @@
 # Project-Snowfox
+To run the program, go in to the Project-snowfox folder with bash and write ###### make ###### run .
+
 
 ### Authors:
 | Name | E-mail |
