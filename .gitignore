@@ -1,6 +1,7 @@
 #Files or patterns that should be ignored by Git
 
 #General ignore for editor files
+*#
 *~
 *.iml
 
