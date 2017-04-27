@@ -15,7 +15,7 @@
 % connecting before giving up.
 % @returns Returns the PID of the responding Java process.
 % @todo Get the returned PID to work for communication.
--spec connect_java(Name :: {[integer()],[integer()]}, Timeout :: integer()) -> pid()|boolean().
+-spec connect_java(Name :: {atom(),atom()}, Timeout :: integer()) -> pid()|boolean().
 connect_java(Name, Timeout) ->
     io:format("Java server: ~p\n", [Name]),
     io:fwrite("Connecting to Java"),	
@@ -23,11 +23,10 @@ connect_java(Name, Timeout) ->
 
 % @private
 % No connection =(
--spec connect_java_aux(Name :: {[integer()],[integer()]}, Timeout :: integer()) -> pid()|boolean().
+-spec connect_java_aux(Name :: {atom(),atom()}, Timeout :: integer()) -> pid()|boolean().
 connect_java_aux(_, Timeout) when Timeout =< 0 -> 
     io:format("\nConnection to Java failed.\n"),
     false;
-
 
 % @private
 % Try to connect to the java process
