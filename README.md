@@ -1,14 +1,14 @@
 # Project-Snowfox
 ### Content
-* Authors
-* The program
-  * Compiling
-  * Run the program
-  * System requirements
-* Documentation
-* Further information
-  * Testing
-  * Make commands
+* [Authors](#authors)
+* [The program](#the-program)
+  * [Compiling](#compiling)
+  * [Run the program](#run-the-program)
+  * [System requirements](#system-requirements)
+* [Documentation](#documentation)
+* [Further information](#further-information)
+  * [Testing](#testing)
+  * [Make commands](#make-commands)
   
 ## Authors:
 | Name | E-mail |
@@ -71,3 +71,4 @@ Documentation can be generated using: <br>
 **make clean_doc** will remove all documentation files in Erlang/doc/ and Java/doc/ <br>
 **make clean_exec** will remove all compiled files in Erlang/ebin/ and Java/bin/ <br>
 **make clean** will remove all documentation files and compiled files <br>
+
