@@ -32,7 +32,7 @@ spawn_people(State, Amount, {X_max, Y_max}, [S | Status],[{X,Y} | Positions]) ->
 %%
 %% @return A new direction
 %% 
--spec get_direction() -> direction().
+-spec gen_direction() -> direction().
 gen_direction() ->
     Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
     case Direction of
