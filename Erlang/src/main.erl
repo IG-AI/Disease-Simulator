@@ -143,7 +143,7 @@ calculate_targets_aux([{PID, _, X, Y} | Infected], Healthy, Range, Probability) 
                                  ((X >= X_target-Range) 
                                   andalso (X =< X_target+Range)
                                   andalso (Y >= Y_target-Range) 
-                                  andalso (Y =< Y_target-Range))], % Put all healthy processes that are within three squares into a list
+                                  andalso (Y =< Y_target+Range))], % Put all healthy processes that are within three squares into a list
     PID ! {infect_people, Probability, Target_list}, % Send list to the infected process
     calculate_targets_aux(Infected, Healthy, Range, Probability).
     
