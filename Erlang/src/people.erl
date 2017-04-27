@@ -1,5 +1,5 @@
 -module(people).
--export([spawn_people/5, people/2, gen_direction/0]).
+-export([spawn_people/5, people/2, gen_direction/0, gen_int_dir/0]).
 
 -include("includes.hrl").
 
@@ -41,6 +41,18 @@ gen_direction() ->
 	_ ->
 	    Direction
     end.
+
+-spec gen_int_dir() -> integer().
+gen_int_dir() ->
+	Direction = rand:uniform(3)-2,
+	case Direction of
+		0 ->
+			gen_int_dir();
+		_ ->
+			Direction
+	end.
+
+
 
 %%
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
