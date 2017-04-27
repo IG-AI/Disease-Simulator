@@ -5,7 +5,8 @@
 adj_map() ->
     {X_max, Y_max, Walls, Hospital} = {6, 6, #{1=>[2, 3], 2=>[1, 2, 3], 3=>[2, 3, 4], 4=>[0, 3], 5=>[0]}, {}},
     register(checker, spawn(fun() -> check_wall(Walls) end)),
-    G=row(X_max-5, Y_max-5, X_max-5, Y_max-5, [], [], []),
+    Mod = 1,
+    G=row(X_max-Mod, Y_max-Mod, X_max-Mod, Y_max-Mod, [], [], []),
 %    D = unregister(checker),
     io:format("G: ~p ~n",[G]).
 	
@@ -18,15 +19,15 @@ row(_, -1, _, _, Pos, Mov, _) ->
 
 row(X, Y, X_max, Y_max, Pos, Mov, Prev) ->
     P = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not get_wall_collision(X_valid, Y)], 
-    io:format("P: ~p ~n",[P]),
-    M = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- P, {X2,Y2} <- Prev, ((X1 =:= X2) and (Y1 =:= Y2+1))],
-    io:format("M: ~p ~n",[M]),
+%    io:format("P: ~p ~n",[P]),
+    M = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- P, {X2,Y2} <- Prev, ((X1 =:= X2) and (Y1+1 =:= Y2))],
+%    io:format("M: ~p ~n",[M]),
     K = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- P, {X2,Y2} <- P, ((X1+1 =:= X2) and (Y1 =:= Y2))],
-    io:format("K: ~p ~n",[K]),
-    
-    L = lists:merge(M,  K),
-    io:format("L: ~p ~n",[L]),
-    row(X, Y-1, X_max, Y_max ,[P | Pos], [L | Mov], P).
+%    io:format("K: ~p ~n",[K]),
+    %io:format("M: ~p ~n", [K]),
+    %L = lists:merge(M,  K),
+    %io:format("L: ~p ~n",[L]),
+    row(X, Y-1, X_max, Y_max ,lists:merge(P, Pos), M++K++Mov, P).
     
 
 
