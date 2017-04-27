@@ -40,7 +40,9 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * TICKS - determine the number of simulation steps before the simulation end.
 * IND - number of individuals in the simulation.
 * INF - number of infected individuals.
-* INFC - the chanse of the infection spreading between two individuals.
+* PROB - the chanse of the infection spreading between two individuals.
+* RANGE - the radius of the area an individual need to be in order to be infected by another individual.
+* LIFE - the number of ticks an individual will 'live' after being infected.
 
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
