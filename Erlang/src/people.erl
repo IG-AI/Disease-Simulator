@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people/5, people/3, get_direction/0]).
+-export([spawn_people/5, people/3, generate_direction/0]).
 
 
 -include("includes.hrl").
@@ -24,7 +24,7 @@ spawn_people(State, 0, _, _, _) ->
     State;
 
 spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life) ->
-    Direction = get_direction(),
+    Direction = generate_direction(),
     PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life).	    
 
@@ -33,12 +33,12 @@ spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life) ->
 %%
 %% @return A new direction
 %% 
--spec get_direction() -> direction().
-get_direction() ->
+-spec generate_direction() -> direction().
+generate_direction() ->
     Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
     case Direction of
 	{0, 0} ->
-	    get_direction();
+	    generate_direction();
 	_ ->
 	    Direction
     end.
