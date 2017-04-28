@@ -37,7 +37,9 @@ row(X, Y, {X_max, Y_max}, Pos, Mov, Prev) ->
     New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not get_wall_collision(X_valid, Y)], 
     Down = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1 =:= X2) and (Y1+1 =:= Y2))],
     Left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- New_pos, ((X1+1 =:= X2) and (Y1 =:= Y2))],
-    row(X, Y-1, {X_max, Y_max},lists:merge(New_pos, Pos), Down++Left++Mov, New_pos).
+    Diagonal_left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1-1 =:= X2) and (Y1+1 =:= Y2))],
+    Diagonal_right = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1+1 =:= X2) and (Y1+1 =:= Y2))],   
+    row(X, Y-1, {X_max, Y_max},lists:merge(New_pos, Pos), Down++Left++Diagonal_left++Diagonal_right++Mov, New_pos).
     
 
 
