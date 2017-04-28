@@ -18,7 +18,7 @@ arun: a_star_demo.beam a_star.beam
 	$(ERUN) a_star_demo b1 $(ESTOP)
 
 erun: adj_map.beam
-	$(ERUN) adj_map adj_map  $(ESTOP)
+	$(ERUN) adj_map start  $(ESTOP)
 
 e: lmerge.beam
 	$(ERUN) lmerge lmerge  $(ESTOP)

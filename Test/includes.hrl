@@ -19,6 +19,8 @@
 %% @type the java_connection 
 -type java_connection() :: {atom(),atom()}. 
 
+-type world() :: {integer(), integer(), map(), map()}.
+
 -type adj_list() :: [{position(), position(), integer()}].
 
 -type pos_list() :: [{position()}].

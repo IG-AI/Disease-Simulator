@@ -6,7 +6,7 @@
 
 -spec b1() -> ok.
 b1() ->
-  File = "output.txt",
+  File = "small_map.txt",
   %% Heurestic underestimate function
   F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end,
   G = graph:import(File, fun parse_vertex/1),

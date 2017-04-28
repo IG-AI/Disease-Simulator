@@ -1,17 +1,34 @@
 -module(adj_map).
--export([adj_map/0]).
+-export([adj_map/2]).
 -include("includes.hrl").
 
 
+-spec adj_map(Map_name :: [non_neg_integer()], Map :: world()) -> boolean().
+adj_map(Map_name, Map) ->
+    case check_file(Map_name) of 
+        false ->
+            %{X_max, Y_max, Walls, _Hospital} = {6, 6, #{1=>[2, 3], 2=>[1, 2, 3], 3=>[2, 3, 4], 4=>[0, 3], 5=>[0]}, {}},
+            {X_max, Y_max, Walls, _Hospital} = Map,
+            register(checker, spawn(fun() -> check_wall(Walls) end)),
+            Mod = 1,
+            {Pos, Mov} = row(X_max-Mod, Y_max-Mod, {X_max-Mod, Y_max-Mod}, [], [], []),
+            unregister(checker),
+            file:write_file(Map_name++".txt",  io_lib:fwrite("~p ~p undirected d~n~s ~n~s ~n",[length(Pos), length(Mov), pos_str(Pos,[]), pos_str(Mov, [])])),
+            false;
+        _ ->
+            true
+    end.
 
--spec adj_map() -> adj_list().
-adj_map() ->
-    {X_max, Y_max, Walls, _Hospital} = {6, 6, #{1=>[2, 3], 2=>[1, 2, 3], 3=>[2, 3, 4], 4=>[0, 3], 5=>[0]}, {}},
-    register(checker, spawn(fun() -> check_wall(Walls) end)),
-    Mod = 1,
-    {Pos, Mov} = row(X_max-Mod, Y_max-Mod, {X_max-Mod, Y_max-Mod}, [], [], []),
-    unregister(checker),
-    file:write_file("output.txt",  io_lib:fwrite("~p ~p undirected d~n~s ~n~s ~n",[length(Pos), length(Mov), pos_str(Pos,[]), pos_str(Mov, [])])).
+-spec check_file(Map_name :: [non_neg_integer()]) -> boolean().
+check_file(Map_name) ->    
+    case filelib:is_regular(Map_name++".txt") of
+        false ->
+            false;
+        true ->
+            File_date = filelib:last_modified(Map_name++".txt"),
+            Map_date = filelib:last_modified(Map_name++".bmp"),
+            calendar:datetime_to_gregorian_seconds(File_date) >= calendar:datetime_to_gregorian_seconds(Map_date)
+    end.
 
 -spec pos_str(pos_list() | adj_list(), [non_neg_integer()]) -> pos_list() | adj_list().        
 pos_str([], Result)->
@@ -29,7 +46,6 @@ pos_str([{{X1, Y1},{X2, Y2}, Cost} | T], Result) ->
 
 -spec row(X :: integer(), Y :: integer(), bounds(), Pos :: pos_list(), Mov :: adj_list(), Prev :: pos_list()) -> {pos_list(), adj_list()}.
 row(_, -1, _, Pos, Mov, _) ->
-    io:format("Pos: ~p ~n Mov: ~p ~n",[length(Pos),length(Mov)]),
     {Pos, Mov};
 
 

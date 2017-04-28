@@ -37,8 +37,8 @@ start() ->
         false -> timer:sleep(10);	%failed connection
 
         _ ->	% We could connect to the java server
-            case map_handler:get_map(Java_connection_string, Map) of	% check if we get information about a map
-                {Width, Height, Walls, _Hospital} ->	% information about map aquired
+            case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
+                {Width, Height, Walls, Hospital} ->	% information about map aquired
 
                     % Dump information about the newly read map.
 
@@ -47,6 +47,7 @@ start() ->
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
 		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
+                    adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),
                     Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
                    
                     State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
@@ -97,7 +98,7 @@ master(State, Times, Java_connection, Range, Probability) ->
                 %%io:format("Got position request...\n"),             
                 Java_connection ! {updated_positions, New_state}, %send new state to the java server                
                 calculate_targets(State, Range, Probability),
-                io:format("~p ~n",[length(New_state)]),
+                %io:format("~p ~n",[length(New_state)]),
                 master(New_state, Times-1, Java_connection, Range, Probability)
         end
             

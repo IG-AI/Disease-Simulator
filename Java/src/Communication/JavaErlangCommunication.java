@@ -152,7 +152,7 @@ public class JavaErlangCommunication {
      * consist of [IndividualPid :: OtpErlangPid, Sickness :: int, X-coord :: int, Y-coord :: int]
      */
     public ArrayList recievePos() throws OtpErlangRangeException {
-        System.out.println("Waiting for positions");
+        //System.out.println("Waiting for positions");
         OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
         myOtpMbox.send(erlangPid, message); //tell Erlang we're ready for new positions
         OtpErlangTuple erlangTuple = null;
