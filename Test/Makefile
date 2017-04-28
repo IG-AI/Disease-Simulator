@@ -8,6 +8,15 @@ adj_map.beam: adj_map.erl
 lmerge.beam: lmerge.erl
 	$(EC) $^
 
+a_star_demo.beam: a_star_demo.erl
+	$(EC) $^
+
+a_star.beam: a_star.erl
+	$(EC) $^
+
+arun: a_star_demo.beam a_star.beam
+	$(ERUN) a_star_demo b1 $(ESTOP)
+
 erun: adj_map.beam
 	$(ERUN) adj_map adj_map  $(ESTOP)
 
