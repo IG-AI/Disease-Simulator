@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people/5, people/3, generate_direction/0]).
+-export([spawn_people_path/6, spawn_people/5, people/3, generate_direction/0]).
 
 
 -include("includes.hrl").
@@ -70,12 +70,7 @@ people({S,X,Y,Direction}, Bounds, Life) ->
             end;
       
         {infect_people, Probability, Targets} ->
-            P = fun (Z) -> if 
-                               Z =< Probability -> true; % TODO Ta bort en if klausul
-                               true -> false
-                           end                           
-                end,
-            [PID ! get_infected || P(rand:uniform()) ,PID <- Targets], % Try to infect processes in its proximity
+            [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
            
             people({S, X, Y, Direction}, Bounds, Life-1);   
             
@@ -87,6 +82,95 @@ people({S,X,Y,Direction}, Bounds, Life) ->
         stop ->
             done
     end.
+
+ 
+parse_string([$( | S],X,Y,P) ->
+    parse_string(S,X,Y,P);
+parse_string([$,| S],X,Y,_) ->
+    parse_string(S,X,Y,1);
+parse_string([$) | _],X,Y,_) ->
+    {X,Y};
+parse_string([N | S],X,Y,0) ->
+    parse_string(S,X+(N-$0),Y,0);
+parse_string([N | S],X,Y,1) ->
+    parse_string(S,X,Y+(N-$0),1).
+
+parse_vertex(S) ->
+    parse_string(S,0,0,0).
+
+
+%-spec spawn_people_path(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
+spawn_people_path(State, 0, _, _, _, _) ->
+    State;
+
+spawn_people_path(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life) ->
+   
+    F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
+    G = graph:import("data/"++Map_name++".adjmap", fun parse_vertex/1), %%%%%NOT OURS
+    io:format("HALLO~p~n", [G]),
+    spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F).
+
+
+spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F) ->
+    [P1, P2, P3] = movement:generate_start_positions(3, Bounds, []),
+    {_, Path_1} = a_star:run(G, P1, P2, F),
+    {_, Path_2} = a_star:run(G, P2, P3, F),
+    {_, Path_3} = a_star:run(G, P3, P1, F),
+    Paths = Path_1 ++ (Path_2 ++ Path_3),
+    PID = spawn(fun() -> people_path(?HEALTHY, Map_name, Paths, 0, length(Paths), Life) end),
+    spawn_people_aux(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, Positions, Map_name, Bounds, Life, G, F).
+
+
+
+
+status_check(Status) ->
+%    Path_change = (Path_counter rem Path_length).
+if
+   Status == ?INFECTED -> 1;
+   true -> 0
+end.
+
+
+
+
+
+%-spec people_path(integer(), [integer()], {position(),position(),position()}, integer()) -> ok.
+people_path(Status, Map, Paths, Path_counter, Paths_length, Life) ->
+    receive
+        ready ->
+            {X,Y} = lists:nth(Path_counter, Paths),
+            master ! {work, {self(), Status, X, Y},Life},                                     
+            people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life - status_check(Status));
+             
+
+         {infect_people, Probability, Targets} ->
+            [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
+           
+            people_path(Status, Map, Paths, Path_counter, Paths_length, Life-1);               
+           
+
+        get_infected ->
+            people_path(?INFECTED, Map, Paths, Path_counter, Paths_length, Life); %Change status to infected
+
+        stop ->
+            done 
+    end, 
+                
+    ok.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% A* (not ours)%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%% The representation of a vertex.
+-type my_vertex() :: {integer(), integer()}.
+
+%% Parses the string that holds a vertex.
+%% -spec parse_vertex(string()) -> my_vertex().
+%% parse_vertex([$(, X, $,, Y, $)]) -> {X - $0, Y - $0}.
+
+
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         EUnit Test Cases                                  %%
