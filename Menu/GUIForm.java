@@ -40,10 +40,11 @@ public class GUIForm extends JFrame {
         fileName = "MAP=" + fileName;
         String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, fileName};
         Process eproc = new ProcessBuilder(ecommand).start();
+        fileName = "";
 
     }
 
-    public void runJava() throws IOException {
+    private void runJava() throws IOException {
         String[] jcommand = new String[]{"xterm", "-e", "make", "jrun"};
         Process jproc = new ProcessBuilder(jcommand).start();
     }
@@ -88,9 +89,7 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     runErlang();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
+                } catch (IOException | InterruptedException e1) {
                     e1.printStackTrace();
                 }
                 try {
