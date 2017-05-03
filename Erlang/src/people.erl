@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people_path/6, spawn_people/5, people/3, generate_direction/0]).
+-export([spawn_people_path/6, spawn_people/5, people/3, generate_direction/0,parse_vertex/1]).
 
 
 -include("includes.hrl").
@@ -91,13 +91,32 @@ parse_string([$,| S],X,Y,_) ->
 parse_string([$) | _],X,Y,_) ->
     {X,Y};
 parse_string([N | S],X,Y,0) ->
-    parse_string(S,X+(N-$0),Y,0);
+    parse_string(S,[(N-$0) | X],Y,0);
 parse_string([N | S],X,Y,1) ->
-    parse_string(S,X,Y+(N-$0),1).
+    parse_string(S,X,[(N-$0) | Y],1).
+
+parse_tuple({[],[]},_,_,{Xacc,Yacc}) ->
+    {Xacc,Yacc};
+parse_tuple({[],[Y | YS]},_,Y_position,{Xacc,Yacc}) ->
+    parse_tuple({[],YS},0,Y_position+1,{Xacc,Yacc+(Y*math:pow(10,Y_position))});
+parse_tuple({[X | XS],[]},X_position,_,{Xacc,Yacc}) ->
+    parse_tuple({XS,[]},X_position+1,0,{Xacc+(X*math:pow(10,X_position)),Yacc});
+parse_tuple({[X | XS],[Y | YS]},X_position,Y_position,{Xacc,Yacc}) ->
+    parse_tuple({XS,YS},X_position+1,Y_position+1,{Xacc+(X*math:pow(10,X_position)),Yacc+(Y*math:pow(10,Y_position))}).
+
+%% parse_tuple({[],[]},_,_,{Xacc,Yacc}) ->
+%%     {Xacc,Yacc};
+%% parse_tuple({[],[Y | YS]},_,Y_position,{Xacc,Yacc}) ->
+%%     parse_tuple({[],YS},0,Y_position-1,{Xacc,Yacc+(Y*math:pow(10,Y_position))});
+%% parse_tuple({[X | XS],[]},X_position,_,{Xacc,Yacc}) ->
+%%     parse_tuple({XS,[]},X_position-1,0,{Xacc+(X*math:pow(10,X_position)),Yacc});
+%% parse_tuple({[X | XS],[Y | YS]},X_position,Y_position,{Xacc,Yacc}) ->
+%%     parse_tuple({XS,YS},X_position-1,Y_position-1,{Xacc+(X*math:pow(10,X_position)),Yacc+(Y*math:pow(10,Y_position))}).
 
 parse_vertex(S) ->
-    parse_string(S,0,0,0).
-
+    {X,Y} = parse_string(S,[],[],0),
+    {X2,Y2} = parse_tuple({X,Y},0,0,{0,0}),
+    {trunc(X2),trunc(Y2)}.
 
 %-spec spawn_people_path(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
 spawn_people_path(State, 0, _, _, _, _) ->
@@ -107,12 +126,15 @@ spawn_people_path(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life) ->
    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse_vertex/1), %%%%%NOT OURS
+    io:format("~p~n",[is_list(G)]),
     io:format("HALLO~p~n", [G]),
     spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F).
 
-
+spawn_people_aux(State,0,_,_,_,_,_,_) ->
+    State;
 spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F) ->
     [P1, P2, P3] = movement:generate_start_positions(3, Bounds, []),
+    io:format("~p~p~p~n",[P1,P2,P3]),
     {_, Path_1} = a_star:run(G, P1, P2, F),
     {_, Path_2} = a_star:run(G, P2, P3, F),
     {_, Path_3} = a_star:run(G, P3, P1, F),
@@ -129,10 +151,6 @@ if
    Status == ?INFECTED -> 1;
    true -> 0
 end.
-
-
-
-
 
 %-spec people_path(integer(), [integer()], {position(),position(),position()}, integer()) -> ok.
 people_path(Status, Map, Paths, Path_counter, Paths_length, Life) ->

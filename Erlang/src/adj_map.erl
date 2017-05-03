@@ -11,7 +11,8 @@ adj_map(Map_name, Map) ->
             {X_max, Y_max, _Walls, _Hospital} = Map,
             Mod = 1,
             {Pos, Mov} = row(X_max-Mod, Y_max-Mod, {X_max-Mod, Y_max-Mod}, [], [], []),
-            file:write_file("data/"++Map_name++".adjmap",  io_lib:fwrite("~p ~p undirected d~n~s ~n~s ~n",[length(Pos), length(Mov), pos_str(Pos,[]), pos_str(Mov, [])])),
+          %  file:write_file("data/"++Map_name++".adjmap",  io_lib:fwrite("~p ~p undirected d~n~s ~n~s ~n",[length(Pos), length(Mov), pos_str(Pos,[]), pos_str(Mov, [])])),
+file:write_file("data/"++Map_name++".adjmap",  io_lib:fwrite("~n~s ~n~s ~n",[pos_str(Pos,[]), pos_str(Mov, [])])),
             false;
         _ ->
             true
@@ -67,7 +68,8 @@ row(X, Y, {X_max, Y_max}, Pos, Mov, Prev) ->
     Check_down = fun (X1, Y1, X2, Y2) -> if 
                                         ((X1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down                       
                                         ((X1-1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down and left
-                                        ((X1+1 =:= X2) and (Y1+1 =:= Y2)) -> true	% Down and right                                       
+                                        ((X1+1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down and right                                       
+                                        true -> false
                                     end                           
             end,	
 
