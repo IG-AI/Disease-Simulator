@@ -5,20 +5,22 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUIForm extends JFrame {
     private JButton exitButton;
     private JButton startButton;
-    private JButton openFileButton;
     private JTextField numberOfIndividualsTextField;
     private JTextField numberOfInfectedTextField;
     private JTextField numberOfTicsTextField;
     private JTextField healthInfected;
     private JTextField diseaseRange;
     private JTextField infectionProbability;
-    private JLabel log;
     private JPanel mainFrame;
-    private String fileName = "map_one.bmp";
+    private JComboBox<String> comboBox;
+    private String currentMap;
+    private List<String> defMap = new ArrayList<String>();
 
     /**
      * Starting the Menu-GUI.
@@ -26,6 +28,25 @@ public class GUIForm extends JFrame {
 
     public static void main(String[] args) {
         GUIForm mainFrame = new GUIForm();
+    }
+
+
+
+    private void getMapFiles(){
+
+        String folderPath = System.getProperty("user.dir") +"/data";
+        File directory = new File(folderPath);
+
+        File[] fList = directory.listFiles();
+        if (fList != null) {
+            for (File file : fList){
+                if (file.isFile()){
+                    defMap.add(file.getName());
+                    comboBox.addItem(file.getName());
+
+                }
+            }
+        }
     }
 
     private void runErlang() throws IOException, InterruptedException {
@@ -37,11 +58,8 @@ public class GUIForm extends JFrame {
         String inputHealth = "LIFE=" + healthInfected.getText();
         String inputRange = "RANGE=" + diseaseRange.getText();
         String inputInfectionProbability = "PROB=" + infectionProbability.getText();
-        fileName = "MAP=" + fileName;
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, fileName};
+        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, inputInfectionProbability, "MAP=" + currentMap};
         Process eproc = new ProcessBuilder(ecommand).start();
-        fileName = "";
-
     }
 
     private void runJava() throws IOException {
@@ -49,32 +67,18 @@ public class GUIForm extends JFrame {
         Process jproc = new ProcessBuilder(jcommand).start();
     }
 
-    /**
-     * Stores the input values.
-     */
-
-
     private GUIForm() {
         super("Project Snowfox");
         setContentPane(mainFrame);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP Images", "bmp");
-        chooser.setFileFilter(filter);
-        openFileButton.addActionListener(new ActionListener() {
+        getMapFiles();
+        currentMap = defMap.get(0);
+        comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chooser.setAcceptAllFileFilterUsed(false);
-                int returnVal = chooser.showOpenDialog(mainFrame);
-
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = chooser.getSelectedFile();
-                    fileName = file.getName();
-                    log.setText("You selected: " + file.getName() + ".\n");
-                } else {
-                    log.setText("Please select a BMP-file.");
-                }
+                JComboBox cb = (JComboBox)e.getSource();
+                currentMap = (String)cb.getSelectedItem();
             }
         });
         exitButton.addActionListener(new ActionListener() {
