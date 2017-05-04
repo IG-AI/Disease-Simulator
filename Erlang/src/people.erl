@@ -98,6 +98,11 @@ parse_string([N | S],X,Y,1) ->
 parse_vertex(S) ->
     parse_string(S,0,0,0).
 
+parse(S) ->
+    {_, [_,{S1, L1}, {S2, L2}]} = re:run(S, "([0-9]+)[^0-9]*([0-9]+)"),
+    {A,_} = string:to_integer(string:substr(S, S1+1, L1)),
+    {B,_} = string:to_integer(string:substr(S, S2+1, L2)),
+    {A,B}.
 
 %-spec spawn_people_path(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
 spawn_people_path(State, 0, _, _, _, _) ->
@@ -106,7 +111,7 @@ spawn_people_path(State, 0, _, _, _, _) ->
 spawn_people_path(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life) ->
    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
-    G = graph:import("data/"++Map_name++".adjmap", fun parse_vertex/1), %%%%%NOT OURS
+    G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS
     io:format("HALLO~p~n", [G]),
     spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F).
 
