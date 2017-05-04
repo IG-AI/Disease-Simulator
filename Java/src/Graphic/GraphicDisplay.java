@@ -1,9 +1,16 @@
 package Graphic;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.util.ArrayList;
 import com.ericsson.otp.erlang.*;
 import java.lang.System;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 
 import Main.Main;
 import Communication.JavaErlangCommunication;
@@ -134,14 +141,26 @@ public class GraphicDisplay extends JPanel
 		imageComponent.setUnitList(updateList);
 	}
 
+	private static void setIconImage(JFrame frame) throws IOException {
+        ImageIcon imageIcon = new ImageIcon();
+        //imageIcon.setImage(ImageIO.read(new File("data/icon.png")));
+        try {
+            frame.setIconImage(ImageIO.read(new File("data/icon.png")));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 	/**
 	 * Displaying the GUI.
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
-	public static void createAndShowGUI() throws OtpErlangRangeException {
-		initializeGUI();
-		JFrame frame = new JFrame("Project Snowfox");
+	public static void createAndShowGUI() throws OtpErlangRangeException, IOException {
+        JFrame frame = new JFrame("Project Snowfox");
+	    initializeGUI();
+		setIconImage(frame);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().add(imageComponent);
 		//frame.setSize(xBound, yBound);
