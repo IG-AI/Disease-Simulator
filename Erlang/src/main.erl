@@ -48,10 +48,10 @@ start() ->
                       	    
 		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
                     adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),
-                    Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes                   
+                   
                     %State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
                    
-                    State  = people:spawn_people_path([], Amount, Start_positions, Map, {Width, Height}, Life),  %spawn people processes
+                    State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life),  %spawn people processes
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),

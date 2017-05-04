@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people_path/6, spawn_people/5, people/3, generate_direction/0]).
+-export([spawn_people_path/5, generate_direction/0]).
 
 
 -include("includes.hrl").
@@ -84,19 +84,6 @@ people({S,X,Y,Direction}, Bounds, Life) ->
     end.
 
  
-parse_string([$( | S],X,Y,P) ->
-    parse_string(S,X,Y,P);
-parse_string([$,| S],X,Y,_) ->
-    parse_string(S,X,Y,1);
-parse_string([$) | _],X,Y,_) ->
-    {X,Y};
-parse_string([N | S],X,Y,0) ->
-    parse_string(S,X+(N-$0),Y,0);
-parse_string([N | S],X,Y,1) ->
-    parse_string(S,X,Y+(N-$0),1).
-
-parse_vertex(S) ->
-    parse_string(S,0,0,0).
 
 parse(S) ->
     {_, [_,{S1, L1}, {S2, L2}]} = re:run(S, "([0-9]+)[^0-9]*([0-9]+)"),
@@ -105,25 +92,38 @@ parse(S) ->
     {A,B}.
 
 %-spec spawn_people_path(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
-spawn_people_path(State, 0, _, _, _, _) ->
+spawn_people_path(State, 0, _, _, _) ->
     State;
 
-spawn_people_path(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life) ->
+spawn_people_path(State, Amount, Map_name, Bounds, Life) ->
    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS
-    io:format("HALLO~p~n", [G]),
-    spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F).
+    %io:format("HALLO~p~n", [G]),
+    spawn_people_aux(State, Amount, Map_name, Bounds, Life, G, F).
 
+spawn_people_aux(State, 0, _, _, _, _, _) ->
+    State;
 
-spawn_people_aux(State, Amount, [{X,Y} | Positions], Map_name, Bounds, Life, G, F) ->
+spawn_people_aux(State, Amount, Map_name, Bounds, Life, G, F) ->
     [P1, P2, P3] = movement:generate_start_positions(3, Bounds, []),
-    {_, Path_1} = a_star:run(G, P1, P2, F),
-    {_, Path_2} = a_star:run(G, P2, P3, F),
-    {_, Path_3} = a_star:run(G, P3, P1, F),
-    Paths = Path_1 ++ (Path_2 ++ Path_3),
-    PID = spawn(fun() -> people_path(?HEALTHY, Map_name, Paths, 0, length(Paths), Life) end),
-    spawn_people_aux(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, Positions, Map_name, Bounds, Life, G, F).
+    Result_1 =  a_star:run(G, P1, P2, F),
+    %{_, Path_1} = a_star:run(G, {1,1}, {5,5}, F),
+    Result_2 = a_star:run(G, P2, P3, F),
+     Result_3 = a_star:run(G, P3, P1, F),
+    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
+        true ->
+            spawn_people_aux(State, Amount, Map_name, Bounds, Life, G, F);
+        false->
+            {_, Path_1} = Result_1,
+            {_, Path_2} = Result_2,
+            {_, Path_3} = Result_3,
+            Paths = Path_1 ++ (Path_2 ++ Path_3),
+                                                %io:format("PATH:~p~n",[Path_1]),
+            PID = spawn(fun() -> people_path(?HEALTHY, Map_name, Paths, 0, length(Paths), Life) end),
+            [{X , Y} | _ ] = Paths,
+            spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Life, G, F)
+    end.
 
 
 
@@ -143,7 +143,7 @@ end.
 people_path(Status, Map, Paths, Path_counter, Paths_length, Life) ->
     receive
         ready ->
-            {X,Y} = lists:nth(Path_counter, Paths),
+            {X,Y} = lists:nth(Path_counter+1, Paths),
             master ! {work, {self(), Status, X, Y},Life},                                     
             people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life - status_check(Status));
              
