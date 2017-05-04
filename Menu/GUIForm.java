@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GUIForm extends JFrame {
@@ -36,9 +37,14 @@ public class GUIForm extends JFrame {
         String folderPath = System.getProperty("user.dir") +"/data";
         File directory = new File(folderPath);
 
-        File[] fList = directory.listFiles();
-        if (fList != null) {
-            for (File file : fList){
+        File[] files = directory.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".bmp");
+            }
+        });
+
+        if (files != null) {
+            for (File file : files){
                 if (file.isFile()){
                     defMap.add(file.getName());
                     comboBox.addItem(file.getName());
