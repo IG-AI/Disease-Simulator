@@ -5,22 +5,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GUIForm extends JFrame {
     private JButton exitButton;
     private JButton startButton;
-    private JTextField numberOfIndividualsTextField;
-    private JTextField numberOfInfectedTextField;
-    private JTextField numberOfTicsTextField;
-    private JTextField healthInfected;
-    private JTextField diseaseRange;
-    private JTextField infectionProbability;
     private JPanel mainFrame;
     private JComboBox<String> comboBox;
+    private JSpinner numberOfIndividualsSpinner;
+    private JSpinner infectionProbabilitySpinner;
+    private JSpinner rangeOfDiseaseSpinner;
+    private JSpinner numberOfHealthSpinner;
+    private JSpinner numberOfTicsSpinner;
+    private JSpinner numberOfInfectedSpinner;
     private String currentMap;
-    private List<String> defMap = new ArrayList<String>();
+    private List<String> defMap = new ArrayList<>();
 
     /**
      * Starting the Menu-GUI.
@@ -30,7 +29,12 @@ public class GUIForm extends JFrame {
         GUIForm mainFrame = new GUIForm();
     }
 
+    private void spinnerSetup(){
+        SpinnerNumberModel probability = new SpinnerNumberModel(1.00,0.00,1.00,0.01 );
+        infectionProbabilitySpinner.setModel(probability);
+        ((JSpinner.DefaultEditor) infectionProbabilitySpinner.getEditor()).getTextField().setEditable(false);
 
+    }
 
     private void getMapFiles(){
 
@@ -56,14 +60,13 @@ public class GUIForm extends JFrame {
 
     private void runErlang() throws IOException, InterruptedException {
 
-
-        String inputIndividuals = "IND=" + numberOfIndividualsTextField.getText();
-        String inputInfected = "INF=" + numberOfInfectedTextField.getText();
-        String inputTics = "TICKS=" + numberOfTicsTextField.getText();
-        String inputHealth = "LIFE=" + healthInfected.getText();
-        String inputRange = "RANGE=" + diseaseRange.getText();
-        String inputInfectionProbability = "PROB=" + infectionProbability.getText();
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, inputInfectionProbability, "MAP=" + currentMap};
+        String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
+        String inputInfected = "INF=" + numberOfInfectedSpinner.getValue();
+        String inputTics = "TICKS=" + numberOfTicsSpinner.getValue();
+        String inputHealth = "LIFE=" + numberOfHealthSpinner.getValue();
+        String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
+        String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
+        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, /*inputInfectionProbability,*/ "MAP=" + currentMap};
         Process eproc = new ProcessBuilder(ecommand).start();
     }
 
@@ -78,7 +81,8 @@ public class GUIForm extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getMapFiles();
-        currentMap = defMap.get(0);
+        currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
+        spinnerSetup();
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
