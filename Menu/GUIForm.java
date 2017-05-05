@@ -1,6 +1,7 @@
 package Menu;
 
 import javax.swing.*;
+import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -33,8 +34,8 @@ public class GUIForm extends JFrame {
         SpinnerNumberModel probability = new SpinnerNumberModel(1.00,0.00,1.00,0.01 );
         SpinnerNumberModel individuals = new SpinnerNumberModel(300,0,10000,1);
         SpinnerNumberModel tics = new SpinnerNumberModel(300, 1, 1000000, 1);
-        SpinnerNumberModel health = new SpinnerNumberModel(50,1,100000,1);
-        SpinnerNumberModel infected = new SpinnerNumberModel(25,1,1000000,1);
+        SpinnerNumberModel health = new SpinnerNumberModel(50,1,10000,1);
+        SpinnerNumberModel infected = new SpinnerNumberModel(25,1,9999,1);
         SpinnerNumberModel range = new SpinnerNumberModel(10,1,1000,1);
         infectionProbabilitySpinner.setModel(probability);
         ((JSpinner.DefaultEditor) infectionProbabilitySpinner.getEditor()).getTextField().setEditable(false);
@@ -43,6 +44,16 @@ public class GUIForm extends JFrame {
         numberOfHealthSpinner.setModel(health);
         numberOfInfectedSpinner.setModel(infected);
         rangeOfDiseaseSpinner.setModel(range);
+        JFormattedTextField individualNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) individualNumbers.getFormatter()).setAllowsInvalid(false);
+        JFormattedTextField ticsNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) ticsNumbers.getFormatter()).setAllowsInvalid(false);
+        JFormattedTextField healthlNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) healthlNumbers.getFormatter()).setAllowsInvalid(false);
+        JFormattedTextField infectedNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) infectedNumbers.getFormatter()).setAllowsInvalid(false);
+        JFormattedTextField rangeNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) rangeNumbers.getFormatter()).setAllowsInvalid(false);
     }
 
     private void getMapFiles(){
