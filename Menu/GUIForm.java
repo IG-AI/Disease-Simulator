@@ -96,7 +96,7 @@ public class GUIForm extends JFrame {
         String inputHealth = "LIFE=" + numberOfHealthSpinner.getValue();
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputHealth, inputRange, inputInfectionProbability, "MAP=" + currentMap};
+        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap};
         Process eproc = new ProcessBuilder(ecommand).start();
     }
 
