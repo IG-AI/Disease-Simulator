@@ -1,6 +1,8 @@
 package Menu;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +23,8 @@ public class GUIForm extends JFrame {
     private JSpinner numberOfInfectedSpinner;
     private String currentMap;
     private List<String> defMap = new ArrayList<>();
+    private int compareInd;
+    private int compareInf;
 
     /**
      * Starting the Menu-GUI.
@@ -40,22 +44,22 @@ public class GUIForm extends JFrame {
         JFormattedTextField individualNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
         ((NumberFormatter) individualNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel tics = new SpinnerNumberModel(300, 1, 1000000, 1);
+        SpinnerNumberModel tics = new SpinnerNumberModel(300, 0, 1000000, 1);
         numberOfTicsSpinner.setModel(tics);
         JFormattedTextField ticsNumbers = ((JSpinner.NumberEditor) numberOfTicsSpinner.getEditor()).getTextField();
         ((NumberFormatter) ticsNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel health = new SpinnerNumberModel(50,1,10000,1);
+        SpinnerNumberModel health = new SpinnerNumberModel(50,0,10000,1);
         numberOfHealthSpinner.setModel(health);
         JFormattedTextField healthlNumbers = ((JSpinner.NumberEditor) numberOfHealthSpinner.getEditor()).getTextField();
         ((NumberFormatter) healthlNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel infected = new SpinnerNumberModel(25,1,9999,1);
+        SpinnerNumberModel infected = new SpinnerNumberModel(25,0,10000,1);
         numberOfInfectedSpinner.setModel(infected);
         JFormattedTextField infectedNumbers = ((JSpinner.NumberEditor) numberOfInfectedSpinner.getEditor()).getTextField();
         ((NumberFormatter) infectedNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel range = new SpinnerNumberModel(10,1,1000,1);
+        SpinnerNumberModel range = new SpinnerNumberModel(10,0,1000,1);
         rangeOfDiseaseSpinner.setModel(range);
         JFormattedTextField rangeNumbers = ((JSpinner.NumberEditor) rangeOfDiseaseSpinner.getEditor()).getTextField();
         ((NumberFormatter) rangeNumbers.getFormatter()).setAllowsInvalid(false);
@@ -108,6 +112,30 @@ public class GUIForm extends JFrame {
         getMapFiles();
         currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
         spinnerSetup();
+
+        numberOfIndividualsSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                compareInd = (int) numberOfIndividualsSpinner.getValue();
+                compareInf = (int) numberOfInfectedSpinner.getValue();
+                if(compareInf > compareInd){
+                    numberOfInfectedSpinner.setValue(compareInd);
+
+                }
+            }
+        });
+
+        numberOfInfectedSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                compareInd = (int) numberOfIndividualsSpinner.getValue();
+                compareInf = (int) numberOfInfectedSpinner.getValue();
+                if(compareInf > compareInd){
+                    numberOfInfectedSpinner.setValue(compareInd);
+
+                }
+            }
+        });
+
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
