@@ -37,7 +37,8 @@ public class GUIForm extends JFrame {
     private void spinnerSetup(){
         SpinnerNumberModel probability = new SpinnerNumberModel(1.00,0.00,1.00,0.01 );
         infectionProbabilitySpinner.setModel(probability);
-        ((JSpinner.DefaultEditor) infectionProbabilitySpinner.getEditor()).getTextField().setEditable(false);
+        JFormattedTextField probabilityNumbers = ((JSpinner.NumberEditor) infectionProbabilitySpinner.getEditor()).getTextField();
+        ((NumberFormatter) probabilityNumbers.getFormatter()).setAllowsInvalid(false);
 
         SpinnerNumberModel individuals = new SpinnerNumberModel(300,0,10000,1);
         numberOfIndividualsSpinner.setModel(individuals);
