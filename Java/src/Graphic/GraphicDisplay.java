@@ -141,6 +141,7 @@ public class GraphicDisplay extends JPanel
 		imageComponent.setUnitList(updateList);
 	}
 
+
 	private static void setIconImage(JFrame frame) throws IOException {
         ImageIcon imageIcon = new ImageIcon();
         //imageIcon.setImage(ImageIO.read(new File("data/icon.png")));
@@ -161,7 +162,7 @@ public class GraphicDisplay extends JPanel
         JFrame frame = new JFrame("Project Snowfox");
 	    initializeGUI();
 		setIconImage(frame);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(imageComponent);
 		//frame.setSize(xBound, yBound);
 		frame.pack();
