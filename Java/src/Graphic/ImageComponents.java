@@ -91,8 +91,11 @@ public class ImageComponents extends JPanel {
 	{
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
-			for(Unit unit : unitList) {
+			int i = 0, unitListSize = unitList.size();
+			while (i < unitListSize) {
+				Unit unit = unitList.get(i);
 				unit.paintComponent(g);
+				i++;
 			}
 		}
 	}
