@@ -23,6 +23,7 @@ public class GUIForm extends JFrame {
     private JSpinner numberOfHealthSpinner;
     private JSpinner numberOfTicsSpinner;
     private JSpinner numberOfInfectedSpinner;
+    private javax.swing.JLabel mapInfo;
     private String currentMap;
     private List<String> defMap = new ArrayList<>();
     private int compareInd;
@@ -71,9 +72,9 @@ public class GUIForm extends JFrame {
     private void getMapFiles() throws UnsupportedEncodingException {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
-        String folderPath = URLDecoder.decode(url.getFile() + "data", "UTF-8");
+        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
         folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
-        File directory = new File(folderPath);
+        File directory = new File(folderPath + "data");
 
         File[] files = directory.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -86,13 +87,12 @@ public class GUIForm extends JFrame {
                 if (file.isFile()){
                     defMap.add(file.getName());
                     comboBox.addItem(file.getName());
-                    if(defMap.get(0) != null){
-                        currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
+                    currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
                     }
                 }
             }
         }
-    }
+
 
     private void runErlang() throws IOException, InterruptedException {
 
@@ -171,15 +171,20 @@ public class GUIForm extends JFrame {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    runErlang();
-                } catch (IOException | InterruptedException e1) {
-                    e1.printStackTrace();
+                if(!defMap.isEmpty()){
+                    try {
+                        runErlang();
+                    } catch (IOException | InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    try {
+                        runJava();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
-                try {
-                    runJava();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                else{
+                    mapInfo.setText("No map, no start");
                 }
             }
         });
