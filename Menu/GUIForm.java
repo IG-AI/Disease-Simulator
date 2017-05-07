@@ -74,7 +74,6 @@ public class GUIForm extends JFrame {
         String folderPath = URLDecoder.decode(url.getFile() + "data", "UTF-8");
         folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
         File directory = new File(folderPath);
-        System.out.print(folderPath);
 
         File[] files = directory.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
