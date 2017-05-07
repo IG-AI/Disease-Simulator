@@ -72,7 +72,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile() + "data", "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
         File directory = new File(folderPath);
         System.out.print(folderPath);
 
@@ -99,7 +99,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
         File directory = new File(folderPath);
 
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
@@ -117,7 +117,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
         File directory = new File(folderPath);
 
         String[] jcommand = new String[]{"xterm", "-e", "make", "jrun"};
