@@ -7,6 +7,8 @@ import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class GUIForm extends JFrame {
      * Starting the Menu-GUI.
      */
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         GUIForm mainFrame = new GUIForm();
     }
 
@@ -66,10 +68,13 @@ public class GUIForm extends JFrame {
         ((NumberFormatter) rangeNumbers.getFormatter()).setAllowsInvalid(false);
     }
 
-    private void getMapFiles(){
+    private void getMapFiles() throws UnsupportedEncodingException {
 
-        String folderPath = System.getProperty("user.dir") +"/data";
+        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+        String folderPath = URLDecoder.decode(url.getFile() + "data", "UTF-8");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath);
+        System.out.print(folderPath);
 
         File[] files = directory.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -82,7 +87,9 @@ public class GUIForm extends JFrame {
                 if (file.isFile()){
                     defMap.add(file.getName());
                     comboBox.addItem(file.getName());
-
+                    if(defMap.get(0) != null){
+                        currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
+                    }
                 }
             }
         }
@@ -90,28 +97,39 @@ public class GUIForm extends JFrame {
 
     private void runErlang() throws IOException, InterruptedException {
 
+        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        File directory = new File(folderPath);
+
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
         String inputInfected = "INF=" + numberOfInfectedSpinner.getValue();
         String inputTics = "TICKS=" + numberOfTicsSpinner.getValue();
         String inputHealth = "LIFE=" + numberOfHealthSpinner.getValue();
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
+
         String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap};
-        Process eproc = new ProcessBuilder(ecommand).start();
+        Process eproc = new ProcessBuilder(ecommand).directory(directory).start();
     }
 
     private void runJava() throws IOException {
+
+        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        File directory = new File(folderPath);
+
         String[] jcommand = new String[]{"xterm", "-e", "make", "jrun"};
-        Process jproc = new ProcessBuilder(jcommand).start();
+        Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
     }
 
-    private GUIForm() {
+    private GUIForm() throws UnsupportedEncodingException {
         super("Project Snowfox");
         setContentPane(mainFrame);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getMapFiles();
-        currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
         spinnerSetup();
 
         numberOfIndividualsSpinner.addChangeListener(new ChangeListener() {
