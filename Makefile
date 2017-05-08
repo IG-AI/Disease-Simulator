@@ -61,7 +61,7 @@ jrun_test: jcompile
 # SPECIAL VARS #
 MAP?=map_two.bmp #Default value for map
 IND?=2500 #Default number of individuals
-TICKS?=500 #Default length of the simulation
+TICKS?=5000 #Default length of the simulation
 INF?=10 #Default number of infected individuals
 RANGE?=3 #Default radius for the range in which processes can be infected
 PROB?=1.0 #Default chanse of infection
