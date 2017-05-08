@@ -15,9 +15,9 @@ public class Unit extends JComponent
 	public int status;
 	public int x;
 	public int y;
-	public static final Color INFECTED = Color.RED;
-	public static final Color HEALTHY  = Color.GREEN;
-	public static final Color ERROR = Color.BLUE;
+	private static final Color INFECTED = Color.RED;
+	private static final Color HEALTHY  = Color.GREEN;
+	private static final Color ERROR = Color.BLUE;
 
 
 	/**
@@ -83,6 +83,6 @@ public class Unit extends JComponent
 			g.setColor(ERROR);
 		}
 		int diameter = 5;
-		g.fillOval(x-(diameter%2)-(diameter/2), y- (int)Math.ceil(5/2.0), diameter, diameter);
+		g.fillOval(x-(diameter%2)-(diameter/2), y- 3, diameter, diameter);
 	}
 }

@@ -26,8 +26,8 @@ public class GraphicDisplay extends JPanel
 	private static JFrame simulation;
 	private static ImageComponents imageComponent = null;
 	private static ArrayList<Unit> unitList;
-	public static int xBound;
-	public static int yBound;
+	private static int xBound;
+	private static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
 	private static long frequency = 10;
@@ -108,8 +108,8 @@ public class GraphicDisplay extends JPanel
 			erlangList = javaErlangCommunicator.recievePos();
 			//Wait for communication.
 		}
-		for(int i = 0; i < erlangList.size(); i++) {
-			ArrayList unit = (ArrayList) erlangList.get(i);
+		for (Object anErlangList : erlangList) {
+			ArrayList unit = (ArrayList) anErlangList;
 			y = (Integer) unit.get(3);
 			x = (Integer) unit.get(2);
 			sickness = (Integer) unit.get(1);
@@ -128,9 +128,9 @@ public class GraphicDisplay extends JPanel
 	public static void updateUnitGraphics(ArrayList erlangList) throws OtpErlangRangeException {
 		int x,y,sickness;
 		OtpErlangPid PID;
-		ArrayList<Unit> updateList = new ArrayList<Unit>();
-		for(int i = 0; i < erlangList.size(); i++) {
-			ArrayList unit = (ArrayList) erlangList.get(i);
+		ArrayList<Unit> updateList = new ArrayList<>();
+		for (Object anErlangList : erlangList) {
+			ArrayList unit = (ArrayList) anErlangList;
 			y = (Integer) unit.get(3);
 			x = (Integer) unit.get(2);
 			sickness = (Integer) unit.get(1);
@@ -143,8 +143,6 @@ public class GraphicDisplay extends JPanel
 
 
 	private static void setIconImage(JFrame frame) throws IOException {
-        ImageIcon imageIcon = new ImageIcon();
-        //imageIcon.setImage(ImageIO.read(new File("data/icon.png")));
         try {
             frame.setIconImage(ImageIO.read(new File("data/icon.png")));
         }
@@ -162,7 +160,7 @@ public class GraphicDisplay extends JPanel
         JFrame frame = new JFrame("Project Snowfox");
 	    initializeGUI();
 		setIconImage(frame);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.getContentPane().add(imageComponent);
 		//frame.setSize(xBound, yBound);
 		frame.pack();

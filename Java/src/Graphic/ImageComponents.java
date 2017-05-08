@@ -9,10 +9,10 @@ import java.awt.*;
  * @author Project Snowfox
  */
 public class ImageComponents extends JPanel {
-	private Image image;
-	public static int windowPosX;
-	public static int windowPosY;
-	public ArrayList<Unit> unitList = new ArrayList<Unit>();
+	private Image image = null;
+	public static final int windowPosX = 0;
+	public static final int windowPosY = 0;
+	public ArrayList<Unit> unitList = new ArrayList<>();
 
 
 	/**
@@ -20,7 +20,7 @@ public class ImageComponents extends JPanel {
 	 * @param winX x-position as an int.
 	 * @param winY y-position as an int.
 	 */
-	public ImageComponents(int winX, int winY)
+	protected ImageComponents(int winX, int winY)
 	{
 		super();
 	}
@@ -30,7 +30,7 @@ public class ImageComponents extends JPanel {
 	 * Adds a Unit.
 	 * @param unit as a Unit class
 	 */
-	public void addUnit(Unit unit) {
+	protected void addUnit(Unit unit) {
 		unitList.add(unit);
 		repaint();
 	}
@@ -40,7 +40,7 @@ public class ImageComponents extends JPanel {
 	 * Placing a list of Units in the variable unitList.
 	 * @param unitList a ArrayList with all Units.
 	 */
-	public void setUnitList(ArrayList<Unit> unitList) {
+	protected void setUnitList(ArrayList<Unit> unitList) {
 		this.unitList = unitList;
 	}
 
@@ -59,7 +59,7 @@ public class ImageComponents extends JPanel {
 	 * Setting the image
 	 * @param image as a Image class.
 	 */
-	public void setImage(Image image) {
+	protected void setImage(Image image) {
 		this.image = image;
 	}
 

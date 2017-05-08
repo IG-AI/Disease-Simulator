@@ -60,7 +60,7 @@ jrun_test: jcompile
 ### ERLANG ###
 # SPECIAL VARS #
 MAP?=map_two.bmp #Default value for map
-IND?=10000 #Default number of individuals
+IND?=2500 #Default number of individuals
 TICKS?=500 #Default length of the simulation
 INF?=10 #Default number of infected individuals
 RANGE?=3 #Default radius for the range in which processes can be infected
