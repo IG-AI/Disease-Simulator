@@ -203,6 +203,7 @@ public class JavaErlangCommunication {
 
     /**
      * Returns the map to use.
+     *
      * @return the name and path to the requested map
      */
     public String getMapName() {

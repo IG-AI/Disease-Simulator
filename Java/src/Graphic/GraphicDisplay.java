@@ -24,13 +24,13 @@ public class GraphicDisplay extends JPanel
 {
 	private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
 	private static JFrame simulation;
-	private static ImageComponents imageComponent = null;
+	protected static ImageComponents imageComponent = null;
 	private static ArrayList<Unit> unitList;
-	private static int xBound;
-	private static int yBound;
+	protected static int xBound;
+	protected static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
-	private static long frequency = 10;
+	protected static long frequency = 10;
 
 	/**
 	 * Constructor for the GraphicDisplay class.
@@ -41,6 +41,7 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Start running the simulation.
+	 *
 	 * @throws InterruptedException thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
@@ -71,8 +72,10 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Checks if a coordination is out of bound.
+	 *
 	 * @param xpos x-position as a int.
 	 * @param ypos y-position as a int.
+	 *
 	 * @return true if the coordination is out of bounds, otherwise returns false.
 	 */
 	public static boolean isOutOfBounds(int xpos, int ypos) {
@@ -82,6 +85,7 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Starting the GUI.
+	 *
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void initializeGUI() throws OtpErlangRangeException {
@@ -98,6 +102,7 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Creates the Units for the simulation.
+	 *
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void createUnitGraphics() throws OtpErlangRangeException {
@@ -122,7 +127,9 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Updating the unitList position and status.
+	 *
 	 * @param erlangList a list with a Units' position, status and PID.
+	 *
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void updateUnitGraphics(ArrayList erlangList) throws OtpErlangRangeException {
@@ -142,7 +149,7 @@ public class GraphicDisplay extends JPanel
 	}
 
 
-	private static void setIconImage(JFrame frame) throws IOException {
+	protected static void setIconImage(JFrame frame) throws IOException {
         try {
             frame.setIconImage(ImageIO.read(new File("data/icon.png")));
         }
@@ -154,6 +161,7 @@ public class GraphicDisplay extends JPanel
 
 	/**
 	 * Displaying the GUI.
+	 *
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void createAndShowGUI() throws OtpErlangRangeException, IOException {

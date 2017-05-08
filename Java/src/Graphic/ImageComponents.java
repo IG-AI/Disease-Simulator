@@ -17,10 +17,11 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Constructor for the ImageComponents class.
+	 *
 	 * @param winX x-position as an int.
 	 * @param winY y-position as an int.
 	 */
-	protected ImageComponents(int winX, int winY)
+	public ImageComponents(int winX, int winY)
 	{
 		super();
 	}
@@ -28,9 +29,10 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Adds a Unit.
+	 *
 	 * @param unit as a Unit class
 	 */
-	protected void addUnit(Unit unit) {
+	public void addUnit(Unit unit) {
 		unitList.add(unit);
 		repaint();
 	}
@@ -38,6 +40,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Placing a list of Units in the variable unitList.
+	 *
 	 * @param unitList a ArrayList with all Units.
 	 */
 	protected void setUnitList(ArrayList<Unit> unitList) {
@@ -47,6 +50,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Creating the dimension for the background.
+	 *
 	 * @return the new dimension as a Dimension class.
 	 */
 	@Override
@@ -57,6 +61,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Setting the image
+	 *
 	 * @param image as a Image class.
 	 */
 	protected void setImage(Image image) {
@@ -66,6 +71,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Returning the height of the image.
+	 *
 	 * @return the height of the image as an int.
 	 */
 	public int getHeight() {
@@ -75,6 +81,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Returning the width of the image.
+	 *
 	 * @return the width of the image as an int.
 	 */
 	public int getWidth() {
@@ -84,6 +91,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Painting the components.
+	 *
 	 * @param g as a Graphics object.
 	 */
 	@Override

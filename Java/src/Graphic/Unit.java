@@ -22,6 +22,7 @@ public class Unit extends JComponent
 
 	/**
 	 * Constructor for a Unit.
+	 *
 	 * @param pid the Units' PID as a OtpErlangPid.
 	 * @param sickness the sickness status as a int.
 	 * @param posx the x-position of the Unit as a int.
@@ -45,6 +46,7 @@ public class Unit extends JComponent
 
 	/**
 	 * Repainting the new position and status of a Unit.
+	 *
 	 * @param newx the new x-position of the Unit as a int.
 	 * @param newy the new y-position of the Unit as a int.
 	 * @param sickness the new sickness status of the Unit as a int.
@@ -57,17 +59,8 @@ public class Unit extends JComponent
 
 
 	/**
-	 * Returning the PID of a Unit.
-	 * @return The PID of a Unit as a OtpErlangPid.
-	 */
-	public OtpErlangPid pid()
-	{
-		return PID;
-	}
-
-
-	/**
 	 * Painting a Unit, based on it's status.
+	 *
 	 * @param g a graphic object
 	 */
 	@Override
