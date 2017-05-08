@@ -18,6 +18,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         super();
     }
 
+
     /**
      * Start running the simulation.
      *
@@ -48,6 +49,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         }
     }
 
+
     /**
      * Starting the GUI.
      *
@@ -64,6 +66,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         createUnitGraphicsForProfiling();
     }
 
+
     private static ArrayList<Object> listHandler() {
         ArrayList<Object> unitArrayList = new ArrayList<>();
         for (int i = 0; i < 2500; i++) {
@@ -72,6 +75,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         }
         return unitArrayList;
     }
+
 
     /**
      * Creates the Units for the simulation.
@@ -96,6 +100,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         }
     }
 
+
     /**
      * Creates the Units for the simulation.
      *
@@ -110,36 +115,6 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
         //frame.setSize(xBound, yBound);
         frame.pack();
         frame.setVisible(true);
-    }
-
-    /**
-     * Start running the simulation.
-     *
-     * @throws InterruptedException    thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
-     * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
-     */
-    public static void runProfilingSimulation() throws InterruptedException, OtpErlangRangeException {
-        createUnitGraphicsForProfiling();
-        imageComponent.validate();
-        imageComponent.repaint();
-        long startTime, stopTime, finishedTime, sleep, zero, second;
-        zero = 0;
-        second = 1000;
-        while (true) {
-            startTime = System.currentTimeMillis();
-            ArrayList<Object> erlangList = listHandler();
-            if (erlangList == null) {
-                System.out.println("Simulation done.");
-                break;
-            }
-            updateUnitGraphics(erlangList);
-            imageComponent.validate();
-            imageComponent.repaint();
-            stopTime = System.currentTimeMillis();
-            finishedTime = stopTime - startTime;
-            sleep = Math.max(((second / frequency) - finishedTime), zero);
-            Thread.sleep(sleep);
-        }
     }
 
 

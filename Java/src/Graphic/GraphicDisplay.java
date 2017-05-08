@@ -24,13 +24,13 @@ public class GraphicDisplay extends JPanel
 {
 	private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
 	private static JFrame simulation;
-	protected static ImageComponents imageComponent = null;
+	static ImageComponents imageComponent = null;
 	private static ArrayList<Unit> unitList;
-	protected static int xBound;
-	protected static int yBound;
+	static int xBound;
+	static int yBound;
 	public static final int winX = 0;
 	public static final int winY = 0;
-	protected static long frequency = 10;
+	protected static final long frequency = 10;
 
 	/**
 	 * Constructor for the GraphicDisplay class.
