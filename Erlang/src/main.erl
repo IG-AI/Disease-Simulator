@@ -94,38 +94,12 @@ master(State, Times, Java_connection, Range, Probability) ->
             ready_for_positions ->
                 %%io:format("Got position request...\n"),             
                 Java_connection ! {updated_positions, New_state}, %send new state to the java server                
-                Infected = calculate_targets(State, Range, Probability),
-                case endstate(New_state, Infected) of
-		    true ->
-			master(New_state, 0, Java_connection, Range, Probability);
-		    false ->	
-			master(New_state, Times-1, Java_connection, Range, Probability)
-			    end
+                calculate_targets(State, Range, Probability),
+                %io:format("~p ~n",[length(New_state)]),
+                master(New_state, Times-1, Java_connection, Range, Probability)
         end
             
     end.
-
-
-
-endstate(State, Infected) ->
-    if 
-	State == [] ->
-	    io:format("All processes are dead ~n"),
-	    true;
-	Infected == [] ->
-	    io:format("All processes are healthy ~n"),
-	    true;
-	length(Infected) == length(State) ->
-	    io:format("All processes are infected ~n"),
-	    false;
-	true ->
-	    false
-    end.
-
-    
-
-
-
 
 %%
 %% @doc Divides State into two lists: one for all the infected process and one for all the healthy processes, 
@@ -142,7 +116,7 @@ calculate_targets(State, Range, Probability) ->
     Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?INFECTED], % Put all infected processes into a list
     Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?HEALTHY], % Put all healthy processes into a list
     calculate_targets_aux(Infected, Healthy, Range, Probability),
-    Infected.
+    done.
 
 %%
 %% @doc Compares the head of Infected with each process in Healthy and send a message to the infected process
