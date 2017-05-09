@@ -20,13 +20,14 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
     Range = list_to_integer(S_range),
     Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
+    Movement = list_to_atom(S_movement),
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
@@ -37,8 +38,8 @@ start() ->
         false -> timer:sleep(10);	%failed connection
 
         _ ->	% We could connect to the java server
-            case map_handler:get_map(Java_connection_string, Map) of	% check if we get information about a map
-                {Width, Height, Walls, _Hospital} ->	% information about map aquired
+            case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
+                {Width, Height, Walls, Hospital} ->	% information about map aquired
 
                     % Dump information about the newly read map.
 
@@ -47,9 +48,19 @@ start() ->
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
 		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
-                    Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
+                    
                    
-                    State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
+                    case Movement of
+                        bounce ->
+                            Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
+                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, bounce);  %spawn people processes
+                        bounce_random ->
+                            Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),
+                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, bounce_random);
+                        path ->
+                            adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),                    
+                            State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life)  %spawn people processes
+                    end,
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
@@ -63,10 +74,6 @@ start() ->
             true	    
 
     end.
-
-
-
-
 
 
 %%
@@ -97,7 +104,7 @@ master(State, Times, Java_connection, Range, Probability) ->
                 %%io:format("Got position request...\n"),             
                 Java_connection ! {updated_positions, New_state}, %send new state to the java server                
                 calculate_targets(State, Range, Probability),
-                io:format("~p ~n",[length(New_state)]),
+                %io:format("~p ~n",[length(New_state)]),
                 master(New_state, Times-1, Java_connection, Range, Probability)
         end
             

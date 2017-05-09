@@ -43,6 +43,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * PROB - the chanse of the infection spreading between two individuals.
 * RANGE - the radius of the area an individual need to be in order to be infected by another individual.
 * LIFE - the number of ticks an individual will 'live' after being infected.
+* MOVE - the movement of the individuals, can be "path" to use A\*, or "bounce"/"bounce_random" to use bouncing behaviour.
 
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>

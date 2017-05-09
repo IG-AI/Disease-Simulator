@@ -1,5 +1,5 @@
 -module(movement).
--export([new_position/4, new_rand_position/3, validate_position/5, generate_start_positions/3]).
+-export([new_bounce_position/4, new_bounce_random_position/4,  validate_position/5, generate_start_positions/3]).
 -include("includes.hrl").
 
 
@@ -40,11 +40,19 @@ generate_start_positions(Amount, {X_max,Y_max}, Result) ->
 %% @returns a tuple containing new x and y coordinates, and the direction the person is moving.
 %%
 
--spec new_position(X :: integer(), Y :: integer(), {X_direction :: integer(),Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), {integer(), integer()}}.
-new_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
-    Wall_collision = wall_checker:get_wall_collision(X+X_direction, Y+Y_direction),
 
-    case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (Y+Y_direction >= Y_max) orelse (Y + Y_direction =< 0) orelse (Wall_collision) of
+-spec new_bounce_position(X :: integer(), Y :: integer(), {X_direction :: integer(),Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), {integer(), integer()}}.
+new_bounce_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
+    X_wall_collision = wall_checker:get_wall_collision(X+X_direction, Y),
+    Y_wall_collision = wall_checker:get_wall_collision(X, Y + Y_direction),
+
+    case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (X_wall_collision) of
+	true ->
+	    New_X_direction = X_direction*(-1);
+	_ ->
+	    New_X_direction = X_direction
+    end,
+    case (Y+Y_direction >= Y_max) orelse (Y + Y_direction =< 0) orelse (Y_wall_collision) of 
 	true ->
 				{New_X_direction, New_Y_direction} = new_direction(X,Y, people:generate_direction(), {X_max,Y_max});
 	_ ->
@@ -72,28 +80,22 @@ new_direction(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
     {New_X_direction, New_Y_direction}.
 
 
+-spec new_bounce_random_position(X :: integer(), Y :: integer(), {X_direction :: integer(), Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), integer()}.
+new_bounce_random_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
+    Wall_collision = wall_checker:get_wall_collision(X+X_direction, Y+Y_direction),
 
-    %% case Direction of 
-    %%     1 ->
-    %% 	    New_Direction = new_direction(X, Y, Direction, Bounds),
-    %%         {X-1, Y+1, New_Direction};
-    %%     2 ->
-    %%         {X, Y+1};
-    %%     3 ->
-    %%         {X+1, Y+1};
-    %%     4 ->
-    %%         {X-1, Y};
-    %%     5 ->
-    %%         {X+1, Y-1};
-    %%     6 ->
-    %%         {X+1, Y};
-    %%     7 ->
-    %%         {X-1, Y-1};
-    %%     8 ->
-    %%         {X, Y-1};
-    %%     9 ->
-    %%         {X, Y};
-    %%     end.
+    case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (Y+Y_direction >= Y_max) orelse (Y + Y_direction =< 0) orelse (Wall_collision) of
+	true ->
+            {New_X_direction, New_Y_direction} = new_direction(X,Y, people:generate_direction(), {X_max,Y_max});
+	_ ->
+	    New_X_direction = X_direction,
+            New_Y_direction = Y_direction
+    end,
+
+    New_X = X + New_X_direction,
+    New_Y = Y + New_Y_direction,
+
+    {New_X, New_Y, {New_X_direction, New_Y_direction}}.
 
 %%
 %% @doc Randomly generates new x and y coordinates of a process based on its current x and y coordinates and the upper bounds of the x-axis and y-axis. 
@@ -107,10 +109,10 @@ new_direction(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
 %%
 %% @returns a tuple containing new x and y coordinates
 %%
--spec new_rand_position(X :: integer(), Y :: integer(), bounds()) -> no_return().
-new_rand_position(X, Y, {X_max, Y_max}) ->
-    {X_new, Y_new} = new_position(X, Y, rand:uniform(9), Y),
-    validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
+%% -spec new_rand_position(X :: integer(), Y :: integer(), bounds()) -> no_return().
+%% new_rand_position(X, Y, {X_max, Y_max}) ->
+%%     {X_new, Y_new} = new_position(X, Y, rand:uniform(9), Y),
+%%     validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
     
 %%
 %% @doc Returns  {X_new, Y_new} if X-new is greater or equal than 0 and smaller or equal to the upper bounds, X_max and Y_max respectively, otherwise it returns {X_old, Y_old} 
