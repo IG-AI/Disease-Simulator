@@ -20,8 +20,8 @@ public class MapParser {
        the Y-coordinates.
        hospital does the same things as walls but for hospital pixels.
     */
-    Map<Integer, ArrayList> walls = new HashMap<Integer, ArrayList>();
-    Map<Integer, ArrayList> hospital = new HashMap<Integer, ArrayList>();
+    Map<Integer, ArrayList> walls = new HashMap<>();
+    Map<Integer, ArrayList> hospital = new HashMap<>();
     int width;
     int height;
     Image img;
@@ -29,6 +29,7 @@ public class MapParser {
 
     /**
      * Constructor to parse the provided map.
+     *
      * @param map the name of the map as a String
      */
     public MapParser(String map)  throws IOException {
@@ -45,8 +46,8 @@ public class MapParser {
         for(Integer x = 0; x < width; x++){
 
             //these lists will keep track of pixels for every row
-            ArrayList<Integer> wall_y = new ArrayList<Integer>();
-            ArrayList<Integer> hospital_y = new ArrayList<Integer>();
+            ArrayList<Integer> wall_y = new ArrayList<>();
+            ArrayList<Integer> hospital_y = new ArrayList<>();
 
             //and in every column go over every row..
             for(Integer y = 0; y < height; y++){
@@ -79,7 +80,9 @@ public class MapParser {
     /**
      * Matches black color.
      * If a pixel is black, it should be possible to walk on it.
+     *
      * @param color the color to check
+     *
      * @return true if the color is black, else false.
      */
     private boolean is_accessible(Color color){
@@ -91,7 +94,9 @@ public class MapParser {
      * Matches the purpleish color of hospitals.
      * If a pixel is of the hospital color, it should be possible to walk on it.
      * Furthermore we might want to go to it if we're sick.
+     *
      * @param color the color to check
+     *
      * @return true if the color is the one of the hospital, else false.
      */
     private boolean is_hospital(Color color){
@@ -145,6 +150,7 @@ public class MapParser {
 
     /**
      * Get the height of the map.
+     *
      * @return The height in pixels of the map
      */
     public int get_height(){
@@ -154,6 +160,7 @@ public class MapParser {
 
     /**
      * Get the width of the map.
+     *
      * @return The width in pixels of the map
      */
     public int get_width(){

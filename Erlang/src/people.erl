@@ -1,5 +1,4 @@
 -module(people).
-
 -export([spawn_people/6, spawn_people_path/5, generate_direction/0]).
 
 
@@ -23,10 +22,12 @@
 spawn_people(State, 0, _, _, _, _) ->
     State;
 
+
 spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life, Bounce_behaviour) ->
     Direction = generate_direction(),
     PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life, Bounce_behaviour) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life, Bounce_behaviour).	    
+
 
 %%
 %% @doc Generate a direction where both X and Y movement is not equal to 0
@@ -42,6 +43,7 @@ generate_direction() ->
 	_ ->
 	    Direction
     end.
+
 
 %%
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
