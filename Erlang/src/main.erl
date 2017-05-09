@@ -49,18 +49,20 @@ start() ->
                     %io:format("Map: ~p\n", [Walls]),
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
-		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
-                                      
+
+		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
+		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
+                         
                     case Movement of
                         bounce ->
                             Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
-                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, bounce);  %spawn people processes
+                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, Life, bounce);  %spawn people processes
                         bounce_random ->
                             Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),
-                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, bounce_random);
+                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, Life, bounce_random);
                         path ->
                             adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),                    
-                            State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life)  %spawn people processes
+                            State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life, Life)   %spawn people processes
                     end,
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
