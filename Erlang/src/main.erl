@@ -50,8 +50,11 @@ start() ->
                     adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),
                    
                     %State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
-                   
+                    A = erlang:timestamp(),
                     State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life),  %spawn people processes
+                    B = erlang:timestamp(),
+                    T = timer:now_diff(B, A),
+                    io:format("Time: ~p ~n", [T]),
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
