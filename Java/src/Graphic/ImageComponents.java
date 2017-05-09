@@ -9,14 +9,15 @@ import java.awt.*;
  * @author Project Snowfox
  */
 public class ImageComponents extends JPanel {
-	private Image image;
-	public static int windowPosX;
-	public static int windowPosY;
-	public ArrayList<Unit> unitList = new ArrayList<Unit>();
+	private Image image = null;
+	public static final int windowPosX = 0;
+	public static final int windowPosY = 0;
+	public ArrayList<Unit> unitList = new ArrayList<>();
 
 
 	/**
 	 * Constructor for the ImageComponents class.
+	 *
 	 * @param winX x-position as an int.
 	 * @param winY y-position as an int.
 	 */
@@ -28,6 +29,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Adds a Unit.
+	 *
 	 * @param unit as a Unit class
 	 */
 	public void addUnit(Unit unit) {
@@ -38,15 +40,17 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Placing a list of Units in the variable unitList.
+	 *
 	 * @param unitList a ArrayList with all Units.
 	 */
-	public void setUnitList(ArrayList<Unit> unitList) {
+	protected void setUnitList(ArrayList<Unit> unitList) {
 		this.unitList = unitList;
 	}
 
 
 	/**
 	 * Creating the dimension for the background.
+	 *
 	 * @return the new dimension as a Dimension class.
 	 */
 	@Override
@@ -57,15 +61,17 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Setting the image
+	 *
 	 * @param image as a Image class.
 	 */
-	public void setImage(Image image) {
+	protected void setImage(Image image) {
 		this.image = image;
 	}
 
 
 	/**
 	 * Returning the height of the image.
+	 *
 	 * @return the height of the image as an int.
 	 */
 	public int getHeight() {
@@ -75,6 +81,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Returning the width of the image.
+	 *
 	 * @return the width of the image as an int.
 	 */
 	public int getWidth() {
@@ -84,6 +91,7 @@ public class ImageComponents extends JPanel {
 
 	/**
 	 * Painting the components.
+	 *
 	 * @param g as a Graphics object.
 	 */
 	@Override
@@ -91,8 +99,11 @@ public class ImageComponents extends JPanel {
 	{
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
-			for(Unit unit : unitList) {
+			int i = 0, unitListSize = (unitList.size() - 1);
+			while (i < unitListSize) {
+				Unit unit = unitList.get(i);
 				unit.paintComponent(g);
+				i++;
 			}
 		}
 	}

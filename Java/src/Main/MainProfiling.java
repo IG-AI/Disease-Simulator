@@ -1,22 +1,21 @@
 package Main;
 
-import com.ericsson.otp.erlang.OtpErlangRangeException;
-
 import Communication.JavaErlangCommunication;
-import Graphic.GraphicDisplay;
-
+import com.ericsson.otp.erlang.OtpErlangRangeException;
 import java.io.IOException;
+
+import Graphic.GraphicDisplayProfiling;
 
 /**
  * The main class that will start and drive the program.
  * @author Project Snowfox
  */
-public class Main {
+public class MainProfiling {
     public static JavaErlangCommunication javaErlangCommunicator;
 
 
     /**
-     * The main method.
+     * The main method to use under profiling.
      *
      * @param args command line input
      *
@@ -24,8 +23,7 @@ public class Main {
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void main(String []args) throws InterruptedException, OtpErlangRangeException, IOException {
-        javaErlangCommunicator = new JavaErlangCommunication();
-        GraphicDisplay.createAndShowGUI();
-        GraphicDisplay.runSimulation();
+        GraphicDisplayProfiling.createAndShowProfilingGUI();
+        GraphicDisplayProfiling.runSimulationForProfiling();
     }
 }
