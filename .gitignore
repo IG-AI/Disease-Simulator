@@ -5,6 +5,9 @@
 *~
 *.iml
 
+#Data files
+*.adjmap
+
 #Erlang specific files
 *.beam
 erl_crash.dump

@@ -1,6 +1,8 @@
 package Communication;
 
 import com.ericsson.otp.erlang.*;
+
+import java.io.IOException;
 import java.util.*;
 import java.awt.*;
 
@@ -23,7 +25,7 @@ public class JavaErlangCommunication {
      * During creation it will wait for a connection from the Erlang process
      * and parse the map Erlang is requesting.
      */
-    public JavaErlangCommunication() {
+    public JavaErlangCommunication() throws RuntimeException {
 
         try {
             //Register the server as a node.
@@ -108,7 +110,7 @@ public class JavaErlangCommunication {
                 }
             }
 
-        } catch (Exception e) {  //If we come here something is wrong =(
+        } catch (RuntimeException | IOException | OtpErlangDecodeException | OtpErlangExit e) {  //If we come here something is wrong =(
             e.printStackTrace();
         }
 
@@ -152,17 +154,15 @@ public class JavaErlangCommunication {
      * consist of [IndividualPid :: OtpErlangPid, Sickness :: int, X-coord :: int, Y-coord :: int]
      */
     public ArrayList recievePos() throws OtpErlangRangeException {
-        System.out.println("Waiting for positions");
+        //System.out.println("Waiting for positions");
         OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
         myOtpMbox.send(erlangPid, message); //tell Erlang we're ready for new positions
         OtpErlangTuple erlangTuple = null;
 
         try {
             erlangTuple = (OtpErlangTuple) myOtpMbox.receive(); //wait for message from Erlang
-        } catch (OtpErlangExit otpErlangExit) {
+        } catch (OtpErlangExit | OtpErlangDecodeException otpErlangExit) {
             otpErlangExit.printStackTrace();
-        } catch (OtpErlangDecodeException e) {
-            e.printStackTrace();
         }
 
         return convertPosErlangJava(erlangTuple); //convert and return the requested array
@@ -170,16 +170,14 @@ public class JavaErlangCommunication {
 
     private ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
 
-        ArrayList<ArrayList> list = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> list = new ArrayList<>();
         OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(0);
         if (dispatch.atomValue().equals("updated_positions")) { //check that the message will contain positions
             OtpErlangList new_positions = (OtpErlangList) tuple.elementAt(1);
-            Iterator itr = new_positions.iterator();
-            while(itr.hasNext()){
-                ArrayList<Object> listpos = new ArrayList<Object>(); //create a new ArrayList every loop so it's unique.
-
+            for (Object new_position : new_positions) {
+                ArrayList<Object> listpos = new ArrayList<>(); //create a new ArrayList every loop so it's unique.
                 //convert the information about an individual from Erlang data types to Java datatupes.
-                OtpErlangTuple individual = (OtpErlangTuple) itr.next();
+                OtpErlangTuple individual = (OtpErlangTuple) new_position;
                 OtpErlangPid pid = (OtpErlangPid) individual.elementAt(0);
                 int sickness = ((OtpErlangLong) individual.elementAt(1)).intValue();
                 int x = ((OtpErlangLong) individual.elementAt(2)).intValue();
@@ -205,6 +203,7 @@ public class JavaErlangCommunication {
 
     /**
      * Returns the map to use.
+     *
      * @return the name and path to the requested map
      */
     public String getMapName() {

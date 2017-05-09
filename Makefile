@@ -59,16 +59,18 @@ jrun_test: jcompile
 
 ### ERLANG ###
 # SPECIAL VARS #
-MAP?=map_one.bmp #Default value for map
-IND?=20 #Default number of individuals
-TICKS?=50 #Default length of the simulation
-INF?=5 #Default number of infected individuals
+MAP?=map_one #Default value for map
+IND?=1000 #Default number of individuals
+TICKS?=5000 #Default length of the simulation
+INF?=100 #Default number of infected individuals
 RANGE?=3 #Default radius for the range in which processes can be infected
 PROB?=1.0 #Default chanse of infection
-LIFE?=15 #Default nummber of ticks 
+LIFE?=100 #Default nummber of ticks
+MOVE?=bounce #Default movement behaviour, "bounce", "path" or "bounce_random"
+MODE?=0 #Default end condition
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE)# ARGS FOR ERLANG
-ETINY = map_zero.bmp 3 20 0 3 0 50
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(MODE)# ARGS FOR ERLANG
+ETINY = map_zero 3 20 0 3 0 50 bounce 0
 
 # SPECIAL RUNS #
 erun_tiny: epmd_run all
