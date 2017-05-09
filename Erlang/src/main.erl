@@ -20,13 +20,15 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_mode] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
     Range = list_to_integer(S_range),
     Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
+    Mode = list_to_integer(S_mode),
+
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
@@ -37,7 +39,7 @@ start() ->
         false -> timer:sleep(10);	%failed connection
 
         _ ->	% We could connect to the java server
-            case map_handler:get_map(Java_connection_string, Map) of	% check if we get information about a map
+            case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
                 {Width, Height, Walls, _Hospital} ->	% information about map aquired
 
                     % Dump information about the newly read map.
@@ -47,15 +49,15 @@ start() ->
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
 		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
-                    Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
+                    %adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),
                    
+                    Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []), 
                     State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
-
+                    
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
-                    
-                    master(State, Times, Java_connection_string, Range, Probability); %start master
-
+                
+                    master(State, Times, Java_connection_string, Range, Probability, Mode); %start master
 
                 _ ->	% No map information =(
                     false	%just to do something..
@@ -65,42 +67,70 @@ start() ->
     end.
 
 
-
-
-
-
 %%
 %% @doc Start a simulation that will send a new state to the Java server after each tick.
+%% When the end condition is reached the simulation will stop. 
 %% 
 %% @param State the state of the simulation
 %% @param Times The amount of 'ticks' the simulation shall run for
 %% @param Java_connection the information used to send messages to the Java server
 %% @param Range an offset used to calculate the area in which a process can infect others
 %% @param Posibility the posibility that a process will be infected (between 0 and 1)
+%% @param Mode the switch for the end conditions
 %%
 %% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float()) -> no_return().
-master(State, 0, Java_connection, _, _) ->
+-spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(), Mode :: integer()) -> no_return().
+master(State, 0, Java_connection, _, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
     io:format("Simulation done ~n");
 
-master(State, Times, Java_connection, Range, Probability) ->     
+master(State, Times, Java_connection, Range, Probability, Mode) ->     
     master_call_all(State), %send starting message to all processes in State
     receive
         {result, New_state} ->  
 
-	receive 
-            ready_for_positions ->
-                %%io:format("Got position request...\n"),             
-                Java_connection ! {updated_positions, New_state}, %send new state to the java server                
-                calculate_targets(State, Range, Probability),
-                io:format("~p ~n",[length(New_state)]),
-                master(New_state, Times-1, Java_connection, Range, Probability)
-        end
-            
+            receive 
+                ready_for_positions ->
+                    %%io:format("Got position request...\n"),             
+                    Java_connection ! {updated_positions, New_state}, %send new state to the java server                
+                    Infected = calculate_targets(New_state, Range, Probability),
+                    case endstate(New_state, Infected, Mode) of
+                        true ->
+                            master(New_state, 0, Java_connection, Range, Probability, Mode);
+                        false ->	
+                            master(New_state, Times-1, Java_connection, Range, Probability, Mode)
+                    end
+            end
+
+    end.
+
+%%
+%% @doc Check if an endcondition have been reached
+%%
+%% @param State the state of the simulation
+%% @param Infected a list of all the infected processes
+%% @param Mode a switch indicating which end condition should be used
+%%
+%% @returns true it an end condition has been reched, false otherwise 
+%%
+endstate(State, Infected, Mode) ->
+    if 
+        Mode == 0 ->
+            false;        
+	State == [] ->
+	    io:format("All processes are dead ~n"),
+	    true;
+	(Infected == []) and (Mode >= 1)->
+	    io:format("All processes are healthy ~n"),
+	    true;
+	(length(Infected) == length(State)) and (Mode >= 2) ->
+	    io:format("All processes are infected ~n"),
+	    true;
+	true ->
+	    false
     end.
 
 %%
@@ -118,7 +148,8 @@ calculate_targets(State, Range, Probability) ->
     Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?INFECTED], % Put all infected processes into a list
     Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?HEALTHY], % Put all healthy processes into a list
     calculate_targets_aux(Infected, Healthy, Range, Probability),
-    done.
+    %io:format("~p~n",[Infected]),
+    Infected.
 
 %%
 %% @doc Compares the head of Infected with each process in Healthy and send a message to the infected process
