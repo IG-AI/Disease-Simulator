@@ -38,7 +38,7 @@ start() ->
 
         _ ->	% We could connect to the java server
             case map_handler:get_map(Java_connection_string, Map) of	% check if we get information about a map
-                {Width, Height, Walls, _Hospital} ->	% information about map aquired
+                {Width, Height, Walls, Hospital} ->	% information about map aquired
 
                     % Dump information about the newly read map.
 
@@ -46,10 +46,11 @@ start() ->
                     %io:format("Map: ~p\n", [Walls]),
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
-		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
+		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
+		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
                     Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
                    
-                    State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
+                    State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, Life),  %spawn people processes
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),

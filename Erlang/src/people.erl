@@ -1,5 +1,5 @@
 -module(people).
--export([spawn_people/5, people/3, generate_direction/0]).
+-export([spawn_people/6, people/4, generate_direction/0]).
 
 -include("includes.hrl").
 
@@ -17,14 +17,14 @@
 %% 
 %% @returns A state with Amount number of people with their status set to 0. 
 %%
--spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
-spawn_people(State, 0, _, _, _) ->
+-spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer(), Starting_life :: non_neg_integer()) -> state().
+spawn_people(State, 0, _, _, _, _) ->
     State;
 
-spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life) ->
+spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life, Starting_life) ->
     Direction = generate_direction(),
-    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life) end),
-    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life).	    
+    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life, Starting_life) end),
+    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life, Starting_life).	    
 
 %%
 %% @doc Generate a direction where both X and Y movement is not equal to 0
@@ -55,38 +55,48 @@ generate_direction() ->
 %%
 %% @returns done
 %%
--spec people(person(), Bounds :: bounds(),Life :: non_neg_integer()) -> done.
-people({S,X,Y,Direction}, Bounds, Life) ->
-    receive
-        ready ->           
-            {X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds), % Get new position          
-            master ! {work, {self(), S, X_new, Y_new},Life},
-            if
-               % S == ->
-                 S == ?INFECTED->
-                    people({S, X_new, Y_new, Direction_new}, Bounds, Life-1); %if process infected, decrease Life
-                true -> 
-                    people({S, X_new, Y_new, Direction_new}, Bounds, Life)
-            end;
-      
-        {infect_people, Probability, Targets} ->
-            P = fun (Z) -> if 
-                               Z =< Probability -> true; % TODO Ta bort en if klausul
-                               true -> false
-                           end                           
-                end,
-            [PID ! get_infected || P(rand:uniform()) ,PID <- Targets], % Try to infect processes in its proximity
-           
-            people({S, X, Y, Direction}, Bounds, Life-1);   
-            
-           
+-spec people(person(), Bounds :: bounds(),Life :: non_neg_integer(), Starting_life :: non_neg_integer()) -> done.
+people({S,X,Y,Direction}, Bounds, Life, Starting_life) ->
+	receive
+		ready ->           
+			{X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds), % Get new position          
+			case (collision_checker:get_hospital_location(X_new,Y_new)) of
+				true ->	 
+					master ! {work, {self(), ?IMMUNE, X_new, Y_new}, Starting_life}, %Make this process immune to infection
+					people({?IMMUNE, X_new, Y_new, Direction_new}, Bounds, Starting_life, Starting_life);
+				_ ->
+					master ! {work, {self(), S, X_new, Y_new},Life},
+					if
+						% S == ->
+						S == ?INFECTED->
+							people({S, X_new, Y_new, Direction_new}, Bounds, Life-1, Starting_life); %if process infected, decrease Life
+						true -> 
+							people({S, X_new, Y_new, Direction_new}, Bounds, Life, Starting_life)
+					end
+			end;
 
-        get_infected ->
-            people({?INFECTED, X, Y, Direction}, Bounds, Life); %Change status to infected
 
-        stop ->
-            done
-    end.
+		{infect_people, Probability, Targets} ->
+			P = fun (Z) -> if 
+											 Z =< Probability -> true; % TODO Ta bort en if klausul
+											 true -> false
+										 end                           
+					end,
+			[PID ! get_infected || P(rand:uniform()) ,PID <- Targets], % Try to infect processes in its proximity
+
+			people({S, X, Y, Direction}, Bounds, Life-1, Starting_life);   
+
+
+		get_infected ->
+			case S of
+				?IMMUNE ->
+					people({S, X, Y, Direction}, Bounds, Life, Starting_life);
+				_ ->
+					people({?INFECTED, X, Y, Direction}, Bounds, Life, Starting_life)	%Change status to infected
+			end;
+		stop ->
+			done
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         EUnit Test Cases                                  %%

@@ -2,6 +2,8 @@
 
 -define(HEALTHY,0).
 -define(INFECTED,1).
+-define(IMMUNE,2).
+-define(INCUBATED,1).
 %% @type person(). The persons in the simulation.
 -type person() :: {status(),position(),direction()}.
 %%
