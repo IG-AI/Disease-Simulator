@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people_path/5, generate_direction/0]).
+-export([spawn_people/5, spawn_people_path/5, generate_direction/0]).
 
 
 -include("includes.hrl").

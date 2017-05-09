@@ -20,13 +20,14 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
     Range = list_to_integer(S_range),
     Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
+    Movement = list_to_atom(S_movement),
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
@@ -47,11 +48,16 @@ start() ->
                     %io:format("Hospital: ~p\n", [Hospital]),
                       	    
 		    register(checker, spawn(fun() -> wall_checker:check_wall(Walls) end)),
-                    adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),
+                    
                    
-                    %State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life),  %spawn people processes
-                   
-                    State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life),  %spawn people processes
+                    case Movement of
+                        bounce ->
+                            Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
+                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life);  %spawn people processes
+                        path ->
+                            adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),                    
+                            State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life)  %spawn people processes
+                    end,
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),

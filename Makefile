@@ -65,10 +65,11 @@ TICKS?=200 #Default length of the simulation
 INF?=100 #Default number of infected individuals
 RANGE?=3 #Default radius for the range in which processes can be infected
 PROB?=1.0 #Default chanse of infection
-LIFE?=100 #Default nummber of ticks 
+LIFE?=100 #Default nummber of ticks
+MOVE?=bounce #Default movement behaviour, "bounce" or "path"
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE)# ARGS FOR ERLANG
-ETINY = map_zero 3 20 0 3 0 50
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE)# ARGS FOR ERLANG
+ETINY = map_zero 3 20 0 3 0 50 bounce
 
 # SPECIAL RUNS #
 erun_tiny: epmd_run all
