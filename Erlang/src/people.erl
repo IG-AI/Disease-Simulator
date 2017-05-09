@@ -1,6 +1,6 @@
 -module(people).
 
--export([spawn_people/5, spawn_people_path/5, generate_direction/0]).
+-export([spawn_people/6, spawn_people_path/5, generate_direction/0]).
 
 
 -include("includes.hrl").
@@ -19,14 +19,14 @@
 %% 
 %% @returns A state with Amount number of people with their status set to 0. 
 %%
--spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
-spawn_people(State, 0, _, _, _) ->
+-spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer(), Bounce_behaviour :: atom()) -> state().
+spawn_people(State, 0, _, _, _, _) ->
     State;
 
-spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life) ->
+spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life, Bounce_behaviour) ->
     Direction = generate_direction(),
-    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life) end),
-    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life).	    
+    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life, Bounce_behaviour) end),
+    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life, Bounce_behaviour).	    
 
 %%
 %% @doc Generate a direction where both X and Y movement is not equal to 0
@@ -55,29 +55,33 @@ generate_direction() ->
 %%
 %% @returns done
 %%
--spec people(person(), Bounds :: bounds(),Life :: non_neg_integer()) -> done.
-people({S,X,Y,Direction}, Bounds, Life) ->
+-spec people(person(), Bounds :: bounds(),Life :: non_neg_integer(), Bounce_behaviour :: atom()) -> done.
+people({S,X,Y,Direction}, Bounds, Life, Bounce_behaviour) ->
     receive
-        ready ->           
-            {X_new, Y_new, Direction_new} = movement:new_position(X,Y,Direction,Bounds), % Get new position          
+        ready ->
+            case Bounce_behaviour of
+                bounce ->
+                    {X_new, Y_new, Direction_new} = movement:new_bounce_position(X,Y,Direction,Bounds); % Get new position          
+                bounce_random ->
+                    {X_new, Y_new, Direction_new} = movement:new_bounce_random_position(X,Y,Direction,Bounds)
+            end,
             master ! {work, {self(), S, X_new, Y_new},Life},
             if
-               % S == ->
                  S == ?INFECTED->
-                    people({S, X_new, Y_new, Direction_new}, Bounds, Life-1); %if process infected, decrease Life
+                    people({S, X_new, Y_new, Direction_new}, Bounds, Life-1, Bounce_behaviour); %if process infected, decrease Life
                 true -> 
-                    people({S, X_new, Y_new, Direction_new}, Bounds, Life)
+                    people({S, X_new, Y_new, Direction_new}, Bounds, Life, Bounce_behaviour)
             end;
       
         {infect_people, Probability, Targets} ->
             [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
            
-            people({S, X, Y, Direction}, Bounds, Life-1);   
+            people({S, X, Y, Direction}, Bounds, Life-1, Bounce_behaviour);   
             
            
 
         get_infected ->
-            people({?INFECTED, X, Y, Direction}, Bounds, Life); %Change status to infected
+            people({?INFECTED, X, Y, Direction}, Bounds, Life, Bounce_behaviour); %Change status to infected
 
         stop ->
             done
@@ -163,14 +167,6 @@ people_path(Status, Map, Paths, Path_counter, Paths_length, Life) ->
                 
     ok.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% A* (not ours)%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%% The representation of a vertex.
--type my_vertex() :: {integer(), integer()}.
-
-%% Parses the string that holds a vertex.
-%% -spec parse_vertex(string()) -> my_vertex().
-%% parse_vertex([$(, X, $,, Y, $)]) -> {X - $0, Y - $0}.
 
 
  
