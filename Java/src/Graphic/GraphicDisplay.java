@@ -45,8 +45,8 @@ public class GraphicDisplay extends JPanel
 	 * @throws InterruptedException thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
-	public static void runSimulation() throws InterruptedException, OtpErlangRangeException {
-		createUnitGraphics();
+	public static void runSimulation() throws IOException,InterruptedException, OtpErlangRangeException {
+		createAndShowGUI();
 		imageComponent.validate();
 		imageComponent.repaint();
 		long startTime, stopTime, finishedTime, sleep, zero, second;
@@ -165,8 +165,8 @@ public class GraphicDisplay extends JPanel
 	 * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
 	 */
 	public static void createAndShowGUI() throws OtpErlangRangeException, IOException {
-        JFrame frame = new JFrame("Project Snowfox");
-	    initializeGUI();
+		JFrame frame = new JFrame("Project Snowfox");
+		initializeGUI();
 		setIconImage(frame);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.getContentPane().add(imageComponent);
