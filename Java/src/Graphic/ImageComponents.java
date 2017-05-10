@@ -34,7 +34,6 @@ public class ImageComponents extends JPanel {
 	 */
 	public void addUnit(Unit unit) {
 		unitList.add(unit);
-		repaint();
 	}
 
 
@@ -99,7 +98,7 @@ public class ImageComponents extends JPanel {
 	{
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
-			int i = 0, unitListSize = (unitList.size() - 1);
+			int i = 0, unitListSize = unitList.size();
 			while (i < unitListSize) {
 				Unit unit = unitList.get(i);
 				unit.paintComponent(g);
