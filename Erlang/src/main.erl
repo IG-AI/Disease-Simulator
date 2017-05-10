@@ -53,8 +53,6 @@ start() ->
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
 
-                    A = erlang:timestamp(),
-
                     case Movement of
                         bounce ->
                             Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
@@ -66,10 +64,6 @@ start() ->
                             adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),                    
                             State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life, Life)   %spawn people processes
                     end,
-
-                    B = erlang:timestamp(),
-                    T = timer:now_diff(B, A),
-                    io:format("Time: ~p ~n", [T]),
 
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
