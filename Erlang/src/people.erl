@@ -86,7 +86,7 @@ people({S,X,Y,Direction}, Bounds, Life, Starting_life, Bounce_behaviour) ->
         {infect_people, Probability, Targets} ->
             [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
 
-            people({S, X, Y, Direction}, Bounds, Life-1, Starting_life, Bounce_behaviour);            
+            people({S, X, Y, Direction}, Bounds, Life, Starting_life, Bounce_behaviour);            
 
 
         get_infected ->
@@ -170,7 +170,7 @@ people_path(Status, Map, Paths, Path_counter, Paths_length, Life, Starting_life)
          {infect_people, Probability, Targets} ->
             [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
            
-            people_path(Status, Map, Paths, Path_counter, Paths_length, Life-1, Starting_life);               
+            people_path(Status, Map, Paths, Path_counter, Paths_length, Life, Starting_life);               
            
 
         get_infected ->

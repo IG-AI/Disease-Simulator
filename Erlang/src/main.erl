@@ -52,7 +52,7 @@ start() ->
 
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
-                         
+
                     case Movement of
                         bounce ->
                             Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
@@ -185,8 +185,13 @@ calculate_targets_aux([{PID, _, X, Y} | Infected], Healthy, Range, Probability) 
                                  ((X >= X_target-Range) 
                                   andalso (X =< X_target+Range)
                                   andalso (Y >= Y_target-Range) 
-                                  andalso (Y =< Y_target+Range))], % Put all healthy processes that are within three squares into a list
-    PID ! {infect_people, Probability, Target_list}, % Send list to the infected process
+                                  andalso (Y =< Y_target+Range))], % Put all healthy processes that are within range squares into a list
+    case Target_list of
+        [] ->
+            ok;
+        _ ->
+            PID ! {infect_people, Probability, Target_list} % Send list to the infected process
+    end,
     calculate_targets_aux(Infected, Healthy, Range, Probability).
     
 
