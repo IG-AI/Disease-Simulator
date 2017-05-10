@@ -25,7 +25,6 @@ public class Main {
      */
     public static void main(String []args) throws InterruptedException, OtpErlangRangeException, IOException {
         javaErlangCommunicator = new JavaErlangCommunication();
-        GraphicDisplay.createAndShowGUI();
         GraphicDisplay.runSimulation();
     }
 }
