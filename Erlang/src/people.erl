@@ -143,6 +143,7 @@ spawn_people_aux(State, Amount, Map_name, Bounds, Life, Starting_life, G, F) ->
 
 status_check(Status) ->
 if
+   Status == ?IMMUNE -> 0;
    Status == ?INFECTED -> 1;
    true -> 0
 end.
@@ -159,13 +160,9 @@ people_path(Status, Map, Paths, Path_counter, Paths_length, Life, Starting_life)
                     people_path(?IMMUNE, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Starting_life, Starting_life);
                 _ ->      
                     master ! {work, {self(), Status, X, Y},Life},
-                    if
-                        Status == ?INFECTED->
-                            people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life-status_check(Status), Starting_life);
+                    
+                    people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life-status_check(Status), Starting_life)
 
-                        true -> 
-                            people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life, Starting_life)
-                    end
             end;
 
              
