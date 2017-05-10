@@ -48,13 +48,13 @@ pos_str([{{X1, Y1},{X2, Y2}, Cost} | T], Result) ->
 
 
 %% row(X, Y, {X_max, Y_max}, Pos, Mov, Prev) ->
-%%     New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not wall_checker:get_wall_collision(X_valid, Y)], 
+%%     New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not collision_checker:get_wall_collision(X_valid, Y)],
 %%     Down = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1 =:= X2) and (Y1+1 =:= Y2))],
 %%     Left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- New_pos, ((X1+1 =:= X2) and (Y1 =:= Y2))],
 %%     Diagonal_left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1-1 =:= X2) and (Y1+1 =:= Y2))],
-%%     Diagonal_right = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1+1 =:= X2) and (Y1+1 =:= Y2))],   
+%%     Diagonal_right = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, ((X1+1 =:= X2) and (Y1+1 =:= Y2))],
 %%     row(X, Y-1, {X_max, Y_max},lists:merge(New_pos, Pos), Down++Left++Diagonal_left++Diagonal_right++Mov, New_pos).
-    
+
 
 
 -spec row(X :: integer(), Y :: integer(), bounds(), Pos :: pos_list(), Mov :: adj_list(), Prev :: pos_list()) -> {pos_list(), adj_list()}.
@@ -62,16 +62,16 @@ row(_, -1, _, Pos, Mov, _) ->
     {Pos, Mov};
 
 row(X, Y, {X_max, Y_max}, Pos, Mov, Prev) ->
-    New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not wall_checker:get_wall_collision(X_valid, Y)], 
+    New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not collision_checker:get_wall_collision(X_valid, Y)],
 
-    Check_down = fun (X1, Y1, X2, Y2) -> if 
-                                             ((X1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down                       
+    Check_down = fun (X1, Y1, X2, Y2) -> if
+                                             ((X1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down
                                              ((X1-1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down and left
-                                             ((X1+1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down and right                                 
+                                             ((X1+1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down and right
                                              true -> false
-                                         end                           
-                 end,	
+                                         end
+                 end,
 
     Down = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- Prev, Check_down(X1, Y1, X2, Y2)],
-    Left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- New_pos, ((X1+1 =:= X2) and (Y1 =:= Y2))],     
+    Left = [{{X1,Y1},{X2,Y2}, 1} || {X1,Y1} <- New_pos, {X2,Y2} <- New_pos, ((X1+1 =:= X2) and (Y1 =:= Y2))],
     row(X, Y-1, {X_max, Y_max},lists:merge(New_pos, Pos), Down++Left++Mov, New_pos).

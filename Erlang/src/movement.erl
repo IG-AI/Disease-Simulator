@@ -81,7 +81,7 @@ new_direction(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
 
 -spec new_bounce_random_position(X :: integer(), Y :: integer(), {X_direction :: integer(), Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), integer()}.
 new_bounce_random_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
-    Wall_collision = wall_checker:get_wall_collision(X+X_direction, Y+Y_direction),
+    Wall_collision = collision_checker:get_wall_collision(X+X_direction, Y+Y_direction),
 
     case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (Y+Y_direction >= Y_max) orelse (Y + Y_direction =< 0) orelse (Wall_collision) of
 	true ->
@@ -97,12 +97,12 @@ new_bounce_random_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
     {New_X, New_Y, {New_X_direction, New_Y_direction}}.
 
 %%
-%% @doc Randomly generates new x and y coordinates of a process based on its current x and y coordinates and the upper bounds of the x-axis and y-axis. 
-%% The new coordinates will be one grid away from the original coordinates or the same as the original coordinates. 
+%% @doc Randomly generates new x and y coordinates of a process based on its current x and y coordinates and the upper bounds of the x-axis and y-axis.
+%% The new coordinates will be one grid away from the original coordinates or the same as the original coordinates.
 %% All coordinates will be larger or equal to 0 and smaller or equal to the upper bound on both the x-axis and the y-axis
 %%
-%% @param X the current coordinate on the x-axis 
-%% @param Y the current coordinate on the y-axis 
+%% @param X the current coordinate on the x-axis
+%% @param Y the current coordinate on the y-axis
 %% @param X_max the upper bound of the x-axis
 %% @param Y_max the upper bound of the Y-axis
 %%
@@ -112,13 +112,13 @@ new_bounce_random_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
 %% new_rand_position(X, Y, {X_max, Y_max}) ->
 %%     {X_new, Y_new} = new_position(X, Y, rand:uniform(9), Y),
 %%     validate_position(X, Y, X_new, Y_new, {X_max, Y_max}).
-    
+
 %%
-%% @doc Returns  {X_new, Y_new} if X-new is greater or equal than 0 and smaller or equal to the upper bounds, X_max and Y_max respectively, otherwise it returns {X_old, Y_old} 
+%% @doc Returns  {X_new, Y_new} if X-new is greater or equal than 0 and smaller or equal to the upper bounds, X_max and Y_max respectively, otherwise it returns {X_old, Y_old}
 %%
-%% @param X_old the current coordinate on the x-axis 
-%% @param Y_old the current coordinate on the y-axis 
-%% @param X_new the coordinate on the x-axis that is to be validated 
+%% @param X_old the current coordinate on the x-axis
+%% @param Y_old the current coordinate on the y-axis
+%% @param X_new the coordinate on the x-axis that is to be validated
 %% @param Y_new the coordinate on the x-axis that is to be validated
 %% @param X_max the upper bound of the x-axis
 %% @param Y-max the upper bound of the Y-axis
@@ -134,9 +134,9 @@ validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
             {X_old, Y_old};
         Y_new > Y_max ->
             {X_old, Y_old};
-        Y_new < 0 -> 
+        Y_new < 0 ->
             {X_old,Y_old};
-        true -> 
+        true ->
             {X_new, Y_new}
     end.
 
@@ -197,7 +197,7 @@ validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
 %% %%       ?assertEqual({11,9},new_position(10,10,9))].
 
 %% %%
-%% %% Testing valid_possition when X or Y is within bounds. 
+%% %% Testing valid_possition when X or Y is within bounds.
 %% %%
 %% validate_position_within_bounds_test() ->
 %%     Bounds = {10, 10},
@@ -208,57 +208,57 @@ validate_position(X_old, Y_old, X_new, Y_new, {X_max, Y_max}) ->
 %%     ?assertEqual(Position, {X_valid, Y_valid}).
 
 %% %%
-%% %% Testing valid_possition when X or Y is out of bounds. 
+%% %% Testing valid_possition when X or Y is out of bounds.
 %% %%
 %% validate_position_out_of_bounds_test() ->
 %%     Bounds = {10, 10},
 %%     {X_start, Y_start} = {5, 5},
 %%     {X_valid, Y_valid} = {7, 7},
-    
-%%     % Case 1: when X is larger than the upper bound                                                
-%%     X_over = 11,   
+
+%%     % Case 1: when X is larger than the upper bound
+%%     X_over = 11,
 %%     Case_1 = validate_position(X_start, Y_start, X_over, Y_valid, Bounds),
 %%     ?assertEqual(Case_1, {X_start, Y_start}),
 
-%%     % Case 2: when X is smaller than the lower bound                                                
+%%     % Case 2: when X is smaller than the lower bound
 %%     X_under = -1,
 %%     Case_2 = validate_position(X_start, Y_start, X_under, Y_valid, Bounds),
 %%     ?assertEqual(Case_2, {X_start, Y_start}),
 
-%%     % Case 3: when Y is larger than the upper bound                                          
+%%     % Case 3: when Y is larger than the upper bound
 %%     Y_over = 11,
 %%     Case_3 = validate_position(X_start, Y_start, X_valid, Y_over, Bounds),
 %%     ?assertEqual(Case_3, {X_start, Y_start}),
 
-%%     % Case 4: when Y is smaller than the lower bound 
+%%     % Case 4: when Y is smaller than the lower bound
 %%     Y_under = -1,
 %%     Case_4 = validate_position(X_start, Y_start, X_valid, Y_under, Bounds),
 %%     ?assertEqual(Case_4, {X_start, Y_start}).
 
 %% %%
-%% %% Testing the edge cases (X or Y on Bounds) of valid_position.  
+%% %% Testing the edge cases (X or Y on Bounds) of valid_position.
 %% %%
 %% validate_position_edge_cases_test() ->
 %%     Bounds = {10, 10},
 %%     {X_start, Y_start} = {5, 5},
 %%     {X_valid, Y_valid} = {7, 7},
-    
-%%     % Case 1: when X is on than the upper bound                                                
-%%     X_on_upper = 10,   
+
+%%     % Case 1: when X is on than the upper bound
+%%     X_on_upper = 10,
 %%     Case_1 = validate_position(X_start, Y_start, X_on_upper, Y_valid, Bounds),
 %%     ?assertEqual(Case_1, {X_on_upper, Y_valid}),
 
-%%     % Case 2: when X is on than the lower bound                                                
+%%     % Case 2: when X is on than the lower bound
 %%     X_on_lower = 0,
 %%     Case_2 = validate_position(X_start, Y_start, X_on_lower, Y_valid, Bounds),
-%%     ?assertEqual(Case_2, {X_on_lower, Y_valid}),   
+%%     ?assertEqual(Case_2, {X_on_lower, Y_valid}),
 
-%%     % Case 3: when Y is on than the upper bound                                          
+%%     % Case 3: when Y is on than the upper bound
 %%     Y_on_upper = 10,
 %%     Case_3 = validate_position(X_start, Y_start, X_valid, Y_on_upper, Bounds),
 %%     ?assertEqual(Case_3, {X_valid, Y_on_upper}),
 
-%%     % Case 4: when Y is on than the lower bound 
+%%     % Case 4: when Y is on than the lower bound
 %%     Y_on_lower = 0,
 %%     Case_4 = validate_position(X_start, Y_start, X_valid, Y_on_lower, Bounds),
 %%     ?assertEqual(Case_4, {X_valid, Y_on_lower}).
