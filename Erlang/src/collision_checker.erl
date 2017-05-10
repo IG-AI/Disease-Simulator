@@ -7,7 +7,7 @@
 %% to check if it's a wall or not, then responds to the sending process with the answer.
 %%
 %% @param A map with walls.
-%% 
+%%
 -spec check_wall(Walls :: map()) -> no_return().
 check_wall(Walls)->
     receive
@@ -26,7 +26,7 @@ check_wall(Walls)->
 %% to check if it's a hospital or not, then responds to the sending process with the answer.
 %%
 %% @param A map with hospitals.
-%% 
+%%
 -spec check_hospital(Hospital :: map()) -> no_return().
 check_hospital(Hospital)->
     receive
@@ -46,39 +46,31 @@ check_hospital(Hospital)->
 %% @param X The X-coordinate to check
 %% @param Y The Y-coordinate to check
 %% @return a boolean showing if the given position is a wall. True if it's a wall, else false.
-%% 
+%%
 -spec get_wall_collision(X :: integer(), Y :: integer()) -> boolean().
 get_wall_collision(X, Y) ->
     checker ! {self(), X, Y},
-    receive 
+    receive
 	{wall, true} ->
 	    true;
 	{wall, _} ->
 	    false
     end.
-	
+
 %%
 %% @doc Checks if a position is on a hospital tile
 %%
 %% @param X The X-coordinate to check
 %% @param Y The Y-coordinate to check
 %% @return a boolean showing if the given position is on a hospital tile. True if it is, else false.
-%% 
+%%
 -spec get_hospital_location(X :: integer(), Y :: integer()) -> boolean().
 get_hospital_location(X, Y) ->
     h_checker ! {self(), X, Y},
-    receive 
+    receive
 	{hospital, true} ->
 	    true;
 	{hospital, _} ->
 	    false
     end.
-	
 
-
-
-		
-		     
-							   
-	    
-	    
