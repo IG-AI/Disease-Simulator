@@ -44,8 +44,8 @@ generate_start_positions(Amount, {X_max,Y_max}, Result) ->
 
 -spec new_bounce_position(X :: integer(), Y :: integer(), {X_direction :: integer(),Y_direction :: integer()}, Bounds :: bounds()) -> {integer(),integer(), {integer(), integer()}}.
 new_bounce_position(X, Y, {X_direction, Y_direction}, {X_max, Y_max}) ->
-    X_wall_collision = wall_checker:get_wall_collision(X+X_direction, Y),
-    Y_wall_collision = wall_checker:get_wall_collision(X, Y + Y_direction),
+    X_wall_collision = collision_checker:get_wall_collision(X+X_direction, Y),
+    Y_wall_collision = collision_checker:get_wall_collision(X, Y + Y_direction),
 
     case (X+X_direction >= X_max) orelse (X+X_direction =< 0) orelse (X_wall_collision) of
 	true ->
