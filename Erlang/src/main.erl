@@ -90,7 +90,7 @@ start() ->
 %%
 %% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  End :: integer()) -> no_return().
+-spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  End :: atom()) -> ok.
 master(State, 0, Java_connection, _, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
@@ -127,6 +127,7 @@ master(State, Times, Java_connection, Range, Probability, End) ->
 %%
 %% @returns true it an end condition has been reched, false otherwise 
 %%
+-spec endstate(state(),state(),atom()) -> boolean().
 endstate(State, Infected, End) ->
     if 
         End == ticks ->
@@ -157,10 +158,27 @@ endstate(State, Infected, End) ->
 %%
 -spec calculate_targets(State :: state(), Range :: non_neg_integer(), Probability :: float()) -> state().
 calculate_targets(State, Range, Probability) ->
-    Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?INFECTED], % Put all infected processes into a list
-    Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?HEALTHY], % Put all healthy processes into a list
+    Split = fun  
+                Split([{PID,?HEALTHY,X,Y} | Rest],I,H) ->
+                    Split(Rest,I,[{PID,?HEALTHY,X,Y} | H]);
+                
+                Split([{PID,?INFECTED,X,Y} | Rest],I,H) ->
+                    Split(Rest,[{PID,?INFECTED,X,Y} | I],H);
+                
+                Split([{_,?IMMUNE,_,_} | Rest],I,H) ->
+                    Split(Rest,I,H);
+                
+                Split([],I,H) -> 
+                    {I,H}  
+            end,
+    {Infected,Healthy} = Split(State,[],[]),
     calculate_targets_aux(Infected, Healthy, Range, Probability),
     Infected.
+
+    %% Infected = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?INFECTED], % Put all infected processes into a list
+    %% Healthy = [{PID, S, X ,Y} || {PID, S , X ,Y} <- State, S =:= ?HEALTHY], % Put all healthy processes into a list
+    %% calculate_targets_aux(Infected, Healthy, Range, Probability),
+    %% Infected.
 
 %%
 %% @doc Compares the head of Infected with each process in Healthy and send a message to the infected process

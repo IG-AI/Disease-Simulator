@@ -28,7 +28,8 @@ check_file(Map_name) ->
             calendar:datetime_to_gregorian_seconds(File_date) >= calendar:datetime_to_gregorian_seconds(Map_date)
     end.
 
--spec pos_str(pos_list() | adj_list(), [non_neg_integer()]) -> pos_list() | adj_list().        
+%%-spec pos_str(pos_list() | adj_list(), [non_neg_integer()]) -> pos_list() | adj_list().
+-spec pos_str(adj_list() | pos_list(), [[integer()]]) -> [[integer()]].        
 pos_str([], Result)->
     Result;
 
