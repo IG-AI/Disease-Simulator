@@ -6,8 +6,7 @@
 -spec adj_map(Map_name :: [non_neg_integer()], Map :: world()) -> boolean().
 adj_map(Map_name, Map) ->
     case check_file(Map_name) of 
-        false ->
-            %{X_max, Y_max, Walls, _Hospital} = {6, 6, #{1=>[2, 3], 2=>[1, 2, 3], 3=>[2, 3, 4], 4=>[0, 3], 5=>[0]}, {}},
+        false ->          
             {X_max, Y_max, _Walls, _Hospital} = Map,
             Mod = 1,
             {Pos, Mov} = row(X_max-Mod, Y_max-Mod, {X_max-Mod, Y_max-Mod}, [], [], []),
