@@ -44,10 +44,10 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * RANGE - the radius of the area an individual need to be in order to be infected by another individual.
 * LIFE - the number of ticks an individual will 'live' after being infected.
 * MOVE - the movement of the individuals, can be "path" to use A\*, or "bounce"/"bounce_random" to use bouncing behaviour.
-* MODE  - the switch for the end conditions:
-              For 0 the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
-              For 1 the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
-              For 2 the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
+* END  - the switch for the end conditions:
+              For 'ticks' the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
+              For 'dead' the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
+              For 'infected' the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
 
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
