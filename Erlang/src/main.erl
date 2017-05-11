@@ -20,7 +20,7 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_mode] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
@@ -28,7 +28,7 @@ start() ->
     Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
     Movement = list_to_atom(S_movement),
-    Mode = list_to_integer(S_mode),
+    End = list_to_atom(S_end),
 
     %Here we start up the net thingy
     java_connection:initialise_network(),
@@ -68,7 +68,7 @@ start() ->
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
                     
-                    master(State, Times, Java_connection_string, Range, Probability, Mode); %start master
+                    master(State, Times, Java_connection_string, Range, Probability, End); %start master
 
 
                 _ ->	% No map information =(
@@ -90,14 +90,14 @@ start() ->
 %%
 %% @returns the State at the end of the simulation
 %%
--spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  Mode :: integer()) -> no_return().
+-spec master(State :: state(), Times :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  End :: integer()) -> no_return().
 master(State, 0, Java_connection, _, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
     io:format("Simulation done ~n");
 
-master(State, Times, Java_connection, Range, Probability, Mode) ->     
+master(State, Times, Java_connection, Range, Probability, End) ->     
     master_call_all(State), %send starting message to all processes in State
     receive
         {result, New_state} ->  
@@ -107,11 +107,11 @@ master(State, Times, Java_connection, Range, Probability, Mode) ->
                 %%io:format("Got position request...\n"),             
                 Java_connection ! {updated_positions, New_state}, %send new state to the java server                
                 Infected = calculate_targets(New_state, Range, Probability),
-                case endstate(New_state, Infected, Mode) of
+                case endstate(New_state, Infected, End) of
                     true ->
-                        master(New_state, 0, Java_connection, Range, Probability, Mode);
+                        master(New_state, 0, Java_connection, Range, Probability, End);
                     false ->	
-                        master(New_state, Times-1, Java_connection, Range, Probability, Mode)
+                        master(New_state, Times-1, Java_connection, Range, Probability, End)
                 end
         end
             
@@ -123,21 +123,21 @@ master(State, Times, Java_connection, Range, Probability, Mode) ->
 %%
 %% @param State the state of the simulation
 %% @param Infected a list of all the infected processes
-%% @param Mode a switch indicating which end condition should be used
+%% @param End a switch indicating which end condition should be used
 %%
 %% @returns true it an end condition has been reched, false otherwise 
 %%
-endstate(State, Infected, Mode) ->
+endstate(State, Infected, End) ->
     if 
-        Mode == 0 ->
+        End == ticks ->
             false;        
 	State == [] ->
 	    io:format("All processes are dead ~n"),
 	    true;
-	(Infected == []) and (Mode >= 1)->
+	(Infected == []) and ((End == dead) or (End == infected))->
 	    io:format("All processes are healthy ~n"),
 	    true;
-	(length(Infected) == length(State)) and (Mode >= 2) ->
+	(length(Infected) == length(State)) and (End == infected) ->
 	    io:format("All processes are infected ~n"),
 	    true;
 	true ->
