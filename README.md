@@ -32,6 +32,7 @@ The code can be compiled using: <br>
 Compilation will however be done automatically if using the below mentioned commands to run the components. <br>
 
 ### Run the program
+*There is a method to start the simulation using a GUI, it is mentioned last in this paragraph.*<br>
 To run a simulation use two separate shells to start the two components.<br>
 To start the graphical presentation use: **make jrun**<br>
 To start the simulation server use: **make erun**<br>
@@ -51,6 +52,9 @@ Several arguments can be passed to the simulation server via the make-command.<b
 
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
+
+**Note that this method using the GUI to start the simulation is not always up to date**<br>
+You can start the simulation using a GUI, to start the gui use the command **make gui**
 
 (The rule **make run** exist but is currently not supported. It's behaviour is unpredictable and might prevent the start of further simulations due to behaviour of the Java window. It should **NOT** be used until those issues are resolved.) <br>
 
