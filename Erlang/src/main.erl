@@ -14,7 +14,8 @@
 %% the probability of an infection occuring,
 %% the starting life of the individuals,
 %% the behaviour that individuals should have when moving,
-%% and the end condition of the simulation
+%% the end condition of the simulation, 
+%% and whether or not vaccination should be possible
 %% It then tries to connect to the Java server, if it successfully connects it will request information about the map
 %% from the Java server. It then starts the simulation if it receives an afirmative response. 
 %%
@@ -28,7 +29,7 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
@@ -37,6 +38,7 @@ start() ->
     Life = list_to_integer(S_life),
     Movement = list_to_atom(S_movement),
     End = list_to_atom(S_end),
+    Vaccine = list_to_atom(S_vaccine),
 
     %Here we start up the net thingy
     java_connection:initialise_network(),
@@ -54,7 +56,7 @@ start() ->
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
                   
-                    State = people:spawn_people([], Amount, Movement, Life, {Map, Width, Height, Walls, Hospital}),
+                    State = people:spawn_people([], Amount, Movement, Life, Vaccine, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
                     

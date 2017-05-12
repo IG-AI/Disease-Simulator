@@ -45,6 +45,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * RANGE - the radius of the area an individual need to be in order to be infected by another individual.
 * LIFE - the number of ticks an individual will 'live' after being infected.
 * MOVE - the movement of the individuals, can be "path" to use A\*, or "bounce"/"bounce_random" to use bouncing behaviour.
+* VAC - the switch for vaccination: 'on' or 'off' 
 * END  - the switch for the end conditions:
               For 'ticks' the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
               For 'dead' the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 

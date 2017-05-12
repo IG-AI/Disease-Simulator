@@ -71,9 +71,10 @@ PROB?=1.0 #Default chanse of infection
 LIFE?=100 #Default nummber of ticks
 MOVE?=bounce #Default movement behaviour, "bounce", "path" or "bounce_random"
 END?=dead #Default end condition
+VAC?=on #Default vaccine setting
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END)# ARGS FOR ERLANG
-ETINY = map_zero 3 20 0 3 0 50 bounce dead
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(VAC)# ARGS FOR ERLANG
+ETINY = map_zero 3 20 0 3 0 50 bounce dead on
 
 # SPECIAL RUNS #
 erun_tiny: epmd_run all

@@ -1,5 +1,5 @@
 -module(people).
--export([spawn_people/5]).
+-export([spawn_people/6]).
 -include("includes.hrl").
 %% {@date}{@time}
 %%
@@ -12,28 +12,28 @@
 %% bounce will make them bounce in a "natural way" when encountering an obstacle.
 %% bounce_random will make them bounce in a random direction. 
 %% @param Starting_life How many 'ticks' an individual will continue to run after being infected.
+%% @param Vaccine_status Whether or not vaccination should be possible.
 %% @param Map_info Information about the map.
 %%
 %% @returns A state with Amount number of people with their status set to healthy. 
 %%
--spec spawn_people(State :: state(), Amount :: integer(), Movement_behaviour :: atom(), Starting_life :: non_neg_integer(), Map_info :: 
-{[integer()], non_neg_integer(), non_neg_integer(), map(), map()}) -> state().
-spawn_people(State, 0, _, _, _) ->
+-spec spawn_people(State :: state(), Amount :: integer(), Movement_behaviour :: atom(), Starting_life :: non_neg_integer(), Vaccine_status :: atom(), Map_info :: {[integer()], non_neg_integer(), non_neg_integer(), map(), map()}) -> state().
+spawn_people(State, 0, _, _, _, _) ->
     State;
 
-spawn_people(State, Amount, path, Starting_life, Map_info) ->
+spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
     {Map_name, Width, Height, Walls, Hospital} = Map_info,
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS    
-    spawn_people_aux(State, Amount, Map_name, {Width, Height}, Starting_life, G, F);
+    spawn_people_aux(State, Amount, Map_name, {Width, Height}, Starting_life, Vaccine_status, G, F);
 
-spawn_people(State, Amount, Movement_behaviour, Starting_life, Map_info) ->
+spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, Map_info) ->
     {_, X_max, Y_max, _, _} = Map_info, 
     Direction = movement:generate_direction(),
     {X, Y} = movement:generate_position({X_max, Y_max}),
-    PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}) end),
-    spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Map_info).
+    PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
+    spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
 %%
 %% @doc Spawns people that will walk between three random points.
@@ -43,30 +43,31 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Map_info) ->
 %% @param Map_name The name of the map that you are using.
 %% @param Bounds The bounds of the map.
 %% @param Starting_life How much life that the processes will start with.
+%% @param Vaccine_status Whether or not vaccination should be possible.
 %% @param G The adjency map that you will use.
 %% @param F A function that calculates the distance between 2 points.
 %%
 %% @returns The new state. 
 %%
-spawn_people_aux(State, 0, _, _, _, _, _) ->
+spawn_people_aux(State, 0, _, _, _, _, _, _) ->
     State;
 
-spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F) ->
+spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F) ->
     [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
     Result_1 =  a_star:run(G, P1, P2, F),
     Result_2 = a_star:run(G, P2, P3, F),
     Result_3 = a_star:run(G, P3, P1, F),
     case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
         true ->
-            spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F);
+            spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F);
         false->
             {_, Path_1} = Result_1,
             {_, Path_2} = Result_2,
             {_, Path_3} = Result_3,
             Paths = Path_1 ++ (Path_2 ++ Path_3),           
-            PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Paths, []}) end),
+            PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Paths, []}, Vaccine_status) end),
             [{X , Y} | _ ] = Paths,
-            spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, G, F)
+            spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, Vaccine_status, G, F)
     end.
 
 %%
@@ -79,15 +80,16 @@ spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F) ->
 %% @param Starting_life How much Life the individual had when it spawned
 %% @param Movement_behaviour The behaviour the individuals will have when moving.
 %% @param Movement_args The arguments the individual will use when moving
+%% @param Vaccine_status Whether or not vaccination should be possible.
 %%
 %% @returns done
 %%
 -spec people(Status :: status(), Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom(),
-             Movement_args :: {position(), direction(), bounds()} | {pos_list(), pos_list()}) -> done.
-people(Status, Life, Starting_life, path, {[], Paths_visited}) ->
-    people(Status, Life, Starting_life, path, {lists:reverse(Paths_visited),[]});
+             Movement_args :: {position(), direction(), bounds()} | {pos_list(), pos_list()}, Vaccine_status :: atom()) -> done.
+people(Status, Life, Starting_life, path, {[], Paths_visited}, Vaccine_status) ->
+    people(Status, Life, Starting_life, path, {lists:reverse(Paths_visited),[]}, Vaccine_status);
 
-people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
+people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status) ->
     receive
         ready ->
             case Movement_behaviour of
@@ -108,24 +110,30 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
 
             master ! {work, {self(), Status, X_new, Y_new}, Life},      
 
-            case(collision_checker:get_hospital_location(X_new,Y_new)) of
-                true ->	                   
-                    people(?IMMUNE, Life, Starting_life, Movement_behaviour, New_movement_args);
-                _ ->                       
-                    people(Status, Life - status_check(Status), Starting_life, Movement_behaviour, New_movement_args) %if process infected, decrease Life
+            case Vaccine_status of
+
+                off -> 
+                     people(Status, Life - status_check(Status), Starting_life, Movement_behaviour, New_movement_args, Vaccine_status); %if process infected, decrease Life
+                on ->
+                    case(collision_checker:get_hospital_location(X_new,Y_new)) of
+                        true ->	                   
+                            people(?IMMUNE, Life, Starting_life, Movement_behaviour, New_movement_args, Vaccine_status);
+                        _ ->                       
+                            people(Status, Life - status_check(Status), Starting_life, Movement_behaviour, New_movement_args, Vaccine_status) %if process infected, decrease Life
+                    end
             end;
 
         {infect_people, Probability, Targets} ->
             [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
 
-            people(Status, Life, Starting_life, Movement_behaviour, Movement_args);            
+            people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status);            
 
         get_infected ->
             case Status of
                 ?IMMUNE ->
-                    people(Status, Life, Starting_life, Movement_behaviour, Movement_args);
+                    people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status);
                 _ ->
-                    people(?INFECTED, Life, Starting_life, Movement_behaviour, Movement_args) %Change status to infected
+                    people(?INFECTED, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status) %Change status to infected
             end;
         stop ->
             done
