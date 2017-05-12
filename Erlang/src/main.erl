@@ -44,6 +44,8 @@ start() ->
     %Connect to the java server and get the server PID
     Java_connection = java_connection:connect_java(Java_connection_string, 15),
 
+    record:start_record(),
+
     case Java_connection of
         false -> timer:sleep(10);	%failed connection
 
@@ -84,6 +86,7 @@ master(State, 0, Java_connection, _, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
+    record ! {simulation_done, "ASD"},
     io:format("Simulation ending ~n");
 
 master(State, Ticks, Java_connection, Range, Probability, End) ->     
@@ -93,7 +96,8 @@ master(State, Ticks, Java_connection, Range, Probability, End) ->
 
 	receive 
             ready_for_positions ->                
-                Java_connection ! {updated_positions, New_state}, %send new state to the java server                
+                Java_connection ! {updated_positions, New_state}, %send new state to the java server
+                record ! {updated_positions, New_state},
                 Infected_list = calculate_targets(New_state, Range, Probability), %infect individuals
                 case endstate(New_state, Infected_list, End) of %check if an endstate have been reached
                     true ->
