@@ -24,10 +24,11 @@ public class GUIForm extends JFrame {
     private JSpinner numberOfTicsSpinner;
     private JSpinner numberOfInfectedSpinner;
     private javax.swing.JLabel mapInfo;
-    private JSpinner modeSpinner;
-    private JComboBox moveBox;
+    private JComboBox<String> endBox;
+    private JComboBox<String> moveBox;
     private String currentMap;
     private String currentMove;
+    private String currentEnd;
     private List<String> defMap = new ArrayList<>();
     private int compareInd;
     private int compareInf;
@@ -41,10 +42,6 @@ public class GUIForm extends JFrame {
     }
 
     private void spinnerSetup(){
-        SpinnerNumberModel move = new SpinnerNumberModel(0,0,2,1);
-        modeSpinner.setModel(move);
-        JFormattedTextField moveNumbers = ((JSpinner.NumberEditor) infectionProbabilitySpinner.getEditor()).getTextField();
-        ((NumberFormatter) moveNumbers.getFormatter()).setAllowsInvalid(false);
 
         SpinnerNumberModel probability = new SpinnerNumberModel(1.00,0.00,1.00,0.01 );
         infectionProbabilitySpinner.setModel(probability);
@@ -80,7 +77,11 @@ public class GUIForm extends JFrame {
     private void setModeBox(){
 
         currentMove = "bounce";
+        currentEnd = "dead";
 
+        endBox.addItem("dead");
+        endBox.addItem("ticks");
+        endBox.addItem("infected");
         moveBox.addItem("bounce");
         moveBox.addItem("bounce_random");
         moveBox.addItem("path");
@@ -112,7 +113,7 @@ public class GUIForm extends JFrame {
         }
 
 
-    private void runErlang() throws IOException, InterruptedException {
+    private void run() throws IOException, InterruptedException {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
@@ -124,22 +125,10 @@ public class GUIForm extends JFrame {
         String inputTics = "TICKS=" + numberOfTicsSpinner.getValue();
         String inputHealth = "LIFE=" + numberOfHealthSpinner.getValue();
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
-        String inputMode = "MODE=" + modeSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
 
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "erun", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, inputMode, "MOVE=" + currentMove};
+        String[] ecommand = new String[]{ "xterm", "-e" , "make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove};
         Process eproc = new ProcessBuilder(ecommand).directory(directory).start();
-    }
-
-    private void runJava() throws IOException {
-
-        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
-        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
-        File directory = new File(folderPath);
-
-        String[] jcommand = new String[]{"xterm", "-e", "make", "jrun"};
-        Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
     }
 
     private GUIForm() throws UnsupportedEncodingException {
@@ -174,6 +163,14 @@ public class GUIForm extends JFrame {
             }
         });
 
+        endBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                currentEnd = (String)cb.getSelectedItem();
+            }
+        });
+
         moveBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -192,7 +189,6 @@ public class GUIForm extends JFrame {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
                 System.exit(0);
             }
         });
@@ -201,13 +197,8 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(!defMap.isEmpty()){
                     try {
-                        runErlang();
+                        run();
                     } catch (IOException | InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    try {
-                        runJava();
-                    } catch (IOException e1) {
                         e1.printStackTrace();
                     }
                 }
