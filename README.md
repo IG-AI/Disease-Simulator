@@ -55,13 +55,17 @@ EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
 
 **Note that this method using the GUI to start the simulation is not always up to date**<br>
 You can start the simulation using a GUI, to start the gui use the command **make gui**
+It's also possible to run Project-snowfox-linux.jar.
 
-(The rule **make run** exist but is currently not supported. It's behaviour is unpredictable and might prevent the start of further simulations due to behaviour of the Java window. It should **NOT** be used until those issues are resolved.) <br>
+(The rule **make run** exist but is currently not supported. It's behaviour is unpredictable and might prevent the start of further simulations due to behaviour of the Java window. This requires you to close the Java window after every run of the simuation. It should **NOT** be used until those issues are resolved.) <br>
 
 ### System requirements
 The program is run mainly on the schools ThinLinc clients: https://www.it.uu.se/datordrift/maskinpark/linux <br>
 These are running Java 7 and Erlang 19.<br>
 The correct Erlang version seems to be the most important thing to get it running on our personal computers. <br>
+
+To be able to run the simulation via the gui you are required to have xterm installed on your computer <br>
+(this is already installed on the schools ThinLinc clients).<br>
 
 On personal computers we've had success running it on these setups:
 * Linux Mint 17 with Java 7 and Erlang 19
