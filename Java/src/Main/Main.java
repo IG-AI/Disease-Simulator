@@ -1,9 +1,9 @@
 package Main;
 
+import Graphic.GraphicDisplay;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
 
 import Communication.JavaErlangCommunication;
-import Graphic.GraphicDisplay;
 
 import java.io.IOException;
 

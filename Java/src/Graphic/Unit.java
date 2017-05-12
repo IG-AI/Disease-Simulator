@@ -37,14 +37,6 @@ public class Unit extends JComponent
 
 
 	/**
-	 * Painting a Unit.
-	 */
-	public void paint() {
-		repaint();
-	}
-
-
-	/**
 	 * Repainting the new position and status of a Unit.
 	 *
 	 * @param newx the new x-position of the Unit as a int.

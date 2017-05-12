@@ -57,7 +57,7 @@ public class GraphicDisplayProfiling extends GraphicDisplay {
      */
     public static void initializeProfilingGUI() throws OtpErlangRangeException, IOException {
         while (imageComponent == null) {
-            imageComponent = new ImageComponents(winX, winY);
+            imageComponent = new ImageComponents();
         }
         imageComponent.setImage(ImageIO.read(new File("data/map_two.bmp")));
         xBound = imageComponent.getWidth();
