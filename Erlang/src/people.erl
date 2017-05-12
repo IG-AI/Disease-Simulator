@@ -1,15 +1,18 @@
 -module(people).
 -export([spawn_people/5]).
 -include("includes.hrl").
-
+%% {@date}{@time}
 %%
 %% @doc Spawn the people that will be used in the simulation. 
 %%
 %% @param State The current state that you would like to add people to. Will be empty most of the time.
 %% @param Amount The amount of people that you would like to spawn.
-%% @param Movement_behaviour The behaviour the individuals will have when moving.
-%% @param Starting_life How many 'ticks' an individual will continue to run after being infected
-%% @param Map_info Information about the map
+%% @param Movement_behaviour The behaviour the individuals will have when moving. 
+%% path will make them move between three random points using the A*-algorithm.
+%% bounce will make them bounce in a "natural way" when encountering an obstacle.
+%% bounce_random will make them bounce in a random direction. 
+%% @param Starting_life How many 'ticks' an individual will continue to run after being infected.
+%% @param Map_info Information about the map.
 %%
 %% @returns A state with Amount number of people with their status set to healthy. 
 %%
@@ -32,6 +35,19 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Map_info) ->
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Map_info).
 
+%%
+%% @doc Spawns people that will walk between three random points.
+%%
+%% @param State The state that you will add the people to.
+%% @param Amount The amount of people that you would like to spawn.
+%% @param Map_name The name of the map that you are using.
+%% @param Bounds The bounds of the map.
+%% @param Starting_life How much life that the processes will start with.
+%% @param G The adjency map that you will use.
+%% @param F A function that calculates the distance between 2 points.
+%%
+%% @returns The new state. 
+%%
 spawn_people_aux(State, 0, _, _, _, _, _) ->
     State;
 
@@ -53,23 +69,23 @@ spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F) ->
             spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, G, F)
     end.
 
-
 %%
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
-%% and send a tagged tuple with its new position and its pid to the registred processes master if it receives the atom ready. If a process becomes infected it will die after Life number of 'ticks' 
+%% and send a tagged tuple with its new position and its pid to the registred processes master if it receives the atom ready. 
+%% If a process becomes infected it will die after Life number of 'ticks' 
 %% 
 %% @param Status the new state of the person. Representing the health of the person.
 %% @param Life How many 'ticks' an individual will continue to run after being infected.
 %% @param Starting_life How much Life the individual had when it spawned
 %% @param Movement_behaviour The behaviour the individuals will have when moving.
-%% @param Movement_args The arguments the individuall will use when moving
+%% @param Movement_args The arguments the individual will use when moving
 %%
 %% @returns done
 %%
--spec people(Status :: status(), Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom(), Movement_args :: {position(), direction(), bounds()} | {pos_list(), pos_list()}) -> done.
+-spec people(Status :: status(), Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom(),
+             Movement_args :: {position(), direction(), bounds()} | {pos_list(), pos_list()}) -> done.
 people(Status, Life, Starting_life, path, {[], Paths_visited}) ->
     people(Status, Life, Starting_life, path, {lists:reverse(Paths_visited),[]});
-
 
 people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
     receive
@@ -104,7 +120,6 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
 
             people(Status, Life, Starting_life, Movement_behaviour, Movement_args);            
 
-
         get_infected ->
             case Status of
                 ?IMMUNE ->
@@ -116,94 +131,31 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
             done
     end.
 
-
+%%
+%% @doc Parse a string representation of a tuple with two integers.
+%%
+%% @param S The string to parse.
+%%
+%% @returns An Erlang tuple with the two integers from the string.
+%%
+-spec parse(S :: [non_neg_integer()]) -> {integer(),integer()}.
 parse(S) ->
     {_, [_,{S1, L1}, {S2, L2}]} = re:run(S, "([0-9]+)[^0-9]*([0-9]+)"),
     {A,_} = string:to_integer(string:substr(S, S1+1, L1)),
     {B,_} = string:to_integer(string:substr(S, S2+1, L2)),
     {A,B}.
 
-
+%%
+%% @doc Check the status of a proccess to see how much life it should loose after an iteration.
+%%
+%% @param The status to check.
+%%
+%% @returns How much life the process should loose. 
+%%
+-spec status_check(Status :: integer()) -> 0 | 1.
 status_check(Status) ->
 if
    Status == ?IMMUNE -> 0;
    Status == ?INFECTED -> 1;
    true -> 0
-end.
- 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                         EUnit Test Cases                                  %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% %% 
-%% %% Testing spawn_people when no processes are spawned. 
-%% %%
-%% spawn_people_none_test() ->
-%%     Bounds = {10,10},
-%%     State_start =[],
-%%     Start_position = [{5,5}],
-%%     State = spawn_people(State_start, 0, Bounds, Start_position),
-%%     ?assertEqual(State_start, State).
-
-%% %%
-%% %% Testing spawn_people when a single process is spawned. 
-%% %%
-%% spawn_people_single_test() ->
-%%     {X_max, Y_max} = {10,10},
-%%     State_start = [],
-%%     Number_of_processes = 1,
-%%     Start_position = [{5,5}],
-%%     State = spawn_people(State_start,  Number_of_processes, {X_max, Y_max}, Start_position),
-%%     [{PID, Status, X, Y}] = State,
-%%     ?assertEqual(length(State), Number_of_processes),
-%%     ?assert(is_pid(PID)),
-%%     ?assertEqual(Status, 0),
-%%     ?assertEqual([{X,Y}], Start_position).
-        
-%% %%
-%% %% Testing spawn_people when several (10) processes are spawned. 
-%% %%
-%% spawn_people_several_test() ->
-%%     Bounds = {10,10},
-%%     State_start = [],
-%%     Number_of_processes = 10,
-%%     Starting_positions = [{X,Y} || X <- lists:seq(1,Number_of_processes), Y <- lists:seq(1,Number_of_processes), X == Y],
-%%     State = spawn_people(State_start, Number_of_processes, Bounds, Starting_positions),
-%%     ?assertEqual(length(State), Number_of_processes),
-%%     New_positions = lists:map(fun({_,{_,X,Y}}) -> {X,Y} end, State),
-%%     ?assertEqual(Starting_positions, New_positions).
-
-%%
-%% Testing people by sending ready message. 
-%%
-%% people_ready_test() ->
-%%     register(master, self()),
-%%     {X_max, Y_max} = {10,10},
-%%     Person = {0,9,0},
-%%     PID = spawn(fun() -> people(Person, {X_max, Y_max}) end),
-%%     PID ! ready,
-%%     receive
-%%         {work, {P, S, X, Y}} ->
-%%             ?assertEqual(P, PID),
-%%             ?assertEqual(S, 0),
-%%             ?assert(0 =< X),
-%%             ?assert(X =< X_max),
-%%             ?assert(0 =< Y),
-%%             ?assert(Y =< Y_max)                
-%%     end,
-%%     unregister(master).
-
-%%
-%% Testing people by sending stop message. 
-%%
-people_stop_test() ->
-   ok.
-
-%%
-%% Testing people by sending stop message. 
-%%
-people_ready_and_stop_test() ->
-   ok.
+end. 
