@@ -30,7 +30,7 @@ connect_java(Name, Timeout) ->
 %% @param Timeout is the number of seconds the function will try
 %% connecting before giving up.
 %%
-%% @return If connection is sucessful the Java process ID and the atom pong, else false
+%% @returns If connection is sucessful the Java process ID and the atom pong, else false
 %%
 %% @TODO The Java process ID that is returned can not be used to connect to Java.
 %% 

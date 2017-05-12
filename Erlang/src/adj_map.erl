@@ -29,7 +29,7 @@ adj_map(Map_name, Map) ->
 %%
 %% @param Map_name the name of the map to check
 %%
-%% @return true if the adjacency map for the supplied file exist and is up to date, else false
+%% @returns true if the adjacency map for the supplied file exist and is up to date, else false
 -spec check_file(Map_name :: [non_neg_integer()]) -> boolean().
 check_file(Map_name) ->    
     case filelib:is_regular("data/"++Map_name++".adjmap") of
@@ -47,7 +47,7 @@ check_file(Map_name) ->
 %%
 %% @param adj_list | pos_list The adjacency list or position list to be converted
 %% @param Result the already converted list.
-%% @return The supplied list converted to a readable string.
+%% @returns The supplied list converted to a readable string.
 %% 
 %% @TODO Rewrite the function to two different functions, one taking an adj_list and the other taking a pos_list
 -spec pos_str(adj_list() | pos_list(), [[integer()]]) -> [[integer()]].        
@@ -78,7 +78,7 @@ pos_str([{{X1, Y1},{X2, Y2}, Cost} | T], Result) ->
 %% @param Mov the adjacency list that has been generated so far (will continueously be updated with more positions)
 %% @param Prev the valid positions from the previous row
 %%
-%% @return A tuple containing valid positions of the map and all valid movements.
+%% @returns A tuple containing valid positions of the map and all valid movements.
 %% 
 -spec row(X :: integer(), Y :: integer(), bounds(), Pos :: pos_list(), Mov :: adj_list(), Prev :: pos_list()) -> {pos_list(), adj_list()}.
 row(_, -1, _, Pos, Mov, _) ->
