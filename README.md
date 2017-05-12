@@ -54,7 +54,7 @@ The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
 
 **Note that this method using the GUI to start the simulation is not always up to date**<br>
-You can start the simulation using a GUI, to start the gui use the command **make gui**
+You can start the simulation using a GUI, to start the gui use the command **make gui**<br>
 It's also possible to run Project-snowfox-linux.jar.
 
 (The rule **make run** exist but is currently not supported. It's behaviour is unpredictable and might prevent the start of further simulations due to behaviour of the Java window. This requires you to close the Java window after every run of the simuation. It should **NOT** be used until those issues are resolved.) <br>
