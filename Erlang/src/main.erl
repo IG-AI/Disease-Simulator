@@ -41,30 +41,12 @@ start() ->
 
         _ ->	% We could connect to the java server
             case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
-                {Width, Height, Walls, Hospital} ->	% information about map aquired
-
-                    % Dump information about the newly read map.
-
-                    %io:format("Width: ~p, Height: ~p\n", [Width, Height]),	
-                    %io:format("Map: ~p\n", [Walls]),
-                    %io:format("Hospital: ~p\n", [Hospital]),
-                      	    
+                {Width, Height, Walls, Hospital} ->	% information about map aquired                   
 
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
-
-                    case Movement of
-                        bounce ->
-                            Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),  %generate starting positions for people processes
-                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, Life, bounce);  %spawn people processes
-                        bounce_random ->
-                            Start_positions = movement:generate_start_positions(Amount, {Width ,Height}, []),
-                            State  = people:spawn_people([], Amount, {Width, Height}, Start_positions, Life, Life, bounce_random);
-                        path ->
-                            adj_map:adj_map(Map, {Width, Height, Walls, Hospital}),                    
-                            State  = people:spawn_people_path([], Amount, Map, {Width, Height}, Life, Life)   %spawn people processes
-                    end,
-
+                  
+                    State = people:spawn_people([], Amount, Movement, Life, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
                     
@@ -95,7 +77,7 @@ master(State, 0, Java_connection, _, _, _) ->
     unregister(master), %remove master from the list of named processes 
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
-    io:format("Simulation done ~n");
+    io:format("Simulation ending ~n");
 
 master(State, Times, Java_connection, Range, Probability, End) ->     
     master_call_all(State), %send starting message to all processes in State

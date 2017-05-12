@@ -1,8 +1,5 @@
 -module(people).
--export([spawn_people/7, spawn_people_path/6, generate_direction/0]).
-
-
-
+-export([spawn_people/5]).
 -include("includes.hrl").
 
 %%
@@ -10,40 +7,50 @@
 %%
 %% @param State The current state that you would like to add people to. Will be empty most of the time.
 %% @param Amount The amount of people that you would like to spawn.
-%% @param X_max the upper bound on the x-axis
-%% @param Y_max the upper bound on the y-axis
-%% @param X the x-coordinate for the next process to be spawned, must be smaller than X_max and larger than 0
-%% @param Y the y-coordinate for the next process to be spawned, must be smaller than Y_max and larger than 0
-%% @param Positions a list with starting positions for the people. Should be the same length as Amount.
-%% @param Life How many 'ticks' a process will continue for after being infected
-%% 
-%% @returns A state with Amount number of people with their status set to 0. 
+%% @param Movement_behaviour The behaviour the individuals will have when moving.
+%% @param Starting_life How many 'ticks' an individual will continue to run after being infected
+%% @param Map_info Information about the map
 %%
-
--spec spawn_people(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom()) -> state().
-spawn_people(State, 0, _, _, _, _, _) ->
+%% @returns A state with Amount number of people with their status set to healthy. 
+%%
+-spec spawn_people(State :: state(), Amount :: integer(), Movement_behaviour :: atom(), Starting_life :: non_neg_integer(), Map_info :: 
+{[integer()], non_neg_integer(), non_neg_integer(), map(), map()}) -> state().
+spawn_people(State, 0, _, _, _) ->
     State;
 
+spawn_people(State, Amount, path, Starting_life, Map_info) ->
+    {Map_name, Width, Height, Walls, Hospital} = Map_info,
+    adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
+    F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
+    G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS    
+    spawn_people_aux(State, Amount, Map_name, {Width, Height}, Starting_life, G, F);
 
-spawn_people(State, Amount, {X_max, Y_max},[{X,Y} | Positions], Life, Starting_life, Bounce_behaviour) ->
-    Direction = generate_direction(),
-    PID = spawn(fun() -> people({?HEALTHY, X,Y, Direction}, {X_max,Y_max}, Life, Starting_life, Bounce_behaviour) end),
-    spawn_people(State ++ [{PID, ?HEALTHY, X,Y}], Amount-1, {X_max,Y_max}, Positions, Life, Starting_life, Bounce_behaviour).	    
+spawn_people(State, Amount, Movement_behaviour, Starting_life, Map_info) ->
+    {_, X_max, Y_max, _, _} = Map_info, 
+    Direction = movement:generate_direction(),
+    {X, Y} = movement:generate_position({X_max, Y_max}),
+    PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}) end),
+    spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Map_info).
 
+spawn_people_aux(State, 0, _, _, _, _, _) ->
+    State;
 
-%%
-%% @doc Generate a direction where both X and Y movement is not equal to 0
-%%
-%% @return A new direction
-%% 
--spec generate_direction() -> direction().
-generate_direction() ->
-    Direction = {rand:uniform(3)-2,rand:uniform(3)-2},
-    case Direction of
-	{0, 0} ->
-	    generate_direction();
-	_ ->
-	    Direction
+spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F) ->
+    [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
+    Result_1 =  a_star:run(G, P1, P2, F),
+    Result_2 = a_star:run(G, P2, P3, F),
+    Result_3 = a_star:run(G, P3, P1, F),
+    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
+        true ->
+            spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, G, F);
+        false->
+            {_, Path_1} = Result_1,
+            {_, Path_2} = Result_2,
+            {_, Path_3} = Result_3,
+            Paths = Path_1 ++ (Path_2 ++ Path_3),           
+            PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Paths, []}) end),
+            [{X , Y} | _ ] = Paths,
+            spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, G, F)
     end.
 
 
@@ -51,51 +58,60 @@ generate_direction() ->
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
 %% and send a tagged tuple with its new position and its pid to the registred processes master if it receives the atom ready. If a process becomes infected it will die after Life number of 'ticks' 
 %% 
-%% @param S the new state of the person. Representing the health of the person.
-%% @param X the new x coordinate of the person.
-%% @param Y the new y coordinate of the person.
-%% @param Bounds the limits of X and Y.
-%% @param Life How many 'ticks' a process will continue for after being infected
+%% @param Status the new state of the person. Representing the health of the person.
+%% @param Life How many 'ticks' an individual will continue to run after being infected.
+%% @param Starting_life How much Life the individual had when it spawned
+%% @param Movement_behaviour The behaviour the individuals will have when moving.
+%% @param Movement_args The arguments the individuall will use when moving
 %%
 %% @returns done
 %%
--spec people(person(), Bounds :: bounds(),Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom()) -> done.
-people({S,X,Y,Direction}, Bounds, Life, Starting_life, Bounce_behaviour) ->
+-spec people(Status :: status(), Life :: non_neg_integer(), Starting_life :: non_neg_integer(), Bounce_behaviour :: atom(), Movement_args :: {position(), direction(), bounds()} | {pos_list(), pos_list()}) -> done.
+people(Status, Life, Starting_life, path, {[], Paths_visited}) ->
+    people(Status, Life, Starting_life, path, {lists:reverse(Paths_visited),[]});
+
+
+people(Status, Life, Starting_life, Movement_behaviour, Movement_args) ->
     receive
         ready ->
-            case Bounce_behaviour of
-                bounce ->
-                    {X_new, Y_new, Direction_new} = movement:new_bounce_position(X,Y,Direction,Bounds); % Get new position          
-                bounce_random ->
-                    {X_new, Y_new, Direction_new} = movement:new_bounce_random_position(X,Y,Direction,Bounds)
+            case Movement_behaviour of
+                path ->
+                    {Paths, Paths_visited} = Movement_args,
+                    [{X_new, Y_new}|Remaining_paths] = Paths,
+                    New_movement_args = {Remaining_paths, [{X_new, Y_new} | Paths_visited]};
+                _ ->
+                    {{X, Y}, Direction, Bounds} = Movement_args,
+                    case Movement_behaviour of
+                        bounce ->
+                            {X_new, Y_new, Direction_new} = movement:new_bounce_position(X,Y,Direction,Bounds); % Get new position          
+                        bounce_random->
+                            {X_new, Y_new, Direction_new} = movement:new_bounce_random_position(X,Y,Direction,Bounds)   
+                    end,
+                    New_movement_args = {{X_new, Y_new}, Direction_new, Bounds}
             end,
-            case (collision_checker:get_hospital_location(X_new,Y_new)) of
-                true ->	 
-                    master ! {work, {self(), ?IMMUNE, X_new, Y_new}, Starting_life}, %Make this process immune to infection
-                    people({?IMMUNE, X_new, Y_new, Direction_new}, Bounds, Starting_life, Starting_life, Bounce_behaviour);
-                _ ->      
-                    master ! {work, {self(), S, X_new, Y_new},Life},
-                    if
-                        S == ?INFECTED->
-                            people({S, X_new, Y_new, Direction_new}, Bounds, Life-1, Starting_life, Bounce_behaviour); %if process infected, decrease Life
-                        true -> 
-                            people({S, X_new, Y_new, Direction_new}, Bounds, Life, Starting_life, Bounce_behaviour)
-                    end
+
+            master ! {work, {self(), Status, X_new, Y_new}, Life},      
+
+            case(collision_checker:get_hospital_location(X_new,Y_new)) of
+                true ->	                   
+                    people(?IMMUNE, Life, Starting_life, Movement_behaviour, New_movement_args);
+                _ ->                       
+                    people(Status, Life - status_check(Status), Starting_life, Movement_behaviour, New_movement_args) %if process infected, decrease Life
             end;
 
         {infect_people, Probability, Targets} ->
             [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
 
-            people({S, X, Y, Direction}, Bounds, Life, Starting_life, Bounce_behaviour);            
+            people(Status, Life, Starting_life, Movement_behaviour, Movement_args);            
 
 
         get_infected ->
-            case S of
+            case Status of
                 ?IMMUNE ->
-                    people({S, X, Y, Direction}, Bounds, Life, Starting_life, Bounce_behaviour);
+                    people(Status, Life, Starting_life, Movement_behaviour, Movement_args);
                 _ ->
-                    people({?INFECTED, X, Y, Direction}, Bounds, Life, Starting_life, Bounce_behaviour) %Change status to infected
-                end;
+                    people(?INFECTED, Life, Starting_life, Movement_behaviour, Movement_args) %Change status to infected
+            end;
         stop ->
             done
     end.
@@ -107,39 +123,6 @@ parse(S) ->
     {B,_} = string:to_integer(string:substr(S, S2+1, L2)),
     {A,B}.
 
-%-spec spawn_people_path(State :: state(), Amount :: integer(), Bounds :: bounds(), [position()], Life :: non_neg_integer()) -> state().
-spawn_people_path(State, 0, _, _, _, _) ->
-    State;
-
-spawn_people_path(State, Amount, Map_name, Bounds, Life, Starting_life) ->
-   
-    F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
-    G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS
-    %io:format("HALLO~p~n", [G]),
-    spawn_people_aux(State, Amount, Map_name, Bounds, Life, Starting_life, G, F).
-
-spawn_people_aux(State, 0, _, _, _, _, _, _) ->
-    State;
-
-spawn_people_aux(State, Amount, Map_name, Bounds, Life, Starting_life, G, F) ->
-    [P1, P2, P3] = movement:generate_start_positions(3, Bounds, []),
-    Result_1 =  a_star:run(G, P1, P2, F),
-    %{_, Path_1} = a_star:run(G, {1,1}, {5,5}, F),
-    Result_2 = a_star:run(G, P2, P3, F),
-     Result_3 = a_star:run(G, P3, P1, F),
-    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
-        true ->
-            spawn_people_aux(State, Amount, Map_name, Bounds, Life, Starting_life, G, F);
-        false->
-            {_, Path_1} = Result_1,
-            {_, Path_2} = Result_2,
-            {_, Path_3} = Result_3,
-            Paths = Path_1 ++ (Path_2 ++ Path_3),
-                                                %io:format("PATH:~p~n",[Path_1]),
-            PID = spawn(fun() -> people_path(?HEALTHY, Map_name, Paths, 0, length(Paths), Life, Starting_life) end),
-            [{X , Y} | _ ] = Paths,
-            spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Life, Starting_life, G, F)
-    end.
 
 status_check(Status) ->
 if
@@ -147,51 +130,6 @@ if
    Status == ?INFECTED -> 1;
    true -> 0
 end.
-
--spec people_path(Status :: status(), Map :: [integer()], Paths :: pos_list(),Path_counter :: non_neg_integer(),Paths_length :: non_neg_integer(), Life :: non_neg_integer(), Starting_life :: non_neg_integer()) -> ok.
-people_path(Status, Map, Paths, Path_counter, Paths_length, Life, Starting_life) ->
-    receive
-        ready ->
-            {X,Y} = lists:nth(Path_counter+1, Paths),
-            master ! {work, {self(), Status, X, Y},Life},                                     
-            case (collision_checker:get_hospital_location(X,Y)) of
-                true ->	 
-                    master ! {work, {self(), ?IMMUNE, X, Y, Starting_life}}, %Make this process immune to infection
-                    people_path(?IMMUNE, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Starting_life, Starting_life);
-                _ ->      
-                    master ! {work, {self(), Status, X, Y},Life},
-                    
-                    people_path(Status, Map, Paths, ((Path_counter+1) rem Paths_length), Paths_length, Life-status_check(Status), Starting_life)
-
-            end;
-
-             
-
-         {infect_people, Probability, Targets} ->
-            [PID ! get_infected || (rand:uniform())=<Probability, PID <- Targets], % Try to infect processes in its proximity
-           
-            people_path(Status, Map, Paths, Path_counter, Paths_length, Life, Starting_life);               
-           
-
-        get_infected ->
-            case Status of
-                ?IMMUNE ->
-                    people_path(?IMMUNE, Map, Paths, Path_counter, Paths_length, Life, Starting_life);                     
-                _ ->
-                    people_path(?INFECTED, Map, Paths, Path_counter, Paths_length, Life, Starting_life) %Change status to infected
-            end;
-        
-
-
-
-        stop ->
-            done 
-    end, 
-                
-    ok.
-
-
-
  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
