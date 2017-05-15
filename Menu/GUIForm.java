@@ -97,7 +97,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath + "data");
 
         File[] files = directory.listFiles(new FilenameFilter() {
@@ -122,7 +122,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath);
 
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
