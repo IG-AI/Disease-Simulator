@@ -8,6 +8,7 @@
 * [Documentation](#documentation)
 * [Further information](#further-information)
   * [Recording](#recording)
+  * [Logging](#logging)
   * [Testing](#testing)
   * [Make commands](#make-commands)
   
@@ -88,6 +89,15 @@ Documentation can be generated using: <br>
 ### Recording
 Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
 
+### Logging
+Two files with logs exist.
+* **logs/erlang_exec_log.log** contains information regarding simulations; when they are run, what flags were used and time required for different steps of execution.<br> 
+The recorded steps are;<br>
+Time to prepare the simulation.<br>
+Time to run the simulation.<br>
+Total time for both above steps.<br>
+* **logs/welang_exec_time.log** contains information about the time required for different steps of execution, these are the same times as in the other file, but with no additional information making them easier to extract for other uses.
+
 ### Testing
 **make jrun_test** will run Java tests. <br>
 **make test** will run Erlang tests (**make testv** will run verbose option). <br>
@@ -95,5 +105,7 @@ Using the record option will create a recording of the simulation that is being 
 ### Make commands
 **make clean_doc** will remove all documentation files in Erlang/doc/ and Java/doc/ <br>
 **make clean_exec** will remove all compiled files in Erlang/ebin/ and Java/bin/ <br>
+**make clean_log** will remove all log-files (all files in logs/)<br>
+**make clean_rec** will remove all recordings (all files in recordings/<br>
 **make clean** will remove all documentation files and compiled files <br>
 
