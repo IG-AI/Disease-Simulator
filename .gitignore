@@ -8,6 +8,7 @@
 #Data files
 *.adjmap
 *.record
+/logs/erlang_exec_time.txt
 /logs
 
 #Erlang specific files
