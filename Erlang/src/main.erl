@@ -52,9 +52,9 @@ start() ->
         _ ->	% We could connect to the java server
             case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
                 {Width, Height, Walls, Hospital} ->	% information about map aquired                   
-
-		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
-		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
+                    register(h_checker, spawn(fun() -> collision_checker:check(Hospital) end)),
+		    register(w_checker, spawn(fun() -> collision_checker:check(Walls) end)),
+		    
                   
                     State = people:spawn_people([], Amount, Movement, Life, Vaccine, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),

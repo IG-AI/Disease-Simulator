@@ -9,7 +9,7 @@
 %% @param Amount The amount of people that you would like to spawn.
 %% @param Movement_behaviour The behaviour the individuals will have when moving. 
 %% path will make them move between three random points using the A*-algorithm.
-%% bounce will make them bounce in a "natural way" when encountering an obstacle.
+%% bounce will make them bounce in a "natural way" when encodeuntering an obstacle.
 %% bounce_random will make them bounce in a random direction. 
 %% @param Starting_life How many 'ticks' an individual will continue to run after being infected.
 %% @param Vaccine_status Whether or not vaccination should be possible.
@@ -115,7 +115,7 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_s
                 off -> 
                      people(Status, Life - status_check(Status), Starting_life, Movement_behaviour, New_movement_args, Vaccine_status); %if process infected, decrease Life
                 on ->
-                    case(collision_checker:get_hospital_location(X_new,Y_new)) of
+                    case(collision_checker:check_collision(h_checker,X_new,Y_new)) of
                         true ->	                   
                             people(?IMMUNE, Life, Starting_life, Movement_behaviour, New_movement_args, Vaccine_status);
                         _ ->                       
