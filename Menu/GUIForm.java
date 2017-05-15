@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GUIForm extends JFrame {
     private JButton exitButton;
@@ -131,10 +132,23 @@ public class GUIForm extends JFrame {
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
 
-        System.out.print(vaccinationStatus);
+        String getOS = System.getProperty("os.name");
 
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
-        Process eproc = new ProcessBuilder(ecommand).directory(directory).start();
+        if(Objects.equals(getOS, "Linux")){
+
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
+            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+        }/*
+        else if (Objects.equals(getOS, "Mac")){
+
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
+            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+        }*/
+        else{
+            mapInfo.setText("OS not supported");
+        }
+
+
     }
 
     private GUIForm() throws UnsupportedEncodingException {

@@ -65,9 +65,6 @@ The program is run mainly on the schools ThinLinc clients: https://www.it.uu.se/
 These are running Java 7 and Erlang 19.<br>
 The correct Erlang version seems to be the most important thing to get it running on our personal computers. <br>
 
-To be able to run the simulation via the gui you are required to have xterm installed on your computer <br>
-(this is already installed on the schools ThinLinc clients).<br>
-
 On personal computers we've had success running it on these setups:
 * Linux Mint 17 with Java 7 and Erlang 19
 
