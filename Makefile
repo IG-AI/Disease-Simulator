@@ -99,6 +99,7 @@ clean:
 	rm -rf Java/bin/*
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
+	rm -rf logs/*
 
 clean_exec:
 	rm -rf Erlang/ebin/*
@@ -108,6 +109,9 @@ clean_exec:
 clean_doc:
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
+
+clean_logs:
+	rm -rfv logs/*
 
 ### DOCUMENTATION ###
 edoc: 

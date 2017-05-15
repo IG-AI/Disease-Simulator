@@ -63,7 +63,7 @@ start() ->
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
 
-                    record:start_record(Record, Java_connection_string), %sets up the recording, and also tells Java that map is fetched.
+                    record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched.
 
                     master(State, Times, Java_connection_string, Range, Probability, End, Record); %start master
                 
