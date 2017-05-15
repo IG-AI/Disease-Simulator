@@ -111,8 +111,11 @@ clean_doc:
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
 
+clean_rec:
+	rm -rf logs/*.record
+
 clean_logs:
-	rm -rfv logs/*
+	rm -rf logs/*
 
 ### DOCUMENTATION ###
 edoc: 
