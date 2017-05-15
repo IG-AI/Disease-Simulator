@@ -15,7 +15,7 @@
 generate_position({X_max,Y_max}) ->
     X = rand:uniform(X_max),
     Y = rand:uniform(Y_max),
-    case collision_checker:get_wall_collision(X, Y) of
+    case collision_checker:get_wall_collision(X, Y) orelse collision_checker:get_hospital_location(X,Y) of
 	true ->
 	    generate_position({X_max, Y_max});
 	false ->
