@@ -8,6 +8,7 @@
 #Data files
 *.adjmap
 *.record
+/logs
 
 #Erlang specific files
 *.beam
