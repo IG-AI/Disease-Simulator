@@ -58,21 +58,20 @@ start() ->
 
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
-                  
+
                     State = people:spawn_people([], Amount, Movement, Life, Vaccine, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
 
-                    record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched.
+                    record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched if needed. 
 
                     master(State, Times, Java_connection_string, Range, Probability, End, Record); %start master
-                
+
 
                 _ ->	% No map information =(
                     false	%just to do something..
             end,          
             true	    
-
     end.
 
 
@@ -91,7 +90,7 @@ master(State, 0, Java_connection, _, _, _, _) ->
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
     record ! {simulation_done, "simulation_done"},
-    receive
+    receive % Make sure master is not unregistered before the recording process is done.
         thanks_for_all_the_fish ->
             unregister(master), %remove master from the list of named processes
             io:format("Simulation ending ~n")
@@ -103,29 +102,28 @@ master(State, Ticks, Java_connection, Range, Probability, End, Record) ->
     master_call_all(State), %send starting message to all processes in State
     receive
         {result, New_state} ->  
+            receive 
+                ready_for_positions ->
+                    case Record of
+                        rec ->
+                            record ! {updated_positions, New_state};
+                        play ->
+                            Java_connection ! {updated_positions, New_state}; %send new state to the java server
+                        play_and_rec ->
+                            Java_connection ! {updated_positions, New_state}, %send new state to the java server
+                            record ! {updated_positions, New_state};
+                        bg ->
+                            master ! ready_for_positions
+                    end,
+                    Infected_list = calculate_targets(New_state, Range, Probability), %infect individuals
+                    case endstate(New_state, Infected_list, End) of %check if an endstate have been reached
+                        true ->
+                            master(New_state, 0, Java_connection, Range, Probability, End, Record);
+                        false ->	
+                            master(New_state, Ticks-1, Java_connection, Range, Probability, End, Record)
+                    end
+            end
 
-	receive 
-            ready_for_positions ->
-                case Record of
-                    rec ->
-                        record ! {updated_positions, New_state};
-                    play ->
-                        Java_connection ! {updated_positions, New_state}; %send new state to the java server
-                    play_and_rec ->
-                        Java_connection ! {updated_positions, New_state}, %send new state to the java server
-                        record ! {updated_positions, New_state};
-                    bg ->
-                        master ! ready_for_positions
-                end,
-                Infected_list = calculate_targets(New_state, Range, Probability), %infect individuals
-                case endstate(New_state, Infected_list, End) of %check if an endstate have been reached
-                    true ->
-                        master(New_state, 0, Java_connection, Range, Probability, End, Record);
-                    false ->	
-                        master(New_state, Ticks-1, Java_connection, Range, Probability, End, Record)
-                end
-        end
-            
     end.
 
 

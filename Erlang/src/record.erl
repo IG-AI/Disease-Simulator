@@ -6,6 +6,11 @@
 %% @doc Starts the process identified by the atom 'record' messages sent to this process
 %% instead of the Java-process will be saved to disk
 %% @param Record controls behaviour of the function, and parameters sent to record
+%% @param Java_connection the used Java-connection, to allow for limited communication with java
+%% we send "set_up_for_requests" so the Java-process knows to start listening for positions.
+%% Otherwise the next message after the map_request will be simulation_done. This is to ensure java
+%% will terminate nicely.
+%% @param Map the map being used during the simulation.
 %% 
 -spec start_record(Record :: atom(), Java_connection :: java_connection(), Map :: [non_neg_integer()]) -> no_return().
 start_record(rec, _, Map) ->
@@ -16,7 +21,7 @@ start_record(play_and_rec, Java, Map) ->
     Java ! {set_up_for_requests},
     register(record, spawn(fun() -> record(proper_time:time_to_string()++".record", start, none, Map) end));
 
-start_record(play, Java, _) ->  %bg|play
+start_record(play, Java, _) ->
     Java ! {set_up_for_requests},
     register(record, spawn(fun() -> record() end));
 
@@ -24,6 +29,11 @@ start_record(_, _, _) ->
     master ! ready_for_positions,
     register(record, spawn(fun() -> record() end)).
 
+
+%% @doc record will listen to all signals sent to it, and only reply when it get's a "simulation_done" message.
+%% This is to ensure the master process is not unregistered while signals might still be sent to it.
+%% The process is empty since it'll be run with the bg and play commands that will not require any logging, but for
+%% easier to read purposes the process is still run.
 -spec record() -> no_return().
 record() ->
     receive
@@ -39,6 +49,7 @@ record() ->
 %% @param start|wait is used to decide if the process should open a file for writing
 %% or wait for incoming messages with data to write
 %% @param Reply control whom to reply to
+%% @param Map the map that is being used for the simulation.
 %% 
 -spec record(Control :: [non_neg_integer()]|pid(), start|simulation_done|wait, Reply :: boolean(), Map :: non_neg_integer()) -> no_return().
 record(Filename, start, Reply, Map)->
