@@ -30,6 +30,7 @@ JAVA_TESTCMD = java -cp ./Java:Java/bin:./Java/lib/junit-4.12.jar:./Java/lib/ham
 mkdir:	#Needed because subdirs seem not to get created during compilation of Java and Erlang.
 	@mkdir -p Erlang/ebin Erlang/doc
 	@mkdir -p Java/bin Java/doc
+	@mkdir -p recordings
 	@mkdir -p logs
 
 # EPMD # 
