@@ -7,6 +7,7 @@
   * [System requirements](#system-requirements)
 * [Documentation](#documentation)
 * [Further information](#further-information)
+  * [Recording](#recording)
   * [Testing](#testing)
   * [Make commands](#make-commands)
   
@@ -84,6 +85,9 @@ Documentation can be generated using: <br>
 **make jdoc** to generate Java documentation. It will be found in Java/doc/index.html <br>
 
 ## Further information
+### Recording
+Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
+
 ### Testing
 **make jrun_test** will run Java tests. <br>
 **make test** will run Erlang tests (**make testv** will run verbose option). <br>

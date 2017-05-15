@@ -54,7 +54,7 @@ record() ->
 -spec record(Control :: [non_neg_integer()]|pid(), start|simulation_done|wait, Reply :: boolean(), Map :: non_neg_integer()) -> no_return().
 record(Filename, start, Reply, Map)->
     %öppna fil för skrivning
-    case file:open("logs/"++Filename, [append]) of
+    case file:open("recordings/"++Filename, [append]) of
         {ok, Pointer} ->
             case file:write(Pointer, io_lib:fwrite("~p~n", [Map])) of
                 {error, Reason} ->
