@@ -102,6 +102,7 @@ clean:
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
 	rm -rf logs/*
+	rm -rf recordings/*
 
 clean_exec:
 	rm -rf Erlang/ebin/*
@@ -112,8 +113,11 @@ clean_doc:
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
 
-clean_logs:
-	rm -rfv logs/*
+clean_rec:
+	rm -rf recordings/*
+
+clean_log:
+	rm -rf logs/*
 
 ### DOCUMENTATION ###
 edoc: 
