@@ -71,8 +71,9 @@ PROB?=1.0 #Default chanse of infection
 LIFE?=100 #Default nummber of ticks
 MOVE?=bounce #Default movement behaviour, "bounce", "path" or "bounce_random"
 END?=dead #Default end condition
+REC?=play #Default record behaviour
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END)# ARGS FOR ERLANG
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(REC)# ARGS FOR ERLANG
 ETINY = map_zero 3 20 0 3 0 50 bounce dead
 
 # SPECIAL RUNS #
