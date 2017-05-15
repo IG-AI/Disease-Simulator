@@ -1,10 +1,6 @@
 package Graphic;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.util.ArrayList;
 import com.ericsson.otp.erlang.*;
 import java.lang.System;
@@ -23,9 +19,10 @@ import Communication.JavaErlangCommunication;
 public class GraphicDisplay extends JPanel
 {
     private static JavaErlangCommunication javaErlangCommunicator = Main.javaErlangCommunicator;
-    private static JFrame simulation;
     static ImageComponents imageComponent = null;
-    private static ArrayList<Unit> unitList;
+    private static InfoDisplay infoInfoDisplay;
+    private static JFrame simulation;
+    private static int maxNumberOfUnits;
     static int xBound;
     static int yBound;
     public static final int winX = 0;
@@ -42,33 +39,40 @@ public class GraphicDisplay extends JPanel
     /**
      * Start running the simulation.
      *
-     * @throws InterruptedException thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
+     * @throws InterruptedException    thrown when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before or during the activity.
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
-    public static void runSimulation() throws IOException,InterruptedException, OtpErlangRangeException {
+    public static void runSimulation() throws IOException, InterruptedException, OtpErlangRangeException {
         if(Main.javaErlangCommunicator.simulationDone){
             System.out.println("Graphic simulation skipped");
         }else{
-            createAndShowGUI();
-            imageComponent.validate();
-            imageComponent.repaint();
-            long startTime, stopTime, finishedTime, sleep, zero, second;
-            zero = 0;
-            second = 1000;
-            while(true) {
-                startTime = System.currentTimeMillis();
-                ArrayList erlangList = javaErlangCommunicator.recievePos();
-                if(erlangList == null) {
-                    System.out.println("Simulation done.");
-                    break;
-                }
-                updateUnitGraphics(erlangList);
-                imageComponent.validate();
-                imageComponent.repaint();
-                stopTime = System.currentTimeMillis();
-                finishedTime = stopTime - startTime;
-                sleep = Math.max(((second/frequency)-finishedTime), zero);
-                Thread.sleep(sleep);
+          createAndShowGUI();
+          ArrayList erlangList = JavaErlangCommunication.recievePos();
+          maxNumberOfUnits = erlangList.size();
+          int numberOfUnits = maxNumberOfUnits;
+          infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
+          imageComponent.validate();
+          imageComponent.repaint();
+          long startTime, stopTime, finishedTime, sleep, zero, second;
+          zero = 0;
+          second = 1000;
+          while (true) {
+              startTime = System.currentTimeMillis();
+              erlangList = JavaErlangCommunication.recievePos();
+              if (erlangList == null) {
+                  System.out.println("Simulation done.");
+                  InfoDisplay.updateLabel(numberOfUnits);
+                  break;
+              }
+              updateUnitGraphics(erlangList);
+              numberOfUnits = erlangList.size();
+              imageComponent.validate();
+              imageComponent.repaint();
+              InfoDisplay.updateLabel(numberOfUnits);
+              stopTime = System.currentTimeMillis();
+              finishedTime = stopTime - startTime;
+              sleep = Math.max(((second / frequency) - finishedTime), zero);
+              Thread.sleep(sleep);
             }
         }
     }
@@ -79,7 +83,6 @@ public class GraphicDisplay extends JPanel
      *
      * @param xpos x-position as a int.
      * @param ypos y-position as a int.
-     *
      * @return true if the coordination is out of bounds, otherwise returns false.
      */
     public static boolean isOutOfBounds(int xpos, int ypos) {
@@ -93,12 +96,12 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void initializeGUI() throws OtpErlangRangeException {
-        while(imageComponent == null){
-            imageComponent = new ImageComponents(winX, winY);
+        while (imageComponent == null) {
+            imageComponent = new ImageComponents();
         }
         imageComponent.setImage(javaErlangCommunicator.getMapImage());
-        xBound     = imageComponent.getWidth();
-        yBound     = imageComponent.getHeight();
+        xBound = imageComponent.getWidth();
+        yBound = imageComponent.getHeight();
         imageComponent.setSize(xBound, yBound);
         createUnitGraphics();
     }
@@ -110,11 +113,11 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void createUnitGraphics() throws OtpErlangRangeException {
-        int x,y,sickness;
+        int x, y, sickness;
         OtpErlangPid PID;
         ArrayList erlangList = null;
-        while(erlangList == null) {
-            erlangList = javaErlangCommunicator.recievePos();
+        while (erlangList == null) {
+            erlangList = JavaErlangCommunication.recievePos();
             //Wait for communication.
         }
         for (Object anErlangList : erlangList) {
@@ -133,11 +136,10 @@ public class GraphicDisplay extends JPanel
      * Updating the unitList position and status.
      *
      * @param erlangList a list with a Units' position, status and PID.
-     *
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void updateUnitGraphics(ArrayList erlangList) throws OtpErlangRangeException {
-        int x,y,sickness;
+        int x, y, sickness;
         OtpErlangPid PID;
         ArrayList<Unit> updateList = new ArrayList<>();
         for (Object anErlangList : erlangList) {
@@ -169,13 +171,14 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void createAndShowGUI() throws OtpErlangRangeException, IOException {
-        JFrame frame = new JFrame("Project Snowfox");
+        simulation = new JFrame("Project Snowfox");
         initializeGUI();
-        setIconImage(frame);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.getContentPane().add(imageComponent);
-        //frame.setSize(xBound, yBound);
-        frame.pack();
-        frame.setVisible(true);
+        setIconImage(simulation);
+        simulation.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        simulation.getContentPane().add(imageComponent);
+        //simulation.setSize(xBound, yBound);
+        simulation.pack();
+        simulation.setResizable(false);
+        simulation.setVisible(true);
     }
 }

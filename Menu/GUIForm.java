@@ -6,11 +6,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GUIForm extends JFrame {
     private JButton exitButton;
@@ -26,6 +29,8 @@ public class GUIForm extends JFrame {
     private javax.swing.JLabel mapInfo;
     private JComboBox<String> endBox;
     private JComboBox<String> moveBox;
+    private JCheckBox vaccinationCheckBox;
+    private String vaccinationStatus = "on";
     private String currentMap;
     private String currentMove;
     private String currentEnd;
@@ -92,7 +97,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath + "data");
 
         File[] files = directory.listFiles(new FilenameFilter() {
@@ -117,7 +122,7 @@ public class GUIForm extends JFrame {
 
         URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
-        folderPath = folderPath.replace("Project-snowfox-linux.jar", "");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath);
 
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
@@ -127,8 +132,23 @@ public class GUIForm extends JFrame {
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
 
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove};
-        Process eproc = new ProcessBuilder(ecommand).directory(directory).start();
+        String getOS = System.getProperty("os.name");
+
+        if(Objects.equals(getOS, "Linux")){
+
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
+            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+        }/*
+        else if (Objects.equals(getOS, "Mac")){
+
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
+            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+        }*/
+        else{
+            mapInfo.setText("OS not supported");
+        }
+
+
     }
 
     private GUIForm() throws UnsupportedEncodingException {
@@ -159,6 +179,18 @@ public class GUIForm extends JFrame {
                 if(compareInf > compareInd){
                     numberOfInfectedSpinner.setValue(compareInd);
 
+                }
+            }
+        });
+
+        vaccinationCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED){
+                    vaccinationStatus = "on";
+                }
+                if(e.getStateChange() == ItemEvent.DESELECTED){
+                    vaccinationStatus = "off";
                 }
             }
         });

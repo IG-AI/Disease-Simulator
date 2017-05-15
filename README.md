@@ -51,7 +51,8 @@ Several arguments can be passed to the simulation server via the make-command.<b
   * **ticks** the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
   * **dead** the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
   * **infected** the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
- * REC - the behaviour of the recording function.
+* VAC - the switch for vaccination: 'on' or 'off' 
+* REC - the behaviour of the recording function.
    * **play** default behaviour, will just play the simulation with no recording.
    * **play_and_record** will play the simulation and record it.
    * **rec** will only record the simulation, nothing will be displayed.
@@ -72,8 +73,7 @@ The program is run mainly on the schools ThinLinc clients: https://www.it.uu.se/
 These are running Java 7 and Erlang 19.<br>
 The correct Erlang version seems to be the most important thing to get it running on our personal computers. <br>
 
-To be able to run the simulation via the gui you are required to have xterm installed on your computer <br>
-(this is already installed on the schools ThinLinc clients).<br>
+To run the **GUI** you need gnome-terminal installed.<br>
 
 On personal computers we've had success running it on these setups:
 * Linux Mint 17 with Java 7 and Erlang 19

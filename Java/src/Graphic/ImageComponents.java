@@ -10,18 +10,20 @@ import java.awt.*;
  */
 public class ImageComponents extends JPanel {
 	private Image image = null;
+	private static InfoDisplay infoInfoDisplay;
+	private static int maxNumberOfUnits;
 	public static final int windowPosX = 0;
 	public static final int windowPosY = 0;
-	public ArrayList<Unit> unitList = new ArrayList<>();
+	public static ArrayList<Unit> unitList = new ArrayList<>();
+	public static int sickUnits;
+	public static int vaccinatedUnits;
+	public static int ticks;
 
 
 	/**
 	 * Constructor for the ImageComponents class.
-	 *
-	 * @param winX x-position as an int.
-	 * @param winY y-position as an int.
 	 */
-	public ImageComponents(int winX, int winY)
+	public ImageComponents()
 	{
 		super();
 	}
@@ -43,7 +45,7 @@ public class ImageComponents extends JPanel {
 	 * @param unitList a ArrayList with all Units.
 	 */
 	protected void setUnitList(ArrayList<Unit> unitList) {
-		this.unitList = unitList;
+		ImageComponents.unitList = unitList;
 	}
 
 
@@ -96,14 +98,22 @@ public class ImageComponents extends JPanel {
 	@Override
 	public void paintComponent(Graphics g)
 	{
+		sickUnits = 0;
+		vaccinatedUnits = 0;
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
 			int i = 0, unitListSize = unitList.size();
 			while (i < unitListSize) {
 				Unit unit = unitList.get(i);
 				unit.paintComponent(g);
+				if (unit.status == 1) {
+					sickUnits++;
+				} else if (unit.status == 2) {
+					vaccinatedUnits++;
+				}
 				i++;
 			}
 		}
+		ticks++;
 	}
 }
