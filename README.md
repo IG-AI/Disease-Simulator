@@ -54,7 +54,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * VAC - the switch for vaccination: 'on' or 'off' 
 * REC - the behaviour of the recording function.
    * **play** default behaviour, will just play the simulation with no recording.
-   * **play_and_record** will play the simulation and record it.
+   * **play_and_rec** will play the simulation and record it.
    * **rec** will only record the simulation, nothing will be displayed.
    * **bg** will run the simulation in the background, nothing will be recorded nor displayed.
  
