@@ -6,6 +6,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -26,6 +28,8 @@ public class GUIForm extends JFrame {
     private javax.swing.JLabel mapInfo;
     private JComboBox<String> endBox;
     private JComboBox<String> moveBox;
+    private JCheckBox vaccinationCheckBox;
+    private String vaccinationStatus = "on";
     private String currentMap;
     private String currentMove;
     private String currentEnd;
@@ -127,7 +131,9 @@ public class GUIForm extends JFrame {
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
 
-        String[] ecommand = new String[]{ "xterm", "-e" , "make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove};
+        System.out.print(vaccinationStatus);
+
+        String[] ecommand = new String[]{ "xterm", "-e" , "make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
         Process eproc = new ProcessBuilder(ecommand).directory(directory).start();
     }
 
@@ -159,6 +165,18 @@ public class GUIForm extends JFrame {
                 if(compareInf > compareInd){
                     numberOfInfectedSpinner.setValue(compareInd);
 
+                }
+            }
+        });
+
+        vaccinationCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED){
+                    vaccinationStatus = "on";
+                }
+                if(e.getStateChange() == ItemEvent.DESELECTED){
+                    vaccinationStatus = "off";
                 }
             }
         });
