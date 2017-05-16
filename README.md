@@ -50,15 +50,19 @@ Several arguments can be passed to the simulation server via the make-command.<b
   * **path** use A\* for pathfinding.
   * **bounce** and **bounce_random** uses bouncing behaviour.
 * END  - the switch for the end conditions:
+  * **dead** *default* the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
   * **ticks** the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
-  * **dead** the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
   * **infected** the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
 * VAC - the switch for vaccination: 'on' or 'off' 
 * REC - the behaviour of the recording function.
-   * **play** default behaviour, will just play the simulation with no recording.
+   * **play** *default* behaviour, will just play the simulation with no recording.
    * **play_and_rec** will play the simulation and record it.
    * **rec** will only record the simulation, nothing will be displayed.
    * **bg** will run the simulation in the background, nothing will be recorded nor displayed.
+ * RAND - the behaviour of the random generators in the simulation
+   * **auto** *default* each simulation with the same parameters will be different.
+   * **manual** will use a predetermined seed resulting in identical simulations if the same parameters are use.
+   
  
 
 The flags do not need to be in any specific order to use them.<br>
