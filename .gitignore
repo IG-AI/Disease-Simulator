@@ -7,6 +7,10 @@
 
 #Data files
 *.adjmap
+*.record
+/logs/*
+/logs
+/recordings
 
 #Erlang specific files
 *.beam

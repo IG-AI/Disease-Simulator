@@ -1,4 +1,3 @@
-
 package Graphic;
 
 import javax.swing.*;
@@ -44,33 +43,37 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void runSimulation() throws IOException, InterruptedException, OtpErlangRangeException {
-        createAndShowGUI();
-        ArrayList erlangList = JavaErlangCommunication.recievePos();
-        maxNumberOfUnits = erlangList.size();
-        int numberOfUnits = maxNumberOfUnits;
-        infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
-        imageComponent.validate();
-        imageComponent.repaint();
-        long startTime, stopTime, finishedTime, sleep, zero, second;
-        zero = 0;
-        second = 1000;
-        while (true) {
-            startTime = System.currentTimeMillis();
-            erlangList = JavaErlangCommunication.recievePos();
-            if (erlangList == null) {
-                System.out.println("Simulation done.");
-                InfoDisplay.updateLabel(numberOfUnits);
-                break;
+        if(Main.javaErlangCommunicator.simulationDone){
+            System.out.println("Graphic simulation skipped");
+        }else{
+          createAndShowGUI();
+          ArrayList erlangList = JavaErlangCommunication.recievePos();
+          maxNumberOfUnits = erlangList.size();
+          int numberOfUnits = maxNumberOfUnits;
+          infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
+          imageComponent.validate();
+          imageComponent.repaint();
+          long startTime, stopTime, finishedTime, sleep, zero, second;
+          zero = 0;
+          second = 1000;
+          while (true) {
+              startTime = System.currentTimeMillis();
+              erlangList = JavaErlangCommunication.recievePos();
+              if (erlangList == null) {
+                  System.out.println("Simulation done.");
+                  InfoDisplay.updateLabel(numberOfUnits);
+                  break;
+              }
+              updateUnitGraphics(erlangList);
+              numberOfUnits = erlangList.size();
+              imageComponent.validate();
+              imageComponent.repaint();
+              InfoDisplay.updateLabel(numberOfUnits);
+              stopTime = System.currentTimeMillis();
+              finishedTime = stopTime - startTime;
+              sleep = Math.max(((second / frequency) - finishedTime), zero);
+              Thread.sleep(sleep);
             }
-            updateUnitGraphics(erlangList);
-            numberOfUnits = erlangList.size();
-            imageComponent.validate();
-            imageComponent.repaint();
-            InfoDisplay.updateLabel(numberOfUnits);
-            stopTime = System.currentTimeMillis();
-            finishedTime = stopTime - startTime;
-            sleep = Math.max(((second / frequency) - finishedTime), zero);
-            Thread.sleep(sleep);
         }
     }
 

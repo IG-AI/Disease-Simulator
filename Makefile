@@ -30,6 +30,8 @@ JAVA_TESTCMD = java -cp ./Java:Java/bin:./Java/lib/junit-4.12.jar:./Java/lib/ham
 mkdir:	#Needed because subdirs seem not to get created during compilation of Java and Erlang.
 	@mkdir -p Erlang/ebin Erlang/doc
 	@mkdir -p Java/bin Java/doc
+	@mkdir -p recordings
+	@mkdir -p logs
 
 # EPMD # 
 epmd_run:	#Startup epmd -daemon, or communication will fail.
@@ -71,9 +73,10 @@ PROB?=1.0 #Default chanse of infection
 LIFE?=100 #Default nummber of ticks
 MOVE?=bounce #Default movement behaviour, "bounce", "path" or "bounce_random"
 END?=dead #Default end condition
+REC?=play #Default record behaviour
 VAC?=on #Default vaccine setting
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(VAC)# ARGS FOR ERLANG
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(VAC) $(REC)# ARGS FOR ERLANG
 ETINY = map_zero 3 20 0 3 0 50 bounce dead on
 
 # SPECIAL RUNS #
@@ -98,6 +101,8 @@ clean:
 	rm -rf Java/bin/*
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
+	rm -rf logs/*
+	rm -rf recordings/*
 
 clean_exec:
 	rm -rf Erlang/ebin/*
@@ -107,6 +112,12 @@ clean_exec:
 clean_doc:
 	rm -rf Java/doc/*
 	rm -rf Erlang/doc/*
+
+clean_rec:
+	rm -rf recordings/*
+
+clean_log:
+	rm -rf logs/*
 
 ### DOCUMENTATION ###
 edoc: 

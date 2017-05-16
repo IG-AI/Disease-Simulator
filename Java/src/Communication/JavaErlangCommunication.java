@@ -12,6 +12,8 @@ import java.awt.*;
  */
 public class JavaErlangCommunication {
     //Vars we want to use.
+
+    public boolean simulationDone = false;
     public static OtpErlangPid erlangPid = null;
     public OtpErlangPid myPid = null;
     public static OtpMbox myOtpMbox = null;
@@ -103,6 +105,21 @@ public class JavaErlangCommunication {
                     //And send it..
                     myOtpMbox.send(erlangPid, send);
 
+                    while(true) {
+                        OtpErlangTuple tuple2 = (OtpErlangTuple) myOtpMbox.receive();
+                        int size = tuple2.elements().length;
+                        if(size == 1){
+                            OtpErlangAtom dispatch2 = (OtpErlangAtom) tuple2.elementAt(0);
+                            if(dispatch2.atomValue().equals("set_up_for_requests")) {
+                                System.out.println("Setting up for requests.");
+                                break;
+                            }else if(dispatch2.atomValue().equals("simulation_done")){
+                                this.simulationDone = true;
+                                break;
+                            }
+                        }
+                    }
+                    
                     break; //We're done with map..
 
                 }else{ //Someone not asking for map! =O

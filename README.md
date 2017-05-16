@@ -7,6 +7,7 @@
   * [System requirements](#system-requirements)
 * [Documentation](#documentation)
 * [Further information](#further-information)
+  * [Recording](#recording)
   * [Testing](#testing)
   * [Make commands](#make-commands)
   
@@ -44,12 +45,20 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * PROB - the chanse of the infection spreading between two individuals.
 * RANGE - the radius of the area an individual need to be in order to be infected by another individual.
 * LIFE - the number of ticks an individual will 'live' after being infected.
-* MOVE - the movement of the individuals, can be "path" to use A\*, or "bounce"/"bounce_random" to use bouncing behaviour.
-* VAC - the switch for vaccination: 'on' or 'off' 
+* MOVE - the movement of the individuals. 
+  * **path** use A\* for pathfinding.
+  * **bounce** and **bounce_random** uses bouncing behaviour.
 * END  - the switch for the end conditions:
-              For 'ticks' the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
-              For 'dead' the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
-              For 'infected' the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
+  * **ticks** the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
+  * **dead** the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
+  * **infected** the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
+* VAC - the switch for vaccination: 'on' or 'off' 
+* REC - the behaviour of the recording function.
+   * **play** default behaviour, will just play the simulation with no recording.
+   * **play_and_rec** will play the simulation and record it.
+   * **rec** will only record the simulation, nothing will be displayed.
+   * **bg** will run the simulation in the background, nothing will be recorded nor displayed.
+ 
 
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
@@ -76,6 +85,9 @@ Documentation can be generated using: <br>
 **make jdoc** to generate Java documentation. It will be found in Java/doc/index.html <br>
 
 ## Further information
+### Recording
+Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
+
 ### Testing
 **make jrun_test** will run Java tests. <br>
 **make test** will run Erlang tests (**make testv** will run verbose option). <br>

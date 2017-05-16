@@ -29,7 +29,7 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine, S_record] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
@@ -38,13 +38,16 @@ start() ->
     Life = list_to_integer(S_life),
     Movement = list_to_atom(S_movement),
     End = list_to_atom(S_end),
+    Record = list_to_atom(S_record),
     Vaccine = list_to_atom(S_vaccine),
+
 
     %Here we start up the net thingy
     java_connection:initialise_network(),
 
     %Connect to the java server and get the server PID
     Java_connection = java_connection:connect_java(Java_connection_string, 15),
+
 
     case Java_connection of
         false -> timer:sleep(10);	%failed connection
@@ -55,19 +58,20 @@ start() ->
 
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
-                  
+
                     State = people:spawn_people([], Amount, Movement, Life, Vaccine, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),
                     utils:send_to_all(get_infected, Infect_list),
-                    
-                    master(State, Times, Java_connection_string, Range, Probability, End); %start master
-                
+
+                    record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched if needed. 
+
+                    master(State, Times, Java_connection_string, Range, Probability, End, Record); %start master
+
 
                 _ ->	% No map information =(
                     false	%just to do something..
             end,          
             true	    
-
     end.
 
 
@@ -81,30 +85,45 @@ start() ->
 %% @param Posibility The posibility that an individual will be infected (between 0 and 1).
 %% @param End The end condition of the simulation.
 %%
--spec master(State :: state(), Ticks :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  End :: atom()) -> no_return().
-master(State, 0, Java_connection, _, _, _) ->
-    unregister(master), %remove master from the list of named processes 
+-spec master(State :: state(), Ticks :: integer(), Java_connection :: {atom(),atom()}, Range :: non_neg_integer(), Probability :: float(),  End :: atom(), Record :: atom()) -> no_return().
+master(State, 0, Java_connection, _, _, _, _) ->
     utils:send_to_all(stop, State), %send ending signal to all proccesses in State
     Java_connection ! {simulation_done}, %send ending signal to Java server
-    io:format("Simulation ending ~n");
+    record ! {simulation_done, "simulation_done"},
+    receive % Make sure master is not unregistered before the recording process is done.
+        thanks_for_all_the_fish ->
+            unregister(master), %remove master from the list of named processes
+            io:format("Simulation ending ~n")
+    end,
+    io:format("Simulation done~n");
 
-master(State, Ticks, Java_connection, Range, Probability, End) ->     
+
+master(State, Ticks, Java_connection, Range, Probability, End, Record) ->     
     master_call_all(State), %send starting message to all processes in State
     receive
         {result, New_state} ->  
+            receive 
+                ready_for_positions ->
+                    case Record of
+                        rec ->
+                            record ! {updated_positions, New_state};
+                        play ->
+                            Java_connection ! {updated_positions, New_state}; %send new state to the java server
+                        play_and_rec ->
+                            Java_connection ! {updated_positions, New_state}, %send new state to the java server
+                            record ! {updated_positions, New_state};
+                        bg ->
+                            master ! ready_for_positions
+                    end,
+                    Infected_list = calculate_targets(New_state, Range, Probability), %infect individuals
+                    case endstate(New_state, Infected_list, End) of %check if an endstate have been reached
+                        true ->
+                            master(New_state, 0, Java_connection, Range, Probability, End, Record);
+                        false ->	
+                            master(New_state, Ticks-1, Java_connection, Range, Probability, End, Record)
+                    end
+            end
 
-	receive 
-            ready_for_positions ->                
-                Java_connection ! {updated_positions, New_state}, %send new state to the java server                
-                Infected_list = calculate_targets(New_state, Range, Probability), %infect individuals
-                case endstate(New_state, Infected_list, End) of %check if an endstate have been reached
-                    true ->
-                        master(New_state, 0, Java_connection, Range, Probability, End);
-                    false ->	
-                        master(New_state, Ticks-1, Java_connection, Range, Probability, End)
-                end
-        end
-            
     end.
 
 
