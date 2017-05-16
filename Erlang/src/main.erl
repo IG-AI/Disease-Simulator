@@ -23,7 +23,7 @@
 %%
 -spec start() -> no_return().
 start() -> 
-  
+    Starting_time = proper_time:time_to_string(),
     % Setting the java servers' information
     Java_connection_string = {'java_server', 'java_server@localhost'},
     % Handling arguments sent through command line.
@@ -55,7 +55,7 @@ start() ->
         _ ->	% We could connect to the java server
             case map_handler:get_map(Java_connection_string, Map++".bmp") of	% check if we get information about a map
                 {Width, Height, Walls, Hospital} ->	% information about map aquired                   
-
+                    Startup_time = os:timestamp(),
 		    register(checker, spawn(fun() -> collision_checker:check_wall(Walls) end)),
 		    register(h_checker, spawn(fun() -> collision_checker:check_hospital(Hospital) end)),
 
@@ -64,9 +64,10 @@ start() ->
                     utils:send_to_all(get_infected, Infect_list),
 
                     record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched if needed. 
-
-                    master(State, Times, Java_connection_string, Range, Probability, End, Record); %start master
-
+                    Exec_time = os:timestamp(),
+                    master(State, Times, Java_connection_string, Range, Probability, End, Record), %start master
+                    Total_time = os:timestamp(),
+                    logging:time_logger(Args, Starting_time, Startup_time,Exec_time, Total_time);
 
                 _ ->	% No map information =(
                     false	%just to do something..

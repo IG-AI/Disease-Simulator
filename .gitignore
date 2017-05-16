@@ -8,6 +8,7 @@
 #Data files
 *.adjmap
 *.record
+/recordings/*
 /logs/*
 /logs
 /recordings
