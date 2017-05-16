@@ -29,7 +29,7 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine, S_record] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine, S_record, S_random] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
@@ -38,9 +38,17 @@ start() ->
     Life = list_to_integer(S_life),
     Movement = list_to_atom(S_movement),
     End = list_to_atom(S_end),
-    Record = list_to_atom(S_record),
     Vaccine = list_to_atom(S_vaccine),
-
+    Record = list_to_atom(S_record),
+    Random = list_to_atom(S_random),
+    
+    %% If random is set to manual, we'll use a predetermined seed to always generate the same simulation for same input values
+    case Random of
+        manual ->
+            rand:seed(exsplus, {1337, 27182, 314159265});
+        _ ->
+            ok
+    end,
 
     %Here we start up the net thingy
     java_connection:initialise_network(),
