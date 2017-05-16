@@ -18,6 +18,7 @@
 erl_crash.dump
 /Erlang/ebin/
 /Erlang/doc/
+*.trace
 
 #Java files
 *.class
