@@ -1,81 +1,41 @@
 -module(collision_checker).
 
 -include("includes.hrl").
--export([check_hospital/1, check_wall/1, get_wall_collision/2, get_hospital_location/2]).
+-export([check_collision/3,check/1]).
 
 %%
 %% @doc This function is spawned in a process. It receives a position
-%% and checks if the position is part of a wall or not, then  sends the anwser to the calling process.
+%% and checks if the position is part of the provided map of obstacles, then sends the anwser to the calling process.
 %%
-%% @param A map with walls.
-%%
-%% @returns Nothing
-%%
--spec check_wall(Walls :: map()) -> no_return().
-check_wall(Walls)->
+%% @param A map with obstacles.
+-spec check(Obstacles :: map()) -> no_return().
+check(Obstacles)->
     receive
 	{PID, X, Y} when is_integer(X) and is_integer(Y) ->
-	    case maps:find(X, Walls) of
+	    case maps:find(X, Obstacles) of
 		{ok, Y_positions} ->
-		    PID ! {wall, lists:member(Y, Y_positions)};
+		    PID ! lists:member(Y, Y_positions);
 		_ ->
-		    PID ! {wall, false}
+		    PID ! false
 	    end
     end,
-    check_wall(Walls).
+    check(Obstacles).
 
 %%
-%% @doc This function is spawned in a process. It receives a position
-%% and checks if the position is part of a hospital or not, then sends the anwser to the calling process.
-%%
-%% @param A map with hospitals.
-%%
--spec check_hospital(Hospital :: map()) -> no_return().
-check_hospital(Hospital)->
-    receive
-	{PID, X, Y} when is_integer(X) and is_integer(Y) ->
-	    case maps:find(X, Hospital) of
-		{ok, Y_positions} ->
-		    PID ! {hospital, lists:member(Y, Y_positions)};
-		_ ->
-		    PID ! {hospital, false}
-	    end
-    end,
-    check_hospital(Hospital).
-
-%%
-%% @doc Checks if a position is inside a wall.
+%% @doc Checks if a position is an obstacle.
 %%
 %% @param X The x coordinate to check.
 %% @param Y The y coordinate to check.
 %%
-%% @returns true if the given position is on a wall grid, false otherwise.
+%% @returns true if the given position is an obstacle, false otherwise.
 %%
--spec get_wall_collision(X :: integer(), Y :: integer()) -> boolean().
-get_wall_collision(X, Y) ->
-    checker ! {self(), X, Y},
+-spec check_collision(Checker :: pid() | atom() ,X :: integer(), Y :: integer()) -> boolean().
+check_collision(Checker,X, Y) ->
+    Checker ! {self(), X, Y},
     receive
-	{wall, true} ->
+	 true ->
 	    true;
-	{wall, _} ->
-	    false
-    end.
-
-%%
-%% @doc Checks if a position is part of a hospital. 
-%%
-%% @param X The x coordinate to check.
-%% @param Y The y coordinate to check.
-%%
-%% @returns true if the given position is on a hospital grid, false otherwise.
-%%
--spec get_hospital_location(X :: integer(), Y :: integer()) -> boolean().
-get_hospital_location(X, Y) ->
-    h_checker ! {self(), X, Y},
-    receive
-	{hospital, true} ->
-	    true;
-	{hospital, _} ->
+	false ->
 	    false
     end.
 
