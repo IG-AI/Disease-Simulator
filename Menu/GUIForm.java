@@ -246,7 +246,22 @@ public class GUIForm extends JFrame {
         numberOfIndividualsSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                adjustInput();
+
+                int compareInd = (int) numberOfIndividualsSpinner.getValue();
+                int compareInf = (int) numberOfInfectedSpinner.getValue();
+                int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd){
+                    if(compareInf <= compareInd){
+                        vaccinatedIndividualsSpinner.setValue(compareInd - compareInf);
+                    }
+                    if(compareInf > compareInd){
+                        numberOfInfectedSpinner.setValue(compareInd);
+                    }
+                    if(compareInf > compareInd && compareVac > compareInd){
+                        vaccinatedIndividualsSpinner.setValue(0);
+                        numberOfInfectedSpinner.setValue(compareInd);
+                    }
+                }
             }
         });
 
