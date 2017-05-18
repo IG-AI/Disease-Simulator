@@ -99,9 +99,9 @@ public class ImageComponents extends JPanel {
 	public void paintComponent(Graphics g)
 	{
 		sickUnits = 0;
-		vaccinatedUnits = 0;
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
+			vaccinatedUnits = 0;
 			int i = 0, unitListSize = unitList.size();
 			while (i < unitListSize) {
 				Unit unit = unitList.get(i);
