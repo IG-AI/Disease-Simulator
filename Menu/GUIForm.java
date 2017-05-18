@@ -42,9 +42,6 @@ public class GUIForm extends JFrame {
     private String currentRandom;
     private String currentRecording;
     private List<String> defMap = new ArrayList<>();
-    private int compareInd;
-    private int compareInf;
-    private int compareVac;
 
     /**
      * Starting the Menu-GUI.
@@ -157,11 +154,11 @@ public class GUIForm extends JFrame {
         }
 
     /**
-     * Runs a bash-script containing "make run" plus the values read by the menu
+     * Opens the readme-file
      *
      * @throws IOException
-     * @throws InterruptedException
      */
+
     private void openReadme() throws IOException {
 
         if(!Desktop.isDesktopSupported()){
@@ -172,13 +169,33 @@ public class GUIForm extends JFrame {
             String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
             folderPath = folderPath.replace("Project-snowfox.jar", "README.md");
             File directory = new File(folderPath);
-            System.out.print(directory);
             Desktop desktop = Desktop.getDesktop();
             desktop.open(directory);
         }
 
 
     }
+
+    /**
+     * Adjusts the input so the total number of infected and vaccinated don't exceeds number of individuals
+     *
+     */
+
+    private void adjustInput(){
+        int compareInd = (int) numberOfIndividualsSpinner.getValue();
+        int compareInf = (int) numberOfInfectedSpinner.getValue();
+        int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+        if((compareInf + compareVac) > compareInd){
+            numberOfIndividualsSpinner.setValue(compareInf + compareVac);
+        }
+    }
+
+    /**
+     * Runs a bash-script containing "make run" plus the values read by the menu
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
 
     private void run() throws IOException, InterruptedException {
 
@@ -199,7 +216,10 @@ public class GUIForm extends JFrame {
 
         if(Objects.equals(getOS, "Linux")){
 
-            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputVaccinated, inputInfected, inputTicks, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus};
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputVaccinated,
+                    inputInfected, inputTicks, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap,
+                    "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus, "RAND=" + currentRandom,
+                    "REC=" + currentRecording};
             Process proc = new ProcessBuilder(ecommand).directory(directory).start();
         }
 
@@ -226,54 +246,21 @@ public class GUIForm extends JFrame {
         numberOfIndividualsSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                compareInd = (int) numberOfIndividualsSpinner.getValue();
-                compareInf = (int) numberOfInfectedSpinner.getValue();
-                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
-                if((compareInf + compareVac) > compareInd){
-                    if(compareInf == 0){
-                        vaccinatedIndividualsSpinner.setValue(compareVac);
-                    }
-                    else {
-                        vaccinatedIndividualsSpinner.setValue(compareInf);
-                    }
-
-                }
+                adjustInput();
             }
         });
 
         numberOfInfectedSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                compareInd = (int) numberOfIndividualsSpinner.getValue();
-                compareInf = (int) numberOfInfectedSpinner.getValue();
-                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
-                if((compareInf + compareVac) > compareInd){
-                    if(compareInf == 0){
-                        vaccinatedIndividualsSpinner.setValue(compareVac);
-                    }
-                    else {
-                        vaccinatedIndividualsSpinner.setValue(compareInf);
-                    }
-
-                }
+                adjustInput();
             }
         });
 
         vaccinatedIndividualsSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                compareInd = (int) numberOfIndividualsSpinner.getValue();
-                compareInf = (int) numberOfInfectedSpinner.getValue();
-                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
-                if((compareInf + compareVac) > compareInd){
-                    if(compareInf == 0){
-                        vaccinatedIndividualsSpinner.setValue(compareVac);
-                    }
-                    else {
-                        vaccinatedIndividualsSpinner.setValue(compareInf);
-                    }
-
-                }
+                adjustInput();
             }
         });
 
