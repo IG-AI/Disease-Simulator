@@ -68,6 +68,7 @@ MAP?=map_one #Default value for map
 IND?=1000 #Default number of individuals
 TICKS?=5000 #Default length of the simulation
 INF?=100 #Default number of infected individuals
+NVAC?=300 #Default number of vaccinated individuals
 RANGE?=3 #Default radius for the range in which processes can be infected
 PROB?=1.0 #Default chanse of infection
 LIFE?=100 #Default nummber of ticks
@@ -77,8 +78,7 @@ VAC?=on #Default vaccine setting
 REC?=play #Default record behaviour
 RAND?=auto #Default random behaviour
 
-ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(VAC) $(REC) $(RAND)# ARGS FOR ERLANG
-ETINY = map_zero 3 20 0 3 0 50 bounce dead on
+ERLANG_DEFAULT_PARAMS = $(MAP) $(IND) $(TICKS) $(INF) $(NVAC) $(RANGE) $(PROB) $(LIFE) $(MOVE) $(END) $(VAC) $(REC) $(RAND)# ARGS FOR ERLANG
 
 # SPECIAL RUNS #
 erun_tiny: epmd_run all

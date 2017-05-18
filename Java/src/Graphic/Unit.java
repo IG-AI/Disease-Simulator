@@ -11,13 +11,13 @@ import java.lang.Math.*;
  */
 public class Unit extends JComponent
 {
-	public OtpErlangPid PID;
-	public int status;
-	public int x;
-	public int y;
-	private static final Color INFECTED = Color.RED;
-	private static final Color HEALTHY  = Color.GREEN;
-	private static final Color ERROR = Color.BLUE;
+    public OtpErlangPid PID;
+    public int status;
+    public int x;
+    public int y;
+    private static final Color INFECTED = Color.RED;
+    private static final Color HEALTHY  = Color.GREEN;
+    private static final Color ERROR = new Color(145, 187, 255);
 
 
 	/**

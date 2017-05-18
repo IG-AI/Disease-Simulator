@@ -135,6 +135,8 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_s
                 _ ->
                     people(?INFECTED, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status) %Change status to infected
             end;
+        get_vaccinated ->            
+                    people(?IMMUNE, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_status); %Change status to immune 
         stop ->
             done
     end.
