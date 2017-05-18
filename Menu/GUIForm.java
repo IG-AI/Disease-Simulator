@@ -64,7 +64,7 @@ public class GUIForm extends JFrame {
         JFormattedTextField probabilityNumbers = ((JSpinner.NumberEditor) infectionProbabilitySpinner.getEditor()).getTextField();
         ((NumberFormatter) probabilityNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel individuals = new SpinnerNumberModel(1000,0,50000,1);
+        SpinnerNumberModel individuals = new SpinnerNumberModel(1000,1,50000,1);
         numberOfIndividualsSpinner.setModel(individuals);
         JFormattedTextField individualNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
         ((NumberFormatter) individualNumbers.getFormatter()).setAllowsInvalid(false);
@@ -176,19 +176,6 @@ public class GUIForm extends JFrame {
 
     }
 
-    /**
-     * Adjusts the input so the total number of infected and vaccinated don't exceeds number of individuals
-     *
-     */
-
-    private void adjustInput(){
-        int compareInd = (int) numberOfIndividualsSpinner.getValue();
-        int compareInf = (int) numberOfInfectedSpinner.getValue();
-        int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
-        if((compareInf + compareVac) > compareInd){
-            numberOfIndividualsSpinner.setValue(compareInf + compareVac);
-        }
-    }
 
     /**
      * Runs a bash-script containing "make run" plus the values read by the menu
@@ -246,7 +233,6 @@ public class GUIForm extends JFrame {
         numberOfIndividualsSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-
                 int compareInd = (int) numberOfIndividualsSpinner.getValue();
                 int compareInf = (int) numberOfInfectedSpinner.getValue();
                 int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
@@ -254,28 +240,46 @@ public class GUIForm extends JFrame {
                     if(compareInf <= compareInd){
                         vaccinatedIndividualsSpinner.setValue(compareInd - compareInf);
                     }
-                    if(compareInf > compareInd){
+                    else if (compareInf > compareInd && compareInd > compareVac){
+                        vaccinatedIndividualsSpinner.setValue(0);
                         numberOfInfectedSpinner.setValue(compareInd);
                     }
-                    if(compareInf > compareInd && compareVac > compareInd){
+                    else if (compareInf > compareInd && compareVac > compareInd){
                         vaccinatedIndividualsSpinner.setValue(0);
                         numberOfInfectedSpinner.setValue(compareInd);
                     }
                 }
+
             }
         });
 
         numberOfInfectedSpinner.addChangeListener(new ChangeListener() {
+
             @Override
             public void stateChanged(ChangeEvent e) {
-                adjustInput();
+
+                int compareInd = (int) numberOfIndividualsSpinner.getValue();
+                int compareInf = (int) numberOfInfectedSpinner.getValue();
+                int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd) {
+                    numberOfIndividualsSpinner.setValue(compareInf + compareVac);
+                }
+
             }
         });
 
         vaccinatedIndividualsSpinner.addChangeListener(new ChangeListener() {
+
             @Override
             public void stateChanged(ChangeEvent e) {
-                adjustInput();
+
+                int compareInd = (int) numberOfIndividualsSpinner.getValue();
+                int compareInf = (int) numberOfInfectedSpinner.getValue();
+                int compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd && compareVac !=0) {
+                    numberOfIndividualsSpinner.setValue(compareInf + compareVac);
+                }
+
             }
         });
 
