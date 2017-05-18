@@ -79,7 +79,7 @@ record(Pointer, wait, Reply) ->
     receive
         {updated_positions, New_state} ->
             %io:fwrite(Pointer, "~w~n", [New_state]),
-            case file:write(Pointer, io_lib:fwrite("~p~n",[New_state])) of %this is probably faster and can handle more data than io:fwrite()
+            case file:write(Pointer, io_lib:fwrite("~w~n",[New_state])) of %this is probably faster and can handle more data than io:fwrite()
                 {error, Reason} ->
                     io:format("Could not write to file: ~p ~n", [Reason]);
                 _ ->
