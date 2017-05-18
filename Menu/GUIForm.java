@@ -168,12 +168,16 @@ public class GUIForm extends JFrame {
             URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
             String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
             folderPath = folderPath.replace("Project-snowfox.jar", "README.md");
+
             File directory = new File(folderPath);
             Desktop desktop = Desktop.getDesktop();
-            desktop.open(directory);
+            if(folderPath.endsWith("README.md")) {
+                desktop.open(directory);
+            }
+                else {
+                mapInfo.setText("Readme not found");
+            }
         }
-
-
     }
 
 
@@ -190,6 +194,7 @@ public class GUIForm extends JFrame {
         String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
         folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath);
+
 
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
         String inputInfected = "INF=" + numberOfInfectedSpinner.getValue();
@@ -332,6 +337,7 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 currentMap = (String)cb.getSelectedItem();
+                mapInfo.setText("Select a map:");
             }
         });
         readmeButton.addActionListener(new ActionListener() {
