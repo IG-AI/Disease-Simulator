@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -24,27 +25,40 @@ public class GUIForm extends JFrame {
     private JSpinner infectionProbabilitySpinner;
     private JSpinner rangeOfDiseaseSpinner;
     private JSpinner numberOfHealthSpinner;
-    private JSpinner numberOfTicsSpinner;
+    private JSpinner numberOfTicksSpinner;
     private JSpinner numberOfInfectedSpinner;
+    private JSpinner vaccinatedIndividualsSpinner;
     private javax.swing.JLabel mapInfo;
     private JComboBox<String> endBox;
     private JComboBox<String> moveBox;
     private JCheckBox vaccinationCheckBox;
+    private JComboBox<String> recordingBox;
+    private JComboBox<String> randomBox;
+    private JButton readmeButton;
     private String vaccinationStatus = "on";
     private String currentMap;
     private String currentMove;
     private String currentEnd;
+    private String currentRandom;
+    private String currentRecording;
     private List<String> defMap = new ArrayList<>();
     private int compareInd;
     private int compareInf;
+    private int compareVac;
 
     /**
      * Starting the Menu-GUI.
+     *
      */
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         GUIForm mainFrame = new GUIForm();
     }
+
+    /**
+     * Setting up the JSpinners, sets default values and limits the input
+     *
+     */
 
     private void spinnerSetup(){
 
@@ -58,10 +72,10 @@ public class GUIForm extends JFrame {
         JFormattedTextField individualNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
         ((NumberFormatter) individualNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel tics = new SpinnerNumberModel(5000, -1, 1000000000, 1);
-        numberOfTicsSpinner.setModel(tics);
-        JFormattedTextField ticsNumbers = ((JSpinner.NumberEditor) numberOfTicsSpinner.getEditor()).getTextField();
-        ((NumberFormatter) ticsNumbers.getFormatter()).setAllowsInvalid(false);
+        SpinnerNumberModel ticks = new SpinnerNumberModel(5000, -1, 1000000000, 1);
+        numberOfTicksSpinner.setModel(ticks);
+        JFormattedTextField ticksNumbers = ((JSpinner.NumberEditor) numberOfTicksSpinner.getEditor()).getTextField();
+        ((NumberFormatter) ticksNumbers.getFormatter()).setAllowsInvalid(false);
 
         SpinnerNumberModel health = new SpinnerNumberModel(150,0,1000000000,1);
         numberOfHealthSpinner.setModel(health);
@@ -77,12 +91,25 @@ public class GUIForm extends JFrame {
         rangeOfDiseaseSpinner.setModel(range);
         JFormattedTextField rangeNumbers = ((JSpinner.NumberEditor) rangeOfDiseaseSpinner.getEditor()).getTextField();
         ((NumberFormatter) rangeNumbers.getFormatter()).setAllowsInvalid(false);
+
+        SpinnerNumberModel vaccinated = new SpinnerNumberModel(100,0,50000,1);
+        vaccinatedIndividualsSpinner.setModel(vaccinated);
+        JFormattedTextField vaccinatedNumbers = ((JSpinner.NumberEditor) vaccinatedIndividualsSpinner.getEditor()).getTextField();
+        ((NumberFormatter) vaccinatedNumbers.getFormatter()).setAllowsInvalid(false);
+
     }
+
+    /**
+     * Setting up the JComboBoxes
+     *
+     */
 
     private void setModeBox(){
 
         currentMove = "bounce";
         currentEnd = "dead";
+        currentRecording = "play";
+        currentRandom = "auto";
 
         endBox.addItem("dead");
         endBox.addItem("ticks");
@@ -90,8 +117,20 @@ public class GUIForm extends JFrame {
         moveBox.addItem("bounce");
         moveBox.addItem("bounce_random");
         moveBox.addItem("path");
+        recordingBox.addItem("play");
+        recordingBox.addItem("play_and_rec");
+        recordingBox.addItem("rec");
+        recordingBox.addItem("bg");
+        randomBox.addItem("auto");
+        randomBox.addItem("manual");
 
     }
+
+    /**
+     * Reads the data folder and adds the .bmp files to the JComboBox
+     *
+     * @throws UnsupportedEncodingException
+     */
 
     private void getMapFiles() throws UnsupportedEncodingException {
 
@@ -117,6 +156,29 @@ public class GUIForm extends JFrame {
             }
         }
 
+    /**
+     * Runs a bash-script containing "make run" plus the values read by the menu
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void openReadme() throws IOException {
+
+        if(!Desktop.isDesktopSupported()){
+            mapInfo.setText("OS not supported");
+        }
+        else{
+            URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+            String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
+            folderPath = folderPath.replace("Project-snowfox.jar", "README.md");
+            File directory = new File(folderPath);
+            System.out.print(directory);
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(directory);
+        }
+
+
+    }
 
     private void run() throws IOException, InterruptedException {
 
@@ -127,29 +189,30 @@ public class GUIForm extends JFrame {
 
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
         String inputInfected = "INF=" + numberOfInfectedSpinner.getValue();
-        String inputTics = "TICKS=" + numberOfTicsSpinner.getValue();
+        String inputTicks = "TICKS=" + numberOfTicksSpinner.getValue();
         String inputHealth = "LIFE=" + numberOfHealthSpinner.getValue();
         String inputRange = "RANGE=" + rangeOfDiseaseSpinner.getValue();
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
+        String inputVaccinated = "VAC=" + vaccinatedIndividualsSpinner.getValue();
 
         String getOS = System.getProperty("os.name");
 
         if(Objects.equals(getOS, "Linux")){
 
-            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputVaccinated, inputInfected, inputTicks, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus};
             Process proc = new ProcessBuilder(ecommand).directory(directory).start();
-        }/*
-        else if (Objects.equals(getOS, "Mac")){
+        }
 
-            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputInfected, inputTics, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap, "END=" + currentEnd,"MOVE=" + currentMove, "VAC=" + vaccinationStatus};
-            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
-        }*/
         else{
             mapInfo.setText("OS not supported");
         }
-
-
     }
+
+    /**
+     * Starts the menu
+     *
+     * @throws UnsupportedEncodingException
+     */
 
     private GUIForm() throws UnsupportedEncodingException {
         super("Project Snowfox");
@@ -165,19 +228,50 @@ public class GUIForm extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 compareInd = (int) numberOfIndividualsSpinner.getValue();
                 compareInf = (int) numberOfInfectedSpinner.getValue();
-                if(compareInf > compareInd){
-                    numberOfInfectedSpinner.setValue(compareInd);
+                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd){
+                    if(compareInf == 0){
+                        vaccinatedIndividualsSpinner.setValue(compareVac);
+                    }
+                    else {
+                        vaccinatedIndividualsSpinner.setValue(compareInf);
+                    }
 
                 }
             }
         });
 
         numberOfInfectedSpinner.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
                 compareInd = (int) numberOfIndividualsSpinner.getValue();
                 compareInf = (int) numberOfInfectedSpinner.getValue();
-                if(compareInf > compareInd){
-                    numberOfInfectedSpinner.setValue(compareInd);
+                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd){
+                    if(compareInf == 0){
+                        vaccinatedIndividualsSpinner.setValue(compareVac);
+                    }
+                    else {
+                        vaccinatedIndividualsSpinner.setValue(compareInf);
+                    }
+
+                }
+            }
+        });
+
+        vaccinatedIndividualsSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                compareInd = (int) numberOfIndividualsSpinner.getValue();
+                compareInf = (int) numberOfInfectedSpinner.getValue();
+                compareVac = (int) vaccinatedIndividualsSpinner.getValue();
+                if((compareInf + compareVac) > compareInd){
+                    if(compareInf == 0){
+                        vaccinatedIndividualsSpinner.setValue(compareVac);
+                    }
+                    else {
+                        vaccinatedIndividualsSpinner.setValue(compareInf);
+                    }
 
                 }
             }
@@ -203,6 +297,22 @@ public class GUIForm extends JFrame {
             }
         });
 
+        randomBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                currentRandom = (String)cb.getSelectedItem();
+            }
+        });
+
+        recordingBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                currentRecording = (String)cb.getSelectedItem();
+            }
+        });
+
         moveBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -218,6 +328,17 @@ public class GUIForm extends JFrame {
                 currentMap = (String)cb.getSelectedItem();
             }
         });
+        readmeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    openReadme();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
