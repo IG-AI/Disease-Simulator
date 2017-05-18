@@ -213,6 +213,11 @@ public class GUIForm extends JFrame {
                     "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus, "RAND=" + currentRandom,
                     "REC=" + currentRecording};
             Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+
+            String[] jcommand = new String[]{"gnome-terminal", "-x", "make" ,"jrun"};
+
+            Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
+
         }
 
         else{
