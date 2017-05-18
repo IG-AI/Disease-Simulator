@@ -29,10 +29,11 @@ start() ->
     % Handling arguments sent through command line.
     Args = init:get_plain_arguments(),
     % The map file is sent through command line.
-    [Map, S_amount, S_times, S_nr_of_infected, S_range, S_probability, S_life, S_movement, S_end, S_vaccine, S_record, S_random] = Args,
+    [Map, S_amount, S_times, S_nr_of_infected, S_nr_of_vaccinated, S_range, S_probability, S_life, S_movement, S_end, S_vaccine, S_record, S_random] = Args,
     Amount = list_to_integer(S_amount), 
     Times = list_to_integer(S_times), 
     Nr_of_infected = list_to_integer(S_nr_of_infected),
+    Nr_of_vaccinated = list_to_integer(S_nr_of_vaccinated),
     Range = list_to_integer(S_range),
     Probability = list_to_float(S_probability),
     Life = list_to_integer(S_life),
@@ -67,12 +68,12 @@ start() ->
                     Startup_time = os:timestamp(),
                     register(h_checker, spawn(fun() -> collision_checker:check(Hospital) end)),
                     register(w_checker, spawn(fun() -> collision_checker:check(Walls) end)),
-		    
-                  
                     
                     State = people:spawn_people([], Amount, Movement, Life, Vaccine, {Map, Width, Height, Walls, Hospital}),
                     Infect_list = lists:sublist(State, Nr_of_infected),
+                    Vaccination_list = lists:sublist(State, Nr_of_infected+1, Nr_of_vaccinated),
                     utils:send_to_all(get_infected, Infect_list),
+                    utils:send_to_all(get_vaccinated, Vaccination_list),
 
                     record:start_record(Record, Java_connection_string, Map), %sets up the recording, and also tells Java that map is fetched if needed. 
                     Exec_time = os:timestamp(),

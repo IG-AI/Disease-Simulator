@@ -43,6 +43,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
 * TICKS - determine the number of simulation steps before the simulation end. If TICKS is set to a negative value the simulation will run indefinitely or until another end condition is reached.
 * IND - number of individuals in the simulation.
 * INF - number of infected individuals.
+* VAC - number of vaccinated individuals.
 * PROB - the chanse of the infection spreading between two individuals.
 * RANGE - the radius of the area an individual need to be in order to be infected by another individual.
 * LIFE - the number of ticks an individual will 'live' after being infected.
@@ -53,7 +54,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
   * **dead** *default* the simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted. 
   * **ticks** the simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.
   * **infected** the simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.
-* VAC - the switch for vaccination: 'on' or 'off' 
+* TVAC - toggle vaccination: 'on' or 'off' in hospitals.
 * REC - the behaviour of the recording function.
    * **play** *default* behaviour, will just play the simulation with no recording.
    * **play_and_rec** will play the simulation and record it.
