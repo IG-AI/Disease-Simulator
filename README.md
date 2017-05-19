@@ -79,7 +79,7 @@ The program is run mainly on the schools ThinLinc clients: https://www.it.uu.se/
 These are running Java 7 and Erlang 19.<br>
 The correct Erlang version seems to be the most important thing to get it running on our personal computers. <br>
 
-To the simulation through the **GUI** you need to run it on Linux with a gnome-terminal installed.<br>
+To run the simulation through the **GUI** you need to run it on Linux with a gnome-terminal installed.<br>
 
 On personal computers we've had success running it on these setups:
 * Linux Mint 17 with Java 7 and Erlang 19
