@@ -121,6 +121,10 @@ public class GUIForm extends JFrame {
         randomBox.addItem("auto");
         randomBox.addItem("manual");
 
+        endBox.setToolTipText("The simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted");
+        moveBox.setToolTipText("Uses bouncing behaviour");
+        recordingBox.setToolTipText("Play the simulation with no recording");
+        randomBox.setToolTipText("Each simulation with the same parameters will be different");
     }
 
     /**
@@ -310,6 +314,15 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 currentEnd = (String)cb.getSelectedItem();
+                if(Objects.equals(currentEnd, "dead")){
+                    endBox.setToolTipText("The simulation will stop when either all individuals are healthy, all individuals are dead or TICKS have been depleted.");
+                }
+                if(Objects.equals(currentEnd, "ticks")){
+                    endBox.setToolTipText("The simulation will only stop when TICKS is depleted. Note that if this option is chosen and TICKS are set to a negative value the simulation will run indefinitely.");
+                }
+                if(Objects.equals(currentEnd, "infected")){
+                    endBox.setToolTipText("The simulation will stop when either all individuals are healthy, all individuals are infected or TICKS have been depleted.");
+                }
             }
         });
 
@@ -318,6 +331,12 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 currentRandom = (String)cb.getSelectedItem();
+                if(Objects.equals(currentRandom, "auto")){
+                    randomBox.setToolTipText("Each simulation with the same parameters will be different");
+                }
+                if(Objects.equals(currentRandom, "manual")){
+                    randomBox.setToolTipText("Use a predetermined seed resulting in identical simulations if the same parameters are use");
+                }
             }
         });
 
@@ -326,6 +345,18 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 currentRecording = (String)cb.getSelectedItem();
+                if(Objects.equals(currentRecording, "play")){
+                    recordingBox.setToolTipText("Play the simulation with no recording");
+                }
+                if(Objects.equals(currentRecording, "play_and_rec")) {
+                    recordingBox.setToolTipText("Play the simulation and record it.");
+                }
+                if(Objects.equals(currentRecording, "rec")){
+                    recordingBox.setToolTipText("Only record the simulation, nothing will be displayed");
+                }
+                if(Objects.equals(currentRecording, "bg")){
+                    recordingBox.setToolTipText("Run the simulation in the background, nothing will be recorded nor displayed");
+                }
             }
         });
 
@@ -334,6 +365,15 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 currentMove = (String)cb.getSelectedItem();
+                if(Objects.equals(currentMove, "bounce")){
+                    moveBox.setToolTipText("Uses bouncing behaviour");
+                }
+                if(Objects.equals(currentMove, "bounce_random")){
+                    moveBox.setToolTipText("Uses bouncing behaviour");
+                }
+                if(Objects.equals(currentMove, "path")){
+                    moveBox.setToolTipText("Use A* for pathfinding **Very slow to start**");
+                }
             }
         });
 
