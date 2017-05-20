@@ -208,14 +208,17 @@ public class GUIForm extends JFrame {
         String inputInfectionProbability = "PROB=" + infectionProbabilitySpinner.getValue();
         String inputVaccinated = "VAC=" + vaccinatedIndividualsSpinner.getValue();
 
+
         String getOS = System.getProperty("os.name");
 
         if(Objects.equals(getOS, "Linux")){
 
-            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "run", inputIndividuals, inputVaccinated,
+
+            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "erun", inputIndividuals, inputVaccinated,
                     inputInfected, inputTicks, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap,
                     "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus, "RAND=" + currentRandom,
                     "REC=" + currentRecording};
+
             Process proc = new ProcessBuilder(ecommand).directory(directory).start();
 
             String[] jcommand = new String[]{"gnome-terminal", "-x", "make" ,"jrun"};
