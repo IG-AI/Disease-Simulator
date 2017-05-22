@@ -20,6 +20,7 @@ public class ImageComponents extends JPanel {
 	public static int ticks;
 	public static int tempSickUnits;
 	public static int tempVacciantedUnits;
+	private static int tempTicks;
 
 
 	/**
@@ -101,22 +102,24 @@ public class ImageComponents extends JPanel {
 	public void paintComponent(Graphics g)
 	{
 
-		vaccinatedUnits = 0;
-		sickUnits = 0;
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
+			vaccinatedUnits = 0;
+			sickUnits = 0;
 			int i = 0, unitListSize = unitList.size();
 			while (i < unitListSize) {
 				Unit unit = unitList.get(i);
 				unit.paintComponent(g);
 				if (unit.status == 1) {
-					tempSickUnits = sickUnits++;
+					sickUnits++;
 				} else if (unit.status == 2) {
-					tempVacciantedUnits = vaccinatedUnits++;
+					vaccinatedUnits++;
 				}
 				i++;
 			}
 		}
+		tempSickUnits = sickUnits;
+		tempVacciantedUnits = vaccinatedUnits;
 		ticks++;
 	}
 }
