@@ -22,31 +22,47 @@ spawn_people(State, 0, _, _, _, _) ->
     State;
 
 spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
+    Processes = 4,
     {Map_name, Width, Height, Walls, Hospital} = Map_info,
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS 
-    spawn(fun()->make_path(Amount div 2, {Width, Height}, G, F, []) end),
-    spawn(fun()->make_path((Amount div 2) + (Amount rem 2), {Width, Height}, G, F, []) end),
+    spawn_pathfinding(Amount, Processes, Amount div Processes, {Width, Height}, G, F),
+    Paths = receive_paths(Processes, []),
 
-    receive
-        {paths, Path_1}->
-            receive
-                {paths, Path_2}->
-                    Paths = Path_1 ++ Path_2
-            end
-    end,        
+      
     spawn_people_aux(State, Amount, Paths, Starting_life, Vaccine_status, G, F);
-
-
-
-
+            
 spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, Map_info) ->
     {_, X_max, Y_max, _, _} = Map_info, 
     Direction = movement:generate_direction(),
     {X, Y} = movement:generate_position({X_max, Y_max}),
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
+
+
+spawn_pathfinding(0, _, _, _, _,_) ->
+    ok;
+spawn_pathfinding(Amount_of_people_left_to_spawn,Processses, Load, Bounds, G, F) ->
+    case Amount_of_people_left_to_spawn rem Processses =/= 0 of
+        true ->
+            spawn(fun()->make_path(Load + 1 , Bounds, G, F, []) end),
+            spawn_pathfinding(Amount_of_people_left_to_spawn - Load -1,Processses,Load,Bounds,G,F);
+        _ ->
+            spawn(fun()->make_path(Load , Bounds, G, F, []) end),
+            spawn_pathfinding(Amount_of_people_left_to_spawn - Load,Processses,Load,Bounds,G,F)
+    end.
+
+receive_paths(0, Paths) ->
+    Paths;
+
+receive_paths(Amount, Paths) ->
+    receive
+        {paths, P} ->
+            receive_paths(Amount-1, P ++ Paths)
+    end.
+
+
 
 %%
 %% @doc Spawns people that will walk between three random points.
