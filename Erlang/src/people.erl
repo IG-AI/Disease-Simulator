@@ -22,7 +22,7 @@ spawn_people(State, 0, _, _, _, _) ->
     State;
 
 spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
-    Processes = 4,
+    Processes = 7,
     {Map_name, Width, Height, Walls, Hospital} = Map_info,
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
@@ -59,8 +59,9 @@ receive_paths(0, Paths) ->
 receive_paths(Amount, Paths) ->
     receive
         {paths, P} ->
-            receive_paths(Amount-1, P ++ Paths)
-    end.
+            ok
+    end,
+    receive_paths(Amount-1, P ++ Paths).
 
 
 
