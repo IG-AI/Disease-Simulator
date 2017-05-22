@@ -1,5 +1,6 @@
-package Menu;
+package Java.src.Menu;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -48,8 +49,9 @@ public class GUIForm extends JFrame {
      *
      */
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) throws IOException {
         GUIForm mainFrame = new GUIForm();
+        setIconImage(mainFrame);
     }
 
     /**
@@ -421,6 +423,15 @@ public class GUIForm extends JFrame {
             }
         });
         setVisible(true);
+    }
+
+    private static void setIconImage(JFrame frame) throws IOException {
+        try {
+            frame.setIconImage(ImageIO.read(new File("data/icon.png")));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
