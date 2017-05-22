@@ -85,7 +85,7 @@ row(_, -1, _, Pos, Mov, _) ->
     {Pos, Mov};
 
 row(X, Y, {X_max, Y_max}, Pos, Mov, Prev) ->
-    New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not collision_checker:get_wall_collision(X_valid, Y)],
+    New_pos = [{X_valid, Y} || X_valid  <- lists:seq(0, X_max), not collision_checker:check_collision(w_checker,X_valid, Y)],
 
     Check_down = fun (X1, Y1, X2, Y2) -> if
                                              ((X1 =:= X2) and (Y1+1 =:= Y2)) -> true;	% Down

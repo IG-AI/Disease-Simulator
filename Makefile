@@ -60,7 +60,7 @@ jrun_test: jcompile
 
 # To run the GUI
 gui: all epmd_run
-	java -jar Project-snowfox-linux.jar
+	java -jar Project-snowfox.jar
 
 ### ERLANG ###
 # SPECIAL VARS #
