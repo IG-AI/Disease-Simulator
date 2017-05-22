@@ -63,27 +63,9 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, M
 %% @returns The new state. 
 %%
 
-%% spawn_people_aux(State, 0, _, _, _, _, _, _) ->
-%%     State;
 
-%% spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F) ->
-%%     [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
-%%     Result_1 =  a_star:run(G, P1, P2, F),
-%%     Result_2 = a_star:run(G, P2, P3, F),
-%%     Result_3 = a_star:run(G, P3, P1, F),
-%%     case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
-%%         true ->
-%%             spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F);
-%%         false->
-%%             {_, Path_1} = Result_1,
-%%             {_, Path_2} = Result_2,
-%%             {_, Path_3} = Result_3,
-%%             Paths = Path_1 ++ (Path_2 ++ Path_3),           
-%%             PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Paths, []}, Vaccine_status) end),
-%%             [{X , Y} | _ ] = Paths,
-%%             spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, Vaccine_status, G, F)
-%%     end.
-
+spawn_people_aux(State, 0, _, _, _, _, _) ->
+    State;
 
 spawn_people_aux(State, Amount, [Path | Path_list], Starting_life, Vaccine_status, G, F) ->               
             PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Path, []}, Vaccine_status) end),
@@ -210,3 +192,25 @@ if
    Status == ?INFECTED -> 1;
    true -> 0
 end. 
+
+
+%% spawn_people_aux(State, 0, _, _, _, _, _, _) ->
+%%     State;
+
+%% spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F) ->
+%%     [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
+%%     Result_1 =  a_star:run(G, P1, P2, F),
+%%     Result_2 = a_star:run(G, P2, P3, F),
+%%     Result_3 = a_star:run(G, P3, P1, F),
+%%     case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
+%%         true ->
+%%             spawn_people_aux(State, Amount, Map_name, Bounds, Starting_life, Vaccine_status, G, F);
+%%         false->
+%%             {_, Path_1} = Result_1,
+%%             {_, Path_2} = Result_2,
+%%             {_, Path_3} = Result_3,
+%%             Paths = Path_1 ++ (Path_2 ++ Path_3),           
+%%             PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, path, {Paths, []}, Vaccine_status) end),
+%%             [{X , Y} | _ ] = Paths,
+%%             spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1,  Map_name, Bounds, Starting_life, Vaccine_status, G, F)
+%%     end.
