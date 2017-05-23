@@ -20,7 +20,6 @@ public class ImageComponents extends JPanel {
 	public static int ticks;
 	public static int tempSickUnits;
 	public static int tempVacciantedUnits;
-	private static int tempTicks;
 
 
 	/**
