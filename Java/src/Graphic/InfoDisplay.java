@@ -102,11 +102,11 @@ public class InfoDisplay extends JPanel {
                 } else if (component.equals(unitsLabel)) {
                     unitsLabel.setText("Live individuals: " + numberOfUnits);
                 } else if (component.equals(sickUnitsLabel)) {
-                    sickUnitsLabel.setText("Sick individuals: " + ImageComponents.sickUnits);
+                    sickUnitsLabel.setText("Sick individuals: " + ImageComponents.tempSickUnits);
                 } else if (component.equals(deadUnitsLabel)) {
                     deadUnitsLabel.setText("Dead individuals: " + (startNumberOfUnits - numberOfUnits));
                 } else if (component.equals(vaccinationLabel)) {
-                    vaccinationLabel.setText("Vaccinated individuals: " + ImageComponents.vaccinatedUnits);
+                    vaccinationLabel.setText("Vaccinated individuals: " + ImageComponents.tempVacciantedUnits);
                 } else if (component.equals(ticksLabel)) {
                     ticksLabel.setText("Ticks: " + ImageComponents.ticks);
                 }

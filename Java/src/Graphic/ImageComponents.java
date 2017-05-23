@@ -18,6 +18,8 @@ public class ImageComponents extends JPanel {
 	public static int sickUnits;
 	public static int vaccinatedUnits;
 	public static int ticks;
+	public static int tempSickUnits;
+	public static int tempVacciantedUnits;
 
 
 	/**
@@ -98,10 +100,11 @@ public class ImageComponents extends JPanel {
 	@Override
 	public void paintComponent(Graphics g)
 	{
-		sickUnits = 0;
+
 		g.drawImage(image, windowPosX, windowPosY, null);
 		if(!unitList.isEmpty()) {
 			vaccinatedUnits = 0;
+			sickUnits = 0;
 			int i = 0, unitListSize = unitList.size();
 			while (i < unitListSize) {
 				Unit unit = unitList.get(i);
@@ -114,6 +117,8 @@ public class ImageComponents extends JPanel {
 				i++;
 			}
 		}
+		tempSickUnits = sickUnits;
+		tempVacciantedUnits = vaccinatedUnits;
 		ticks++;
 	}
 }
