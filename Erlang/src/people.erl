@@ -22,7 +22,7 @@ spawn_people(State, 0, _, _, _, _) ->
     State;
 
 spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
-    Processes = 16,
+    Processes = erlang:system_info(logical_processors_available),
     {Map_name, Width, Height, Walls, Hospital} = Map_info,
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
@@ -40,7 +40,19 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, M
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
-
+%%
+%% @doc Spawn processes to run pathfinding in paralell
+%%
+%% @param Amount_of_people_left_to_spawn the number of people to spawn
+%% @param Processes number of processes spawned
+%% @param Load the number of paths a spawned process should spawn
+%% @param Rem additional load for each process
+%% @param Bounds The map bounds
+%% @param G graph representing the map
+%% @param F fun
+%%
+%% @returns number of processes spawned
+-spec spawn_pathfinding(Amount_of_people_left_to_spawn :: integer(), Processes :: integer(), Load :: integer(), Rem :: integer(), Bounds :: bounds(), G :: position(), F :: function()) -> non_neg_integer().
 spawn_pathfinding(0, Processes, _, _, _,_,_) ->
     Processes;
 spawn_pathfinding(Amount_of_people_left_to_spawn,Processes, Load, Rem, Bounds, G, F) ->
@@ -53,6 +65,14 @@ spawn_pathfinding(Amount_of_people_left_to_spawn,Processes, Load, Rem, Bounds, G
             spawn_pathfinding(Amount_of_people_left_to_spawn - Load, Processes+1, Load, Rem, Bounds, G, F)
     end.
 
+%%
+%% @doc Receive paths from processes that calculate them and when all processes are finished return the paths
+%%
+%% @param Amount the number of processes
+%% @param Paths the so far received paths
+%%
+%% @returns The received paths
+-spec receive_paths(Amount :: non_neg_integer(), Paths :: path()) -> path().
 receive_paths(0, Paths) ->
     Paths;
 
@@ -190,10 +210,10 @@ people(Status, Life, Starting_life, Movement_behaviour, Movement_args, Vaccine_s
 %%
 -spec parse(S :: [non_neg_integer()]) -> {integer(),integer()}.
 parse(S) ->
-    {_, [_,{S1, L1}, {S2, L2}]} = re:run(S, "([0-9]+)[^0-9]*([0-9]+)"),
-    {A,_} = string:to_integer(string:substr(S, S1+1, L1)),
-    {B,_} = string:to_integer(string:substr(S, S2+1, L2)),
-    {A,B}.
+    [M, N] = string:tokens(S, "(),"),
+    {O,_} = string:to_integer(M),
+    {P,_} = string:to_integer(N),
+    {O, P}.
 
 %%
 %% @doc Check the status of a proccess to see how much life it should loose after an iteration.
