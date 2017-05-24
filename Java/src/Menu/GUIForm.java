@@ -1,4 +1,4 @@
-package Java.src.Menu;
+package Menu;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -34,6 +34,7 @@ public class GUIForm extends JFrame {
     private JComboBox<String> moveBox;
     private JCheckBox vaccinationCheckBox;
     private JComboBox<String> recordingBox;
+    private JComboBox recordedFileBox;
     private JComboBox<String> randomBox;
     private JButton readmeButton;
     private String vaccinationStatus = "on";
@@ -42,11 +43,12 @@ public class GUIForm extends JFrame {
     private String currentEnd;
     private String currentRandom;
     private String currentRecording;
+    private String currentRecordingFile;
     private List<String> defMap = new ArrayList<>();
+    private List<String> defRec = new ArrayList<>();
 
     /**
      * Starting the Menu-GUI.
-     *
      */
 
     public static void main(String[] args) throws IOException {
@@ -56,17 +58,16 @@ public class GUIForm extends JFrame {
 
     /**
      * Setting up the JSpinners, sets default values and limits the input
-     *
      */
 
-    private void spinnerSetup(){
+    private void spinnerSetup() {
 
-        SpinnerNumberModel probability = new SpinnerNumberModel(1.00,0.00,1.00,0.01 );
+        SpinnerNumberModel probability = new SpinnerNumberModel(1.00, 0.00, 1.00, 0.01);
         infectionProbabilitySpinner.setModel(probability);
         JFormattedTextField probabilityNumbers = ((JSpinner.NumberEditor) infectionProbabilitySpinner.getEditor()).getTextField();
         ((NumberFormatter) probabilityNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel individuals = new SpinnerNumberModel(1000,1,50000,1);
+        SpinnerNumberModel individuals = new SpinnerNumberModel(1000, 1, 50000, 1);
         numberOfIndividualsSpinner.setModel(individuals);
         JFormattedTextField individualNumbers = ((JSpinner.NumberEditor) numberOfIndividualsSpinner.getEditor()).getTextField();
         ((NumberFormatter) individualNumbers.getFormatter()).setAllowsInvalid(false);
@@ -76,22 +77,22 @@ public class GUIForm extends JFrame {
         JFormattedTextField ticksNumbers = ((JSpinner.NumberEditor) numberOfTicksSpinner.getEditor()).getTextField();
         ((NumberFormatter) ticksNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel health = new SpinnerNumberModel(150,0,1000000000,1);
+        SpinnerNumberModel health = new SpinnerNumberModel(150, 0, 1000000000, 1);
         numberOfHealthSpinner.setModel(health);
         JFormattedTextField healthlNumbers = ((JSpinner.NumberEditor) numberOfHealthSpinner.getEditor()).getTextField();
         ((NumberFormatter) healthlNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel infected = new SpinnerNumberModel(100,0,50000,1);
+        SpinnerNumberModel infected = new SpinnerNumberModel(100, 0, 50000, 1);
         numberOfInfectedSpinner.setModel(infected);
         JFormattedTextField infectedNumbers = ((JSpinner.NumberEditor) numberOfInfectedSpinner.getEditor()).getTextField();
         ((NumberFormatter) infectedNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel range = new SpinnerNumberModel(3,0,1000,1);
+        SpinnerNumberModel range = new SpinnerNumberModel(3, 0, 1000, 1);
         rangeOfDiseaseSpinner.setModel(range);
         JFormattedTextField rangeNumbers = ((JSpinner.NumberEditor) rangeOfDiseaseSpinner.getEditor()).getTextField();
         ((NumberFormatter) rangeNumbers.getFormatter()).setAllowsInvalid(false);
 
-        SpinnerNumberModel vaccinated = new SpinnerNumberModel(100,0,50000,1);
+        SpinnerNumberModel vaccinated = new SpinnerNumberModel(100, 0, 50000, 1);
         vaccinatedIndividualsSpinner.setModel(vaccinated);
         JFormattedTextField vaccinatedNumbers = ((JSpinner.NumberEditor) vaccinatedIndividualsSpinner.getEditor()).getTextField();
         ((NumberFormatter) vaccinatedNumbers.getFormatter()).setAllowsInvalid(false);
@@ -100,10 +101,9 @@ public class GUIForm extends JFrame {
 
     /**
      * Setting up the JComboBoxes
-     *
      */
 
-    private void setModeBox(){
+    private void setModeBox() {
 
         currentMove = "bounce";
         currentEnd = "dead";
@@ -119,6 +119,7 @@ public class GUIForm extends JFrame {
         recordingBox.addItem("play");
         recordingBox.addItem("play_and_rec");
         recordingBox.addItem("rec");
+        recordingBox.addItem("play_recording");
         recordingBox.addItem("bg");
         randomBox.addItem("auto");
         randomBox.addItem("manual");
@@ -149,15 +150,42 @@ public class GUIForm extends JFrame {
         });
 
         if (files != null) {
-            for (File file : files){
-                if (file.isFile()){
-                    defMap.add(file.getName().replace(".bmp",""));
-                    mapBox.addItem(file.getName().replace(".bmp",""));
+            for (File file : files) {
+                if (file.isFile()) {
+                    defMap.add(file.getName().replace(".bmp", ""));
+                    mapBox.addItem(file.getName().replace(".bmp", ""));
                     currentMap = defMap.get(0); //Sets the default map to first one in the JComboBox
-                    }
                 }
             }
         }
+    }
+
+    private void getRecordingFiles() throws UnsupportedEncodingException {
+
+        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        File directory = new File(folderPath + "recordings");
+
+        File[] files = directory.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".record");
+            }
+        });
+
+        if (files != null && !recordingBox.getSelectedItem().toString().equals("play_recording")) {
+            for (File file : files){
+                if (file.isFile()){
+                    defRec.add(file.getName().replace(".record",""));
+                    recordedFileBox.addItem(file.getName().replace(".record",""));
+                    currentRecordingFile = defRec.get(0); //Sets the default map to first one in the JComboBox
+                }
+            }
+        }
+        else {
+            recordedFileBox.addItem("None");
+        }
+    }
 
     /**
      * Opens the readme-file
@@ -223,7 +251,7 @@ public class GUIForm extends JFrame {
 
             Process proc = new ProcessBuilder(ecommand).directory(directory).start();
 
-            String[] jcommand = new String[]{"gnome-terminal", "-x", "make" ,"jrun"};
+            String[] jcommand = new String[]{"gnome-terminal", "-x", "make" ,"jrun", "REC=" + currentRecording, "RECFIL=" + currentRecordingFile};
 
             Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
 
@@ -246,6 +274,7 @@ public class GUIForm extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getMapFiles();
+        getRecordingFiles();
         spinnerSetup();
         setModeBox();
 
@@ -359,6 +388,9 @@ public class GUIForm extends JFrame {
                 if(Objects.equals(currentRecording, "rec")){
                     recordingBox.setToolTipText("Only record the simulation, nothing will be displayed");
                 }
+                if(Objects.equals(currentRecording, "playing_recording")) {
+                    recordingBox.setToolTipText("Play recording");
+                }
                 if(Objects.equals(currentRecording, "bg")){
                     recordingBox.setToolTipText("Run the simulation in the background, nothing will be recorded nor displayed");
                 }
@@ -399,6 +431,15 @@ public class GUIForm extends JFrame {
                     e1.printStackTrace();
                 }
             }
+        });
+
+        recordedFileBox.addActionListener(new ActionListener() {
+             @Override
+             public void actionPerformed(ActionEvent e) {
+                 JComboBox cb = (JComboBox)e.getSource();
+                 currentRecording = (String)cb.getSelectedItem();
+                 mapInfo.setText("Select a recording:");
+             }
         });
 
         exitButton.addActionListener(new ActionListener() {

@@ -4,6 +4,7 @@ import Graphic.GraphicDisplay;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
 
 import Communication.JavaErlangCommunication;
+import Communication.ReadRecording;
 
 import java.io.IOException;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
  */
 public class Main {
     public static JavaErlangCommunication javaErlangCommunicator;
+    public static ReadRecording readRecording;
 
 
     /**
@@ -24,7 +26,14 @@ public class Main {
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void main(String []args) throws InterruptedException, OtpErlangRangeException, IOException {
-        javaErlangCommunicator = new JavaErlangCommunication();
-        GraphicDisplay.runSimulation();
+        if (args[0] == "play_recording") {
+            readRecording = new ReadRecording();
+            GraphicDisplay.runPlayBack();
+        }
+        else {
+            javaErlangCommunicator = new JavaErlangCommunication();
+            GraphicDisplay.runSimulation();
+        }
+
     }
 }

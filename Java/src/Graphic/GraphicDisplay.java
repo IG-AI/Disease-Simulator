@@ -77,6 +77,9 @@ public class GraphicDisplay extends JPanel
         }
     }
 
+    public static void runPlayBack() {
+        //TODO
+    }
 
     /**
      * Checks if a coordination is out of bound.
