@@ -1,7 +1,6 @@
 package Communication;
 
 import com.ericsson.otp.erlang.*;
-
 import java.io.IOException;
 import java.util.*;
 import java.awt.*;

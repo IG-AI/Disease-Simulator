@@ -22,13 +22,13 @@ spawn_people(State, 0, _, _, _, _) ->
     State;
 
 spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
-    Processes = 7,
+    Processes = 16,
     {Map_name, Width, Height, Walls, Hospital} = Map_info,
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS 
-    spawn_pathfinding(Amount, Processes, Amount div Processes, {Width, Height}, G, F),
-    Paths = receive_paths(Processes, []),
+    Spawned_processes = spawn_pathfinding(Amount, 0, Amount div Processes, Amount rem Processes, {Width, Height}, G, F),
+    Paths = receive_paths(Spawned_processes, []),
 
       
     spawn_people_aux(State, Amount, Paths, Starting_life, Vaccine_status, G, F);
@@ -41,16 +41,16 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, M
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
 
-spawn_pathfinding(0, _, _, _, _,_) ->
-    ok;
-spawn_pathfinding(Amount_of_people_left_to_spawn,Processses, Load, Bounds, G, F) ->
-    case Amount_of_people_left_to_spawn rem Processses =/= 0 of
+spawn_pathfinding(0, Processes, _, _, _,_,_) ->
+    Processes;
+spawn_pathfinding(Amount_of_people_left_to_spawn,Processes, Load, Rem, Bounds, G, F) ->
+    case Rem > 0 of
         true ->
             spawn(fun()->make_path(Load + 1 , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load -1,Processses,Load,Bounds,G,F);
+            spawn_pathfinding(Amount_of_people_left_to_spawn - Load -1, Processes+1, Load, Rem-1, Bounds, G, F);
         _ ->
             spawn(fun()->make_path(Load , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load,Processses,Load,Bounds,G,F)
+            spawn_pathfinding(Amount_of_people_left_to_spawn - Load, Processes+1, Load, Rem, Bounds, G, F)
     end.
 
 receive_paths(0, Paths) ->
