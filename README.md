@@ -60,6 +60,7 @@ Several arguments can be passed to the simulation server via the make-command.<b
    * **play_and_rec** will play the simulation and record it.
    * **rec** will only record the simulation, nothing will be displayed.
    * **bg** will run the simulation in the background, nothing will be recorded nor displayed.
+ * RECFIL - the record file that will be played or none if you run it live.
  * RAND - the behaviour of the random generators in the simulation
    * **auto** *default* each simulation with the same parameters will be different.
    * **manual** will use a predetermined seed resulting in identical simulations if the same parameters are use.
