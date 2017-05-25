@@ -2,6 +2,7 @@ package Graphic;
 
 import javax.swing.*;
 import java.util.ArrayList;
+
 import com.ericsson.otp.erlang.*;
 import java.lang.System;
 import javax.imageio.ImageIO;
@@ -10,6 +11,7 @@ import java.io.IOException;
 
 import Main.Main;
 import Communication.JavaErlangCommunication;
+import Communication.ReadRecording;
 
 /**
  * The GraphicDisplay class of the program, the will draw the graphics.
@@ -77,9 +79,51 @@ public class GraphicDisplay extends JPanel
         }
     }
 
-    public static void runPlayBack() {
-        //TODO
+    /**
+     * Start running the simulation in playback mode.
+     *
+     * @throws OtpErlangRangeException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public static void runPlayBack() throws OtpErlangRangeException, IOException, InterruptedException {
+        int i;
+        if(Main.javaErlangCommunicator.simulationDone){
+            System.out.println("Graphic simulation skipped");
+        }else{
+            createAndShowGUI();
+            ArrayList erlangList = ReadRecording.simulationList.get(0);
+            maxNumberOfUnits = erlangList.size();
+            int numberOfUnits = maxNumberOfUnits;
+            infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
+            imageComponent.validate();
+            imageComponent.repaint();
+            long startTime, stopTime, finishedTime, sleep, zero, second;
+            zero = 0;
+            second = 1000;
+            i = 1;
+            while (true) {
+                startTime = System.currentTimeMillis();
+                erlangList = ReadRecording.simulationList.get(i);
+                if (erlangList == null) {
+                    System.out.println("Simulation done.");
+                    InfoDisplay.updateLabel(numberOfUnits);
+                    break;
+                }
+                updateUnitGraphics(erlangList);
+                numberOfUnits = erlangList.size();
+                imageComponent.validate();
+                imageComponent.repaint();
+                InfoDisplay.updateLabel(numberOfUnits);
+                i++;
+                stopTime = System.currentTimeMillis();
+                finishedTime = stopTime - startTime;
+                sleep = Math.max(((second / frequency) - finishedTime), zero);
+                Thread.sleep(sleep);
+            }
+        }
     }
+
 
     /**
      * Checks if a coordination is out of bound.

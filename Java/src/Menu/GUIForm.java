@@ -34,7 +34,7 @@ public class GUIForm extends JFrame {
     private JComboBox<String> moveBox;
     private JCheckBox vaccinationCheckBox;
     private JComboBox<String> recordingBox;
-    private JComboBox recordedFileBox;
+    private JComboBox<String> recordedFileBox;
     private JComboBox<String> randomBox;
     private JButton readmeButton;
     private String vaccinationStatus = "on";
@@ -119,7 +119,7 @@ public class GUIForm extends JFrame {
         recordingBox.addItem("play");
         recordingBox.addItem("play_and_rec");
         recordingBox.addItem("rec");
-        recordingBox.addItem("play_recording");
+        recordingBox.addItem("playback");
         recordingBox.addItem("bg");
         randomBox.addItem("auto");
         randomBox.addItem("manual");
@@ -173,7 +173,7 @@ public class GUIForm extends JFrame {
             }
         });
 
-        if (files != null && !recordingBox.getSelectedItem().toString().equals("play_recording")) {
+        if (files != null && !recordingBox.getSelectedItem().toString().equals("playback")) {
             for (File file : files){
                 if (file.isFile()){
                     defRec.add(file.getName().replace(".record",""));
@@ -388,7 +388,7 @@ public class GUIForm extends JFrame {
                 if(Objects.equals(currentRecording, "rec")){
                     recordingBox.setToolTipText("Only record the simulation, nothing will be displayed");
                 }
-                if(Objects.equals(currentRecording, "playing_recording")) {
+                if(Objects.equals(currentRecording, "playback")) {
                     recordingBox.setToolTipText("Play recording");
                 }
                 if(Objects.equals(currentRecording, "bg")){
