@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -109,7 +110,9 @@ public class GUIForm extends JFrame {
         currentEnd = "dead";
         currentRecording = "play";
         currentRandom = "auto";
+        currentRecordingFile = "playback not selected";
 
+        recordedFileBox.addItem("playback not selected");
         endBox.addItem("dead");
         endBox.addItem("ticks");
         endBox.addItem("infected");
@@ -173,7 +176,10 @@ public class GUIForm extends JFrame {
             }
         });
 
-        if (files != null && !recordingBox.getSelectedItem().toString().equals("playback")) {
+        String temp = Arrays.toString(files);
+
+
+        if (files != null) {
             for (File file : files){
                 if (file.isFile()){
                     defRec.add(file.getName().replace(".record",""));
@@ -181,11 +187,17 @@ public class GUIForm extends JFrame {
                     currentRecordingFile = defRec.get(0); //Sets the default map to first one in the JComboBox
                 }
             }
+
         }
-        else {
-            recordedFileBox.addItem("None");
+
+        if(Objects.equals(temp, "[]")){
+            recordedFileBox.removeAllItems();
+            recordedFileBox.addItem("no recording");
+            currentRecordingFile = "no recording";
         }
+
     }
+
 
     /**
      * Opens the readme-file
@@ -229,7 +241,6 @@ public class GUIForm extends JFrame {
         folderPath = folderPath.replace("Project-snowfox.jar", "");
         File directory = new File(folderPath);
 
-
         String inputIndividuals = "IND=" + numberOfIndividualsSpinner.getValue();
         String inputInfected = "INF=" + numberOfInfectedSpinner.getValue();
         String inputTicks = "TICKS=" + numberOfTicksSpinner.getValue();
@@ -241,24 +252,74 @@ public class GUIForm extends JFrame {
 
         String getOS = System.getProperty("os.name");
 
-        if(Objects.equals(getOS, "Linux")){
+        ArrayList<String> ecommand;
+        ArrayList<String> jcommand;
 
+        jcommand = new ArrayList<>();
+        ecommand = new ArrayList<>();
 
-            String[] ecommand = new String[]{ "gnome-terminal","-x","make", "erun", inputIndividuals, inputVaccinated,
-                    inputInfected, inputTicks, inputRange, inputInfectionProbability, inputHealth, "MAP=" + currentMap,
-                    "END=" + currentEnd,"MOVE=" + currentMove, "TVAC=" + vaccinationStatus, "RAND=" + currentRandom,
-                    "REC=" + currentRecording};
-
-            Process proc = new ProcessBuilder(ecommand).directory(directory).start();
-
-            String[] jcommand = new String[]{"gnome-terminal", "-x", "make" ,"jrun", "REC=" + currentRecording, "RECFIL=" + currentRecordingFile};
-
-            Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
-
+        if(Objects.equals(currentRecordingFile,"no recording") && Objects.equals(currentRecording, "playback")){
+            mapInfo.setText("Recording is required");
         }
 
-        else{
-            mapInfo.setText("OS not supported");
+        if(Objects.equals(currentRecording, "playback") && !Objects.equals(currentRecordingFile, "no recording"))
+
+            if(Objects.equals(getOS,"Linux")){
+
+                jcommand.add("gnome-terminal");
+                jcommand.add("-x");
+                jcommand.add("make");
+                jcommand.add("jrun");
+                jcommand.add("REC=" + currentRecording);
+                jcommand.add("RECFIL=" + currentRecordingFile);
+
+                Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
+
+            }
+
+            else{
+                mapInfo.setText("OS not supported");
+            }
+
+        else if(!Objects.equals(currentRecording, "playback")){
+
+            if (Objects.equals(getOS, "Linux")) {
+
+                jcommand.add("gnome-terminal");
+                jcommand.add("-x");
+                jcommand.add("make");
+                jcommand.add("jrun");
+                ecommand.add("gnome-terminal");
+                ecommand.add("-x");
+                ecommand.add("make");
+                ecommand.add("erun");
+                ecommand.add(inputIndividuals);
+                ecommand.add(inputVaccinated);
+                ecommand.add(inputInfected);
+                ecommand.add(inputTicks);
+                ecommand.add(inputRange);
+                ecommand.add(inputInfectionProbability);
+                ecommand.add(inputHealth);
+                ecommand.add("MAP=" + currentMap);
+                ecommand.add("END=" + currentEnd);
+                ecommand.add("MOVE=" + currentMove);
+                ecommand.add("TVAC=" + vaccinationStatus);
+                ecommand.add("RAND=" + currentRandom);
+                ecommand.add("REC=" + currentRecording);
+
+                Process proc = new ProcessBuilder(ecommand).directory(directory).start();
+
+                Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
+
+
+                System.out.print("inte playback"+"\n");
+            }
+
+            else{
+                mapInfo.setText("OS not supported");
+            }
+
+
         }
     }
 
@@ -274,7 +335,6 @@ public class GUIForm extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getMapFiles();
-        getRecordingFiles();
         spinnerSetup();
         setModeBox();
 
@@ -381,18 +441,36 @@ public class GUIForm extends JFrame {
                 currentRecording = (String)cb.getSelectedItem();
                 if(Objects.equals(currentRecording, "play")){
                     recordingBox.setToolTipText("Play the simulation with no recording");
+                    recordedFileBox.removeAllItems();
+                    recordedFileBox.addItem("playback not selected");
+                    currentRecordingFile = "playback not selected";
                 }
                 if(Objects.equals(currentRecording, "play_and_rec")) {
                     recordingBox.setToolTipText("Play the simulation and record it.");
+                    recordedFileBox.removeAllItems();
+                    recordedFileBox.addItem("playback not selected");
+                    currentRecordingFile = "playback not selected";
                 }
                 if(Objects.equals(currentRecording, "rec")){
                     recordingBox.setToolTipText("Only record the simulation, nothing will be displayed");
+                    recordedFileBox.removeAllItems();
+                    recordedFileBox.addItem("playback not selected");
+                    currentRecordingFile = "playback not selected";
                 }
                 if(Objects.equals(currentRecording, "playback")) {
                     recordingBox.setToolTipText("Play recording");
+                    try {
+                        recordedFileBox.removeAllItems();
+                        getRecordingFiles();
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 if(Objects.equals(currentRecording, "bg")){
                     recordingBox.setToolTipText("Run the simulation in the background, nothing will be recorded nor displayed");
+                    recordedFileBox.removeAllItems();
+                    recordedFileBox.addItem("playback not selected");
+                    currentRecordingFile = "playback not selected";
                 }
             }
         });
@@ -437,8 +515,7 @@ public class GUIForm extends JFrame {
              @Override
              public void actionPerformed(ActionEvent e) {
                  JComboBox cb = (JComboBox)e.getSource();
-                 currentRecording = (String)cb.getSelectedItem();
-                 mapInfo.setText("Select a recording:");
+                 currentRecordingFile = (String)cb.getSelectedItem();
              }
         });
 
