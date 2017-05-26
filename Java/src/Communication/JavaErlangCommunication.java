@@ -52,6 +52,7 @@ public class JavaErlangCommunication {
                 //We get something.. hopefully a tuple
                 OtpErlangTuple tuple = (OtpErlangTuple) myOtpMbox.receive();
                 //Second argument of tuple is a message!
+
                 OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(1);
 
                 if(dispatch.atomValue().equals("ping")) { //Yay we got a ping!
@@ -72,7 +73,8 @@ public class JavaErlangCommunication {
             while (true) {
                 System.out.println("Waiting for request.");
                 OtpErlangTuple tuple = (OtpErlangTuple) myOtpMbox.receive();
-                OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(1);
+                OtpErlangAtom dispatch = (OtpErlangAtom) tuple.elementAt(
+1);
 
 
                 if(dispatch.atomValue().equals("map_please")) { //Someone requesting map!
@@ -89,6 +91,7 @@ public class JavaErlangCommunication {
 
                     //Create a new map object of the wanted map
                     map = new MapParser(mapName);
+
 
                     //Get some information about the map
                     OtpErlangInt map_height = new OtpErlangInt(map.get_height());
@@ -108,6 +111,7 @@ public class JavaErlangCommunication {
                     myOtpMbox.send(erlangPid, send);
 
                     while(true) {
+
                         OtpErlangTuple tuple2 = (OtpErlangTuple) myOtpMbox.receive();
                         int size = tuple2.elements().length;
                         if(size == 1){
@@ -129,6 +133,7 @@ public class JavaErlangCommunication {
                 }
             }
 
+
         } catch (RuntimeException | IOException | OtpErlangDecodeException | OtpErlangExit e) {  //If we come here something is wrong =(
             e.printStackTrace();
         }
@@ -148,6 +153,7 @@ public class JavaErlangCommunication {
 
             Integer key = entry.getKey();
             OtpErlangInt map_key = new OtpErlangInt(key);
+
 
 
             ArrayList value = entry.getValue();
@@ -173,6 +179,7 @@ public class JavaErlangCommunication {
      * consist of [IndividualPid :: OtpErlangPid, Sickness :: int, X-coord :: int, Y-coord :: int]
      */
     public static ArrayList recievePos() throws OtpErlangRangeException {
+
         //System.out.println("Waiting for positions");
         OtpErlangAtom message = new OtpErlangAtom("ready_for_positions");
         myOtpMbox.send(erlangPid, message); //tell Erlang we're ready for new positions
@@ -187,9 +194,6 @@ public class JavaErlangCommunication {
         return convertPosErlangJava(erlangTuple); //convert and return the requested array
     }
 
-    public static ArrayList recievePosStatic() throws OtpErlangRangeException {
-        return recievePos();
-    }
 
     private static ArrayList convertPosErlangJava(OtpErlangTuple tuple) throws OtpErlangRangeException {
 

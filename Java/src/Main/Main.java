@@ -26,7 +26,7 @@ public class Main {
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void main(String []args) throws InterruptedException, OtpErlangRangeException, IOException {
-        if (args[0] == "playback") {
+        if (args[0].equals("playback")) {
             readRecording = new ReadRecording(args[1]);
             GraphicDisplay.runPlayBack();
         }

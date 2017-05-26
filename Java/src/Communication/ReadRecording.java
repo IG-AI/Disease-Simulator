@@ -1,5 +1,6 @@
 package Communication;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,7 +9,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class ReadRecording {
-    public static ArrayList<ArrayList> simulationList;
+    public static ArrayList<ArrayList<ArrayList<Object>>> simulationList = new ArrayList<>();
+    public static String mapName;
+    private static MapParser map = null;
 
 
     /**
@@ -23,63 +26,171 @@ public class ReadRecording {
                         new FileInputStream("recordings/" + fileName + ".record"),
                         Charset.forName("UTF-8")));
         int index = -1;
+        int stopFlag = 0;
+        int commaCount = 0;
         int characterIndex;
         Integer PID = null;
-        int status;
-        StringBuilder stringPosX = new StringBuilder();
+        Integer status;
+        StringBuilder stringBuilderMapName = new StringBuilder();
+        StringBuilder stringPosX = new StringBuilder();// only got here if we didn't return false
         StringBuilder stringPosY = new StringBuilder();
-        ArrayList<Integer> unitList = new ArrayList<>();
+        ArrayList<Object> unitSingleList = new ArrayList<>();
+        ArrayList<ArrayList<Object>> unitList = new ArrayList<>();
         while ((characterIndex = reader.read()) != -1) {
             char character = (char) characterIndex;
-            if (character == 'S') {
-                index = 4;
+            //System.out.print("\n| " + character + " |\n");
+            if (character != '\n' && character != ' ' && stopFlag == 0) {
+                if (character == '<') {
+                    stopFlag = 1;
+                    index = 0;
+                }
+                switch (index) {
+                    case -1:
+                        if (character != '[') {
+                            stringBuilderMapName.append(character);
+                            break;
+                        } else {
+                            stringBuilderMapName.deleteCharAt(0);
+                            stringBuilderMapName.deleteCharAt(stringBuilderMapName.length() - 1);
+                            mapName = "data/" + (stringBuilderMapName.toString() + ".bmp");
+                            break;
+                        }
+                    case 0:
+                        if (character == ',') {
+                            unitSingleList.add(PID);
+                            index = 1;
+                            break;
+                        }
+                    case 1:
+                        if (isInt(character)) {
+                            status = Character.getNumericValue(character);
+                            //System.out.print("\nStatus: " + status + "\n");
+                            unitSingleList.add(status);
+                            index = 2;
+                            break;
+                        }
+                        else {
+                            break;
+                        }
+                    case 2:
+                        if (isInt(character)) {
+                            stringPosX.append(character);
+                            break;
+                        }
+                        if (character == ',') {
+                            commaCount++;
+                            if (commaCount == 2) {
+                                //System.out.print("\nPosX: " + stringPosX.toString() + "\n");
+                                unitSingleList.add(Integer.parseInt(stringPosX.toString()));
+                                commaCount = 0;
+                                index = 3;
+                                break;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                    case 3:
+                        if (character != '}') {
+                            stringPosY.append(character);
+                            break;
+                        } else {
+                            //System.out.print("\nPosY: " + stringPosY.toString() + "\n");
+                            unitSingleList.add(Integer.parseInt(stringPosY.toString()));
+                            index = 4;
+                            break;
+                        }
+                    case 4:
+                        if (character == ',') {
+                            //System.out.print("\nReal Status: " + unitSingleList.get(1) + "\n");
+                            //System.out.print("\nReal PosX: " + unitSingleList.get(2) + "\n");
+                            //System.out.print("\nReal PosY: " + unitSingleList.get(3) + "\n");
+                            unitList.add(cloneList(unitSingleList));
+                            unitSingleList.clear();
+                            //System.out.print("\nunitSingleList after clear (should be 0): " + unitSingleList.size() + "\n");
+                            stringPosX.setLength(0);
+                            stringPosY.setLength(0);
+                            index = 0;
+                            break;
+
+                        }
+                        else if (character == ']') {
+                            unitList.add(unitSingleList);
+                            System.out.print("\nunitList Size: " + unitList.size() + "\n");
+                            //System.out.print("\nTest Get First PosX: " + unitList.get(1).get(0) + "\n");
+                            simulationList.add(cloneListList(unitList));
+                            unitList.clear();
+                            break;
+                        }
+
+                }
             }
-            switch (index) {
-                case -1:
-                    if (character != '[') {
-                        throw new IOException("Wrong type of file!");
-                    } else {
-                        index = 0;
-                    }
-                case 0:
-                    if (character == ',') {
-                        unitList.add(0, PID);
-                        index = 1;
-                    }
-                case 1:
-                    if (character != ',') {
-                        status = (int) character;
-                        unitList.add(1, status);
-                    } else {
-                        index = 2;
-                    }
-                case 2:
-                    if (character != ',') {
-                        stringPosX.append(character);
-                    } else {
-                        unitList.add(2, Integer.parseInt(stringPosX.toString()));
-                        index = 3;
-                    }
-                case 3:
-                    if (character != '}') {
-                        stringPosY.append(character);
-                    }
-                    else {
-                        unitList.add(3, Integer.parseInt(stringPosY.toString()));
-                        index = 4;
-                    }
-                case 4:
-                    if (character == ',') {
-                        simulationList.add(unitList);
-                        index = 0;
-
-                    }
-                    else {
-                        simulationList.add(null);
-                        break;
-                    }
-
+            else {
+                if (character == '>') {
+                    stopFlag = 0;
+                }
             }
         }
+        //System.out.print("\n" + mapName + "\n");
+        //System.out.print("\nsimulationList Size: " + simulationList.size() + "\n");
+        map = new MapParser(mapName);
+    }
+
+    /**
+     * Returns the map to use for playback.
+     *
+     * @return the name and path to the requested map
+     */
+    public static Image getMapImage(){
+        return map.get_map();
+    }
+
+    private boolean isInt(char c) {
+        if (c == '0') {
+            return true;
+        }
+        if (c == '1') {
+            return true;
+        }
+        if (c == '2') {
+            return true;
+        }
+        if (c == '3') {
+            return true;
+        }
+        if (c == '4') {
+            return true;
+        }
+        if (c == '5') {
+            return true;
+        }
+        if (c == '6') {
+            return true;
+        }
+        if (c == '7') {
+            return true;
+        }
+        if (c == '8') {
+            return true;
+        }
+        if (c == '9') {
+            return true;
+        }
+        return false;
+    }
+
+    private static ArrayList<Object> cloneList(ArrayList<Object> list) {
+        ArrayList<Object> clone = new ArrayList<>(list.size());
+        clone.addAll(list);
+        return clone;
+    }
+
+    private static ArrayList<ArrayList<Object>> cloneListList(ArrayList<ArrayList<Object>> list) {
+        ArrayList<ArrayList<Object>> clone = new ArrayList<>(list.size());
+        for (ArrayList<Object> anlist : list) {
+            ArrayList<Object> clonedList = cloneList(anlist);
+            clone.add(clonedList);
+        }
+        return clone;
     }
 }
