@@ -311,8 +311,6 @@ public class GUIForm extends JFrame {
 
                 Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
 
-
-                System.out.print("inte playback"+"\n");
             }
 
             else{
