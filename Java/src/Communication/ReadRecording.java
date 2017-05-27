@@ -25,7 +25,7 @@ public class ReadRecording {
                 new InputStreamReader(
                         new FileInputStream("recordings/" + fileName + ".record"),
                         Charset.forName("UTF-8")));
-        int index = -1;
+        String index = "mapRead";
         int stopFlag = 0;
         int commaCount = 0;
         int characterIndex;
@@ -42,10 +42,10 @@ public class ReadRecording {
             if (character != '\n' && character != ' ' && stopFlag == 0) {
                 if (character == '<') {
                     stopFlag = 1;
-                    index = 0;
+                    index = "pidRead";
                 }
                 switch (index) {
-                    case -1:
+                    case "mapRead":
                         if (character != '[') {
                             stringBuilderMapName.append(character);
                             break;
@@ -55,24 +55,24 @@ public class ReadRecording {
                             mapName = "data/" + (stringBuilderMapName.toString() + ".bmp");
                             break;
                         }
-                    case 0:
+                    case "pidRead":
                         if (character == ',') {
                             unitSingleList.add(PID);
-                            index = 1;
+                            index = "statusRead";
                             break;
                         }
-                    case 1:
+                    case "statusRead":
                         if (isInt(character)) {
                             status = Character.getNumericValue(character);
                             //System.out.print("\nStatus: " + status + "\n");
                             unitSingleList.add(status);
-                            index = 2;
+                            index = "posXRead";
                             break;
                         }
                         else {
                             break;
                         }
-                    case 2:
+                    case "posXRead":
                         if (isInt(character)) {
                             stringPosX.append(character);
                             break;
@@ -83,24 +83,24 @@ public class ReadRecording {
                                 //System.out.print("\nPosX: " + stringPosX.toString() + "\n");
                                 unitSingleList.add(Integer.parseInt(stringPosX.toString()));
                                 commaCount = 0;
-                                index = 3;
+                                index = "posYRead";
                                 break;
                             }
                             else {
                                 break;
                             }
                         }
-                    case 3:
+                    case "posYRead":
                         if (character != '}') {
                             stringPosY.append(character);
                             break;
                         } else {
                             //System.out.print("\nPosY: " + stringPosY.toString() + "\n");
                             unitSingleList.add(Integer.parseInt(stringPosY.toString()));
-                            index = 4;
+                            index = "ednRead";
                             break;
                         }
-                    case 4:
+                    case "ednRead":
                         if (character == ',') {
                             //System.out.print("\nReal Status: " + unitSingleList.get(1) + "\n");
                             //System.out.print("\nReal PosX: " + unitSingleList.get(2) + "\n");
@@ -110,7 +110,7 @@ public class ReadRecording {
                             //System.out.print("\nunitSingleList after clear (should be 0): " + unitSingleList.size() + "\n");
                             stringPosX.setLength(0);
                             stringPosY.setLength(0);
-                            index = 0;
+                            index = "pidRead";
                             break;
 
                         }
@@ -123,7 +123,7 @@ public class ReadRecording {
                             unitSingleList.clear();
                             stringPosX.setLength(0);
                             stringPosY.setLength(0);
-                            index = 0;
+                            index = "pidRead";
                             break;
                         }
 
