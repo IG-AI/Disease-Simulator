@@ -190,12 +190,11 @@ public class GUIForm extends JFrame {
 
         }
 
-        if(Objects.equals(temp, "[]")){
+        if(!directory.exists() || Objects.equals(temp, "[]")){
             recordedFileBox.removeAllItems();
             recordedFileBox.addItem("no recording");
             currentRecordingFile = "no recording";
         }
-
     }
 
 
