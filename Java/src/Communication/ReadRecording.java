@@ -32,13 +32,12 @@ public class ReadRecording {
         Integer PID = null;
         Integer status;
         StringBuilder stringBuilderMapName = new StringBuilder();
-        StringBuilder stringPosX = new StringBuilder();// only got here if we didn't return false
+        StringBuilder stringPosX = new StringBuilder();
         StringBuilder stringPosY = new StringBuilder();
         ArrayList<Object> unitSingleList = new ArrayList<>();
         ArrayList<ArrayList<Object>> unitList = new ArrayList<>();
         while ((characterIndex = reader.read()) != -1) {
             char character = (char) characterIndex;
-            //System.out.print("\n| " + character + " |\n");
             if (character != '\n' && character != ' ' && stopFlag == 0) {
                 if (character == '<') {
                     stopFlag = 1;
@@ -64,7 +63,6 @@ public class ReadRecording {
                     case "statusRead":
                         if (isInt(character)) {
                             status = Character.getNumericValue(character);
-                            //System.out.print("\nStatus: " + status + "\n");
                             unitSingleList.add(status);
                             index = "posXRead";
                             break;
@@ -80,7 +78,6 @@ public class ReadRecording {
                         if (character == ',') {
                             commaCount++;
                             if (commaCount == 2) {
-                                //System.out.print("\nPosX: " + stringPosX.toString() + "\n");
                                 unitSingleList.add(Integer.parseInt(stringPosX.toString()));
                                 commaCount = 0;
                                 index = "posYRead";
@@ -95,19 +92,14 @@ public class ReadRecording {
                             stringPosY.append(character);
                             break;
                         } else {
-                            //System.out.print("\nPosY: " + stringPosY.toString() + "\n");
                             unitSingleList.add(Integer.parseInt(stringPosY.toString()));
                             index = "ednRead";
                             break;
                         }
                     case "ednRead":
                         if (character == ',') {
-                            //System.out.print("\nReal Status: " + unitSingleList.get(1) + "\n");
-                            //System.out.print("\nReal PosX: " + unitSingleList.get(2) + "\n");
-                            //System.out.print("\nReal PosY: " + unitSingleList.get(3) + "\n");
                             unitList.add(cloneList(unitSingleList));
                             unitSingleList.clear();
-                            //System.out.print("\nunitSingleList after clear (should be 0): " + unitSingleList.size() + "\n");
                             stringPosX.setLength(0);
                             stringPosY.setLength(0);
                             index = "pidRead";
@@ -115,8 +107,6 @@ public class ReadRecording {
 
                         }
                         else if (character == ']') {
-                            //System.out.print("\nunitList Size: " + unitList.size() + "\n");
-                            //System.out.print("\nTest Get First PosX: " + unitList.get(1).get(0) + "\n");
                             unitList.add(cloneList(unitSingleList));
                             simulationList.add(cloneListList(unitList));
                             unitList.clear();
@@ -135,8 +125,6 @@ public class ReadRecording {
                 }
             }
         }
-        //System.out.print("\n" + mapName + "\n");
-        //System.out.print("\nsimulationList Size: " + simulationList.size() + "\n");
         map = new MapParser(mapName);
     }
 

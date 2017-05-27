@@ -94,7 +94,6 @@ public class GraphicDisplay extends JPanel
         CollectingStats.getDate();
         createAndShowGUIinPlayback();
         ArrayList erlangList = ReadRecording.simulationList.get(i);
-        //System.out.print(erlangList);
         maxNumberOfUnits = erlangList.size();
         int numberOfUnits = maxNumberOfUnits;
         infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
