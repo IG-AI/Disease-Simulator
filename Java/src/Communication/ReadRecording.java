@@ -115,11 +115,15 @@ public class ReadRecording {
 
                         }
                         else if (character == ']') {
-                            unitList.add(unitSingleList);
-                            System.out.print("\nunitList Size: " + unitList.size() + "\n");
+                            //System.out.print("\nunitList Size: " + unitList.size() + "\n");
                             //System.out.print("\nTest Get First PosX: " + unitList.get(1).get(0) + "\n");
+                            unitList.add(cloneList(unitSingleList));
                             simulationList.add(cloneListList(unitList));
                             unitList.clear();
+                            unitSingleList.clear();
+                            stringPosX.setLength(0);
+                            stringPosY.setLength(0);
+                            index = 0;
                             break;
                         }
 
