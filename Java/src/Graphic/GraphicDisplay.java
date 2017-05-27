@@ -1,6 +1,7 @@
 package Graphic;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 
 import com.ericsson.otp.erlang.*;
@@ -45,6 +46,7 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void runSimulation() throws IOException, InterruptedException, OtpErlangRangeException {
+        CollectingStats.getDate();
         if(Main.javaErlangCommunicator.simulationDone){
             System.out.println("Graphic simulation skipped");
         }else{
@@ -62,6 +64,7 @@ public class GraphicDisplay extends JPanel
               startTime = System.currentTimeMillis();
               erlangList = JavaErlangCommunication.recievePos();
               if (erlangList == null) {
+                  CollectingStats.addEndStats(numberOfUnits);
                   System.out.println("Simulation done.");
                   InfoDisplay.updateLabel(numberOfUnits);
                   break;
@@ -88,6 +91,7 @@ public class GraphicDisplay extends JPanel
      */
     public static void runPlayBack() throws OtpErlangRangeException, IOException, InterruptedException {
         int i = 1;
+        CollectingStats.getDate();
         createAndShowGUIinPlayback();
         ArrayList erlangList = ReadRecording.simulationList.get(i);
         System.out.print(erlangList);
@@ -99,6 +103,7 @@ public class GraphicDisplay extends JPanel
         while (true) {
             erlangList = ReadRecording.simulationList.get(i);
             if ((ReadRecording.simulationList.size() - 1) <= i) {
+                CollectingStats.addEndStats(numberOfUnits);
                 System.out.println("Simulation done.");
                 InfoDisplay.updateLabel(numberOfUnits);
                 break;
