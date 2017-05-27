@@ -101,13 +101,13 @@ public class GraphicDisplay extends JPanel
         imageComponent.validate();
         imageComponent.repaint();
         while (true) {
-            erlangList = ReadRecording.simulationList.get(i);
-            if ((ReadRecording.simulationList.size() - 1) <= i) {
+            if ((ReadRecording.simulationList.size() - 1) < i) {
                 CollectingStats.addEndStats(numberOfUnits);
                 System.out.println("Simulation done.");
                 InfoDisplay.updateLabel(numberOfUnits);
                 break;
             }
+            erlangList = ReadRecording.simulationList.get(i);
             updateUnitGraphics(erlangList);
             numberOfUnits = erlangList.size();
             imageComponent.validate();
