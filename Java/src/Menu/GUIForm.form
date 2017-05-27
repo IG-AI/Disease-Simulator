@@ -292,6 +292,7 @@
         </constraints>
         <properties>
           <text value="Recorded file"/>
+          <toolTipText value="Requires &quot;Recording&quot; set to &quot;playback&quot; and a recorded file"/>
         </properties>
       </component>
       <component id="9e194" class="javax.swing.JComboBox" binding="recordedFileBox" default-binding="true">

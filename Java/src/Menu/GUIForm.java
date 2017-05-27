@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class GUIForm extends JFrame {
     private JButton exitButton;
@@ -276,6 +277,16 @@ public class GUIForm extends JFrame {
 
             }
 
+
+            else if(Objects.equals(getOS, "Mac OS X")){
+
+                String macJCommand = "tell application \"terminal\" to do script \"cd " + directory + ";make jrun " +
+                        "REC=" + currentRecording + "RECFIL=" + currentRecordingFile + "\"";
+
+                Process jproc = new ProcessBuilder("osascript", "-e", macJCommand).start();
+
+            }
+
             else{
                 mapInfo.setText("OS not supported");
             }
@@ -309,6 +320,33 @@ public class GUIForm extends JFrame {
                 Process proc = new ProcessBuilder(ecommand).directory(directory).start();
 
                 Process jproc = new ProcessBuilder(jcommand).directory(directory).start();
+
+            }
+
+            else if(Objects.equals(getOS, "Mac OS X")){
+
+                String macECommand = "tell application \"terminal\" to do script \"cd " + directory + ";make run "
+                        + inputIndividuals + " "
+                        + inputVaccinated + " "
+                        + inputInfected + " "
+                        + inputTicks + " "
+                        + inputRange + " "
+                        + inputInfectionProbability + " "
+                        + inputHealth + " "
+                        + "MAP=" + currentMap + " "
+                        + "END=" + currentEnd + " "
+                        + "MOVE=" + currentMove + " "
+                        + "TVAC=" + vaccinationStatus + " "
+                        + "RAND=" + currentRandom + " "
+                        + "REC=" + currentRecording + "\"";
+
+                Process eproc = new ProcessBuilder("osascript","-e", macECommand).start();
+
+                TimeUnit.MILLISECONDS.sleep(200);
+
+                String macJCommand = "tell application \"terminal\" to do script \"cd " + directory + ";make jrun\"";
+
+                Process jproc = new ProcessBuilder("osascript","-e", macJCommand).start();
 
             }
 
@@ -455,7 +493,7 @@ public class GUIForm extends JFrame {
                     currentRecordingFile = "playback not selected";
                 }
                 if(Objects.equals(currentRecording, "playback")) {
-                    recordingBox.setToolTipText("Play recording");
+                    recordingBox.setToolTipText("Play recording, **NOTE** all the parameters selected won't change the recorded simulation");
                     try {
                         recordedFileBox.removeAllItems();
                         getRecordingFiles();
