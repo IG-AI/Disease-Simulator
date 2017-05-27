@@ -70,9 +70,12 @@ Several arguments can be passed to the simulation server via the make-command.<b
 The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
 
+To run a recorded simulation use: **make jrun** followed by the flags "REC=playback" and "RECFIL=nameOfYourRecording.record".<br>
+EXAMPLE: **make jrun REC=playback RECFIL=2017_01_01_13_33_37.record**<br>
+
 **Note that this method using the GUI to start the simulation is not always up to date**<br>
 You can start the simulation using a GUI, to start the gui use the command **make gui**<br>
-It's also possible to run Project-snowfox-linux.jar.
+It's also possible to run Project-snowfox.jar.
 
 (The rule **make run** exist but is currently not supported. It's behaviour is unpredictable and might prevent the start of further simulations due to behaviour of the Java window. This requires you to close the Java window after every run of the simuation. It should **NOT** be used until those issues are resolved.) <br>
 
@@ -81,7 +84,7 @@ The program is run mainly on the schools ThinLinc clients: https://www.it.uu.se/
 These are running Java 7 and Erlang 19.<br>
 The correct Erlang version seems to be the most important thing to get it running on our personal computers. <br>
 
-To run the **GUI** you need gnome-terminal installed.<br>
+To run the **GUI** on a Linux machine you need gnome-terminal installed.<br>
 
 On personal computers we've had success running it on these setups:
 * Linux Mint 17 with Java 7 and Erlang 19
@@ -96,13 +99,14 @@ Documentation can be generated using: <br>
 Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
 
 ### Logging
-Two files with logs exist.
+Three files with logs exist.
 * **logs/erlang_exec_log.log** contains information regarding simulations; when they are run, what flags were used and time required for different steps of execution.<br> 
 The recorded steps are;<br>
 Time to prepare the simulation.<br>
 Time to run the simulation.<br>
 Total time for both above steps.<br>
 * **logs/welang_exec_time.log** contains information about the time required for different steps of execution, these are the same times as in the other file, but with no additional information making them easier to extract for other uses.
+* **logs/java_data_log.log** contains information regarding simulations, stores starting parameters and if the simulation ends without being interrupted it stores the ending results.
 
 ### Testing
 **make jrun_test** will run Java tests. <br>

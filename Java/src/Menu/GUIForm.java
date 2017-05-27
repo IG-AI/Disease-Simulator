@@ -13,10 +13,11 @@ import java.awt.event.ItemListener;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.file.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class GUIForm extends JFrame {
@@ -48,6 +49,7 @@ public class GUIForm extends JFrame {
     private String currentRecordingFile;
     private List<String> defMap = new ArrayList<>();
     private List<String> defRec = new ArrayList<>();
+    private static final DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     /**
      * Starting the Menu-GUI.
@@ -225,6 +227,89 @@ public class GUIForm extends JFrame {
             }
         }
     }
+
+    /**
+     * If text-file is not created, create text and save start data else just save start data
+     *
+     * @throws IOException
+     */
+
+    private void createAndSaveText() throws IOException {
+
+        URL url = GUIForm.class.getProtectionDomain().getCodeSource().getLocation();
+        String folderPath = URLDecoder.decode(url.getFile(), "UTF-8");
+        folderPath = folderPath.replace("Project-snowfox.jar", "");
+        folderPath = folderPath + "logs/";
+        String checkFile = folderPath + "java_data_log.log";
+        Path path = FileSystems.getDefault().getPath(folderPath);
+
+        Path filePath = FileSystems.getDefault().getPath(checkFile);
+
+        if(!Files.exists(path))
+        {
+            File file = new File(folderPath);
+            if(file.mkdir()){
+                System.out.print("log folder created\n");
+            }
+            else
+            {
+                System.out.print("log could not be created\n");
+            }
+        }
+        Date date = new Date();
+
+        PrintWriter writer = null;
+
+        if(!Files.exists(filePath)){
+            writer = new PrintWriter(checkFile, "UTF-8");
+            File file = new File(checkFile);
+            if(file.exists()){
+                System.out.print("log file created\n");
+            }
+            else{
+                System.out.print("log file could not be created\n");
+            }
+        }
+        if(Files.exists(filePath)) {
+
+            String newline = "\n";
+
+            String formatDate = "* Start values simulation: " + sdf.format(date) + " *\n";
+            String formatInd = "Number of individuals: \n" + numberOfIndividualsSpinner.getValue() + newline;
+            String formatInf = "Infected at start: \n" + numberOfInfectedSpinner.getValue() + newline;
+            String formatVac = "Vaccinated individuals: \n" + vaccinatedIndividualsSpinner.getValue() + newline;
+            String formatTicks = "Number of ticks: \n" + numberOfTicksSpinner.getValue() + newline;
+            String formatHealth = "Health: \n" + numberOfHealthSpinner.getValue() + newline;
+            String formatDisrange = "Disease range: \n" + rangeOfDiseaseSpinner.getValue() + newline;
+            String formatProb = "Infection probability: \n" + infectionProbabilitySpinner.getValue() + newline;
+            String formatEnd = "End condition: \n" + currentEnd + newline;
+            String formatMove = "Movement: \n" + currentMove + newline;
+            String formatRec = "Recording: \n" + currentRecording + newline;
+            String formatRand = "Random: \n" + currentRandom + newline;
+            String formatVacAtHospitals = "Vaccination in hospitals: \n" + vaccinationStatus + newline;
+            String formatMap = "Selected map: \n" + currentMap + newline + newline;
+
+            Files.write(Paths.get(checkFile), "\n************************************************\n".getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatDate.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), "************************************************\n\n".getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatInd.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatInf.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatVac.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatTicks.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatHealth.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatDisrange.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatProb.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatEnd.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatMove.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatRec.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatRand.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatVacAtHospitals.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(checkFile), formatMap.getBytes(), StandardOpenOption.APPEND);
+
+        }
+    }
+
+
 
 
     /**
@@ -565,6 +650,7 @@ public class GUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(!defMap.isEmpty()){
                     try {
+                        createAndSaveText();
                         run();
                     } catch (IOException | InterruptedException e1) {
                         e1.printStackTrace();
