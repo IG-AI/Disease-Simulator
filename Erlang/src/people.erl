@@ -27,9 +27,12 @@ spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS 
-    Spawned_processes = spawn_pathfinding(Amount, 0, Amount div Processes, Amount rem Processes, {Width, Height}, G, F),
-    Paths = receive_paths(Spawned_processes, []),
-
+    
+    Paths = load_balancer(Amount, Processes, 0, {Width, Height}, G, F),
+    %Pathfinding
+    %Spawned_processes = spawn_pathfinding(Amount, 0, Amount div Processes, Amount rem Processes, {Width, Height}, G, F),
+    %Paths = receive_paths(Spawned_processes, []),
+    %END PF
       
     spawn_people_aux(State, Amount, Paths, Starting_life, Vaccine_status, G, F);
             
@@ -40,6 +43,73 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, M
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
+
+
+
+%%-------------------LOAD BALANCER
+
+-spec load_balancer(Am :: integer(), B :: integer(), C :: integer(), D :: integer(), E :: integer(), F :: integer()) -> integer().
+load_balancer(0, _, Processes_spawned, _, _, _)->
+    io:format("NO_PPL~n"),
+    load_balance_receive(0, Processes_spawned, []);
+
+load_balancer(Amount_of_people_left, 0, Processes_spawned, _, _, _)->
+    io:format("NO_PROC~n"),
+    load_balance_receive(Amount_of_people_left, Processes_spawned, []);
+
+load_balancer(Amount_of_people, Processors_free, Processes_spawned, Bounds, G, F) ->
+    io:format("MAKE_PROC~n"),
+    spawn(fun()->make_path_balance(Bounds, G, F) end),
+    load_balancer(Amount_of_people -1, Processors_free -1, Processes_spawned + 1, Bounds, G, F).
+
+
+
+load_balance_receive(0, 0, Result)->
+    io:format("RET_RESULT~n"),
+    Result;
+
+load_balance_receive(0, Processes_alive, Result) ->
+    io:format("RET_KILLING~n"),
+    receive
+        {path, PID, Path} ->
+            PID ! done,
+            load_balance_receive(0, Processes_alive -1, Path ++ Result)
+    end;
+
+load_balance_receive(Paths_left_to_calc, Processes_alive, Result) ->
+    io:format("RET_MOARPLX~n"),
+    receive
+        {path, PID, Path} ->
+            io:format("GOT RESULT~n"),
+            PID ! go,
+            load_balance_receive(Paths_left_to_calc -1, Processes_alive, Path ++ Result)
+    end.
+
+
+make_path_balance(Bounds, G, F) ->
+    [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
+    Result_1 =  a_star:run(G, P1, P2, F),
+    Result_2 = a_star:run(G, P2, P3, F),
+    Result_3 = a_star:run(G, P3, P1, F),
+    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
+        true -> 
+            make_path_balance(Bounds, G, F);    
+        false ->
+            {_, Path_1} = Result_1,
+            {_, Path_2} = Result_2,
+            {_, Path_3} = Result_3,
+            Paths = Path_1 ++ (Path_2 ++ Path_3),
+            master ! {path, self(), [Paths]},
+            receive
+                ok ->
+                    ok;
+                go ->
+                    make_path_balance(Bounds, G, F)
+            end
+    end.
+
+
+%%-------------------PF WITHOUT LOAD BALANCER
 %%
 %% @doc Spawn processes to run pathfinding in paralell
 %%
@@ -82,22 +152,6 @@ receive_paths(Amount, Paths) ->
             ok
     end,
     receive_paths(Amount-1, P ++ Paths).
-
-%%LB
--spec load_balancer(Am :: integer(), B :: integer(), C :: integer(), D :: integer(), E :: integer(), F :: integer()) -> integer().
-load_balancer(0, _, Processes_spawned, _, _, _)->
-    load_balance_receive(0, Processes_spawned, []);
-
-load_balancer(Amount_of_people, Processors_free, Processes_spawned, Bounds, G, F) ->
-    load_balancer(Amount_of_people -1, Processors_free -1, Processes_spawned + 1, Bounds, G, F).
-    
-load_balance_receive(0, Processes_alive, Result) ->
-    receive
-        {path, pid, Path} ->
-            pid ! done,
-            load_balance_receive(0, Processes_alive -1, Path ++ Result)
-    end.
-
 
 %%
 %% @doc Spawns people that will walk between three random points.
