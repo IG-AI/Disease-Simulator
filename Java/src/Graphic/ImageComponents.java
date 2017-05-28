@@ -10,8 +10,6 @@ import java.awt.*;
  */
 public class ImageComponents extends JPanel {
 	private Image image = null;
-	private static InfoDisplay infoInfoDisplay;
-	private static int maxNumberOfUnits;
 	public static final int windowPosX = 0;
 	public static final int windowPosY = 0;
 	public static ArrayList<Unit> unitList = new ArrayList<>();

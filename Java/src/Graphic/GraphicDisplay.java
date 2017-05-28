@@ -1,7 +1,9 @@
 package Graphic;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
+
 import com.ericsson.otp.erlang.*;
 import java.lang.System;
 import javax.imageio.ImageIO;
@@ -10,6 +12,7 @@ import java.io.IOException;
 
 import Main.Main;
 import Communication.JavaErlangCommunication;
+import Communication.ReadRecording;
 
 /**
  * The GraphicDisplay class of the program, the will draw the graphics.
@@ -43,6 +46,7 @@ public class GraphicDisplay extends JPanel
      * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
      */
     public static void runSimulation() throws IOException, InterruptedException, OtpErlangRangeException {
+        CollectingStats.getDate();
         if(Main.javaErlangCommunicator.simulationDone){
             System.out.println("Graphic simulation skipped");
         }else{
@@ -60,6 +64,7 @@ public class GraphicDisplay extends JPanel
               startTime = System.currentTimeMillis();
               erlangList = JavaErlangCommunication.recievePos();
               if (erlangList == null) {
+                  CollectingStats.addEndStats(numberOfUnits);
                   System.out.println("Simulation done.");
                   InfoDisplay.updateLabel(numberOfUnits);
                   break;
@@ -74,6 +79,41 @@ public class GraphicDisplay extends JPanel
               sleep = Math.max(((second / frequency) - finishedTime), zero);
               Thread.sleep(sleep);
             }
+        }
+    }
+
+    /**
+     * Start running the simulation in playback mode.
+     *
+     * @throws OtpErlangRangeException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public static void runPlayBack() throws OtpErlangRangeException, IOException, InterruptedException {
+        int i = 1;
+        CollectingStats.getDate();
+        createAndShowGUIinPlayback();
+        ArrayList erlangList = ReadRecording.simulationList.get(i);
+        maxNumberOfUnits = erlangList.size();
+        int numberOfUnits = maxNumberOfUnits;
+        infoInfoDisplay = new InfoDisplay(maxNumberOfUnits, numberOfUnits, simulation);
+        imageComponent.validate();
+        imageComponent.repaint();
+        while (true) {
+            if ((ReadRecording.simulationList.size() - 1) < i) {
+                CollectingStats.addEndStats(numberOfUnits);
+                System.out.println("Simulation done.");
+                InfoDisplay.updateLabel(numberOfUnits);
+                break;
+            }
+            erlangList = ReadRecording.simulationList.get(i);
+            updateUnitGraphics(erlangList);
+            numberOfUnits = erlangList.size();
+            imageComponent.validate();
+            imageComponent.repaint();
+            InfoDisplay.updateLabel(numberOfUnits);
+            i++;
+            Thread.sleep(100);
         }
     }
 
@@ -106,6 +146,21 @@ public class GraphicDisplay extends JPanel
         createUnitGraphics();
     }
 
+    /**
+     * Starting the GUI for playback.
+     *
+     * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+     */
+    public static void initializeGUIinPlayback() throws OtpErlangRangeException {
+        while (imageComponent == null) {
+            imageComponent = new ImageComponents();
+        }
+        imageComponent.setImage(ReadRecording.getMapImage());
+        xBound = imageComponent.getWidth();
+        yBound = imageComponent.getHeight();
+        imageComponent.setSize(xBound, yBound);
+        createUnitGraphicsForPlayback();
+    }
 
     /**
      * Creates the Units for the simulation.
@@ -127,6 +182,23 @@ public class GraphicDisplay extends JPanel
             sickness = (Integer) unit.get(1);
             PID = (OtpErlangPid) unit.get(0);
             Unit person = new Unit(PID, sickness, x, y);
+            imageComponent.addUnit(person);
+        }
+    }
+
+
+    /**
+     * Creates the Units for the playback.
+     */
+    public static void createUnitGraphicsForPlayback() {
+        int x, y, sickness;
+        ArrayList recList = ReadRecording.simulationList.get(0);
+        for (Object anRecList : recList) {
+            ArrayList unit = (ArrayList) anRecList;
+            y = (Integer) unit.get(3);
+            x = (Integer) unit.get(2);
+            sickness = (Integer) unit.get(1);
+            Unit person = new Unit(null, sickness, x, y);
             imageComponent.addUnit(person);
         }
     }
@@ -176,7 +248,22 @@ public class GraphicDisplay extends JPanel
         setIconImage(simulation);
         simulation.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         simulation.getContentPane().add(imageComponent);
-        //simulation.setSize(xBound, yBound);
+        simulation.pack();
+        simulation.setResizable(false);
+        simulation.setVisible(true);
+    }
+
+    /**
+     * Displaying the GUI in playback.
+     *
+     * @throws OtpErlangRangeException thrown when an attempt is made to create an Erlang term with data that is out of range for the term in question.
+     */
+    public static void createAndShowGUIinPlayback() throws OtpErlangRangeException, IOException {
+        simulation = new JFrame("Project Snowfox");
+        initializeGUIinPlayback();
+        setIconImage(simulation);
+        simulation.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        simulation.getContentPane().add(imageComponent);
         simulation.pack();
         simulation.setResizable(false);
         simulation.setVisible(true);
