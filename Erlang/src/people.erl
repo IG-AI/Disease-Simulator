@@ -83,6 +83,20 @@ receive_paths(Amount, Paths) ->
     end,
     receive_paths(Amount-1, P ++ Paths).
 
+%%LB
+-spec load_balancer(Am :: integer(), B :: integer(), C :: integer(), D :: integer(), E :: integer(), F :: integer()) -> integer().
+load_balancer(0, _, Processes_spawned, _, _, _)->
+    load_balance_receive(0, Processes_spawned, []);
+
+load_balancer(Amount_of_people, Processors_free, Processes_spawned, Bounds, G, F) ->
+    load_balancer(Amount_of_people -1, Processors_free -1, Processes_spawned + 1, Bounds, G, F).
+    
+load_balance_receive(0, Processes_alive, Result) ->
+    receive
+        {path, pid, Path} ->
+            pid ! done,
+            load_balance_receive(0, Processes_alive -1, Path ++ Result)
+    end.
 
 
 %%
