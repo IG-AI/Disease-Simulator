@@ -366,7 +366,7 @@ public class GUIForm extends JFrame {
             else if(Objects.equals(getOS, "Mac OS X")){
 
                 String macJCommand = "tell application \"terminal\" to do script \"cd " + directory + ";make jrun " +
-                        "REC=" + currentRecording + "RECFIL=" + currentRecordingFile + "\"";
+                        "REC=" + currentRecording + " RECFIL=" + currentRecordingFile + "\"";
 
                 Process jproc = new ProcessBuilder("osascript", "-e", macJCommand).start();
 
