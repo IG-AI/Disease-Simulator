@@ -67,7 +67,7 @@ public class Unit extends JComponent
 		else {
 			g.setColor(ERROR);
 		}
-		int diameter = 5;
+		int diameter = 7;
 		g.fillOval(x-(diameter%2)-(diameter/2), y- 3, diameter, diameter);
 	}
 }
