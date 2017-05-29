@@ -36,7 +36,8 @@ spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
 spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, Map_info) ->
     {_, X_max, Y_max, _, _} = Map_info, 
     Direction = movement:generate_direction(),
-    {X, Y} = movement:generate_position({X_max, Y_max}),
+    Bounds={X_max-1, Y_max-1},
+    {X, Y} = movement:generate_position(Bounds),
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
