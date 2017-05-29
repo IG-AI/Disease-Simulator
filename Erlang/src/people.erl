@@ -69,7 +69,6 @@ load_balance_receive(0, Processes_alive, Result) ->
     receive
         {path, PID, Path} ->
             PID ! done,
-            io:format("TIME: ~p~n", [erlang:timestamp()]),
             load_balance_receive(0, Processes_alive -1, Path ++ Result)
     end;
 
@@ -103,73 +102,8 @@ make_path_balance(Bounds, G, F) ->
                     make_path_balance(Bounds, G, F)
             end
     end.
+%%-------------END OF LB
 
-
-%%-------------------PF WITHOUT LOAD BALANCER
-%%
-%% @doc Spawn processes to run pathfinding in paralell
-%%
-%% @param Amount_of_people_left_to_spawn the number of people to spawn
-%% @param Processes number of processes spawned
-%% @param Load the number of paths a spawned process should spawn
-%% @param Rem additional load for each process
-%% @param Bounds The map bounds
-%% @param G graph representing the map
-%% @param F fun
-%%
-%% @returns number of processes spawned
--spec spawn_pathfinding(Amount_of_people_left_to_spawn :: integer(), Processes :: integer(), Load :: integer(), Rem :: integer(), Bounds :: bounds(), G :: position(), F :: function()) -> non_neg_integer().
-spawn_pathfinding(0, Processes, _, _, _,_,_) ->
-    Processes;
-spawn_pathfinding(Amount_of_people_left_to_spawn,Processes, Load, Rem, Bounds, G, F) ->
-    case Rem > 0 of
-        true ->
-            spawn(fun()->make_path(Load + 1 , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load -1, Processes+1, Load, Rem-1, Bounds, G, F);
-        _ ->
-            spawn(fun()->make_path(Load , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load, Processes+1, Load, Rem, Bounds, G, F)
-    end.
-
-%%
-%% @doc Receive paths from processes that calculate them and when all processes are finished return the paths
-%%
-%% @param Amount the number of processes
-%% @param Paths the so far received paths
-%%
-%% @returns The received paths
--spec receive_paths(Amount :: non_neg_integer(), Paths :: path()) -> path().
-receive_paths(0, Paths) ->
-    Paths;
-
-receive_paths(Amount, Paths) ->
-    receive
-        {paths, P} ->
-            ok
-    end,
-    io:format("TIME: ~p~n", [erlang:timestamp()]),
-    receive_paths(Amount-1, P ++ Paths).
-
-
-
-make_path(0, _, _, _, Result) ->
-    master ! {paths, Result};
-
-make_path(Amount, Bounds, G, F, Result) ->
- [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
-    Result_1 =  a_star:run(G, P1, P2, F),
-    Result_2 = a_star:run(G, P2, P3, F),
-    Result_3 = a_star:run(G, P3, P1, F),
-    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
-        true -> 
-            make_path(Amount, Bounds, G, F, Result);    
-        false ->
-            {_, Path_1} = Result_1,
-            {_, Path_2} = Result_2,
-            {_, Path_3} = Result_3,
-            Paths = Path_1 ++ (Path_2 ++ Path_3),     
-            make_path(Amount-1, Bounds, G, F, [Paths | Result])
-    end.
 
 
 
