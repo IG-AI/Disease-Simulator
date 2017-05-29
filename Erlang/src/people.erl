@@ -30,10 +30,6 @@ spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
     Bounds={Width-1, Height-1},
 
     Paths = load_balancer(Amount, Processes, 0, Bounds, G, F),
-    %Pathfinding
-    %Spawned_processes = spawn_pathfinding(Amount, 0, Amount div Processes, Amount rem Processes, Bounds, G, F),
-    %Paths = receive_paths(Spawned_processes, []),
-    %END PF
       
     spawn_people_aux(State, Amount, Paths, Starting_life, Vaccine_status, G, F);
             
