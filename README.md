@@ -71,7 +71,7 @@ The flags do not need to be in any specific order to use them.<br>
 EXAMPLE: **make erun MAP=map_one.bmp IND=100 TICKS=1000** <br>
 
 To run a recorded simulation use: **make jrun** followed by the flags "REC=playback" and "RECFIL=nameOfYourRecording.record".<br>
-EXAMPLE: **make jrun REC=playback RECFIL=2017_01_01_13_33_37.record**<br>
+EXAMPLE: **make jrun REC=playback RECFIL=2017_01_01_13_33_37**<br>
 
 **Note that this method using the GUI to start the simulation is not always up to date**<br>
 You can start the simulation using a GUI, to start the gui use the command **make gui**<br>
