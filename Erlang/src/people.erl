@@ -27,9 +27,9 @@ spawn_people(State, Amount, path, Starting_life, Vaccine_status, Map_info) ->
     adj_map:adj_map(Map_name, {Width, Height, Walls, Hospital}),                    
     F = fun({X1, Y1}, {X2, Y2}) -> abs(X1 - X2) + abs(Y1 - Y2) end, %%%%NOT OURS
     G = graph:import("data/"++Map_name++".adjmap", fun parse/1), %%%%%NOT OURS 
-    Spawned_processes = spawn_pathfinding(Amount, 0, Amount div Processes, Amount rem Processes, {Width, Height}, G, F),
-    Paths = receive_paths(Spawned_processes, []),
+    Bounds={Width-1, Height-1},
 
+    Paths = load_balancer(Amount, Processes, 0, Bounds, G, F),
       
     spawn_people_aux(State, Amount, Paths, Starting_life, Vaccine_status, G, F);
             
@@ -40,48 +40,67 @@ spawn_people(State, Amount, Movement_behaviour, Starting_life, Vaccine_status, M
     PID = spawn(fun() -> people(?HEALTHY, Starting_life, Starting_life, Movement_behaviour, {{X, Y}, Direction, {X_max, Y_max}}, Vaccine_status) end),
     spawn_people(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Movement_behaviour, Starting_life, Vaccine_status, Map_info).
 
-%%
-%% @doc Spawn processes to run pathfinding in paralell
-%%
-%% @param Amount_of_people_left_to_spawn the number of people to spawn
-%% @param Processes number of processes spawned
-%% @param Load the number of paths a spawned process should spawn
-%% @param Rem additional load for each process
-%% @param Bounds The map bounds
-%% @param G graph representing the map
-%% @param F fun
-%%
-%% @returns number of processes spawned
--spec spawn_pathfinding(Amount_of_people_left_to_spawn :: integer(), Processes :: integer(), Load :: integer(), Rem :: integer(), Bounds :: bounds(), G :: position(), F :: function()) -> non_neg_integer().
-spawn_pathfinding(0, Processes, _, _, _,_,_) ->
-    Processes;
-spawn_pathfinding(Amount_of_people_left_to_spawn,Processes, Load, Rem, Bounds, G, F) ->
-    case Rem > 0 of
-        true ->
-            spawn(fun()->make_path(Load + 1 , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load -1, Processes+1, Load, Rem-1, Bounds, G, F);
-        _ ->
-            spawn(fun()->make_path(Load , Bounds, G, F, []) end),
-            spawn_pathfinding(Amount_of_people_left_to_spawn - Load, Processes+1, Load, Rem, Bounds, G, F)
+
+
+
+%%-------------------LOAD BALANCER
+
+-spec load_balancer(Am :: integer(), B :: integer(), C :: integer(), D :: integer(), E :: integer(), F :: integer()) -> integer().
+load_balancer(0, _, Processes_spawned, _, _, _)->
+    load_balance_receive(0, Processes_spawned, []);
+
+load_balancer(Amount_of_people_left, 0, Processes_spawned, _, _, _)->
+    load_balance_receive(Amount_of_people_left, Processes_spawned, []);
+
+load_balancer(Amount_of_people, Processors_free, Processes_spawned, Bounds, G, F) ->
+    spawn(fun()->make_path_balance(Bounds, G, F) end),
+    load_balancer(Amount_of_people -1, Processors_free -1, Processes_spawned + 1, Bounds, G, F).
+
+
+
+load_balance_receive(0, 0, Result)->
+    Result;
+
+load_balance_receive(0, Processes_alive, Result) ->
+    receive
+        {path, PID, Path} ->
+            PID ! done,
+            load_balance_receive(0, Processes_alive -1, Path ++ Result)
+    end;
+
+load_balance_receive(Paths_left_to_calc, Processes_alive, Result) ->
+    receive
+        {path, PID, Path} ->
+            PID ! go,
+            load_balance_receive(Paths_left_to_calc -1, Processes_alive, Path ++ Result)
     end.
 
-%%
-%% @doc Receive paths from processes that calculate them and when all processes are finished return the paths
-%%
-%% @param Amount the number of processes
-%% @param Paths the so far received paths
-%%
-%% @returns The received paths
--spec receive_paths(Amount :: non_neg_integer(), Paths :: path()) -> path().
-receive_paths(0, Paths) ->
-    Paths;
 
-receive_paths(Amount, Paths) ->
-    receive
-        {paths, P} ->
-            ok
-    end,
-    receive_paths(Amount-1, P ++ Paths).
+make_path_balance(Bounds, G, F) ->
+    [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
+    Result_1 =  a_star:run(G, P1, P2, F),
+    Result_2 = a_star:run(G, P2, P3, F),
+    Result_3 = a_star:run(G, P3, P1, F),
+    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
+        true -> 
+            io:format("ERROR CALC POS: [~p] [~p] [~p]~n", [P1, P2, P3]),
+            make_path_balance(Bounds, G, F);    
+        false ->
+            {_, Path_1} = Result_1,
+            {_, Path_2} = Result_2,
+            {_, Path_3} = Result_3,
+            Paths = Path_1 ++ (Path_2 ++ Path_3),
+            master ! {path, self(), [Paths]},
+            receive
+                done ->
+                    ok;
+                go ->
+                    make_path_balance(Bounds, G, F)
+            end
+    end.
+%%-------------END OF LB
+
+
 
 
 
@@ -110,25 +129,6 @@ spawn_people_aux(State, Amount, [Path | Path_list], Starting_life, Vaccine_statu
             spawn_people_aux(State ++ [{PID, ?HEALTHY, X, Y}], Amount-1, Path_list, Starting_life, Vaccine_status, G, F).
     
 
-
-make_path(0, _, _, _, Result) ->
-    master ! {paths, Result};
-
-make_path(Amount, Bounds, G, F, Result) ->
- [P1, P2, P3] = [movement:generate_position(Bounds), movement:generate_position(Bounds), movement:generate_position(Bounds)],
-    Result_1 =  a_star:run(G, P1, P2, F),
-    Result_2 = a_star:run(G, P2, P3, F),
-    Result_3 = a_star:run(G, P3, P1, F),
-    case (Result_1 =:= unreachable) orelse (Result_2 =:= unreachable) orelse (Result_3 =:= unreachable) of
-        true -> 
-            make_path(Amount, Bounds, G, F, Result);    
-        false ->
-            {_, Path_1} = Result_1,
-            {_, Path_2} = Result_2,
-            {_, Path_3} = Result_3,
-            Paths = Path_1 ++ (Path_2 ++ Path_3),     
-            make_path(Amount-1, Bounds, G, F, [Paths | Result])
-    end.
 
 %%
 %% @doc Loop untill it receives the atom stop. The process will update X and Y with a new random position
