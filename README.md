@@ -101,6 +101,7 @@ When creating custom maps for the simulator following criterias must be fulfille
 Black (#000000) rgb(0, 0, 0): Area that individuals can walk.<br>
 Purple (#9b536f) rgb(155, 83, 111): Hospitals (individuals can walk).<br>
 All other colours: Obstacles that individuals cant walk on.<br>
+**Important:** No black pixel may ever be isolated from any other black pixel in such a way that a path can not be found between them by traveling on black pixels only.<br>
 
 Map-file must be of the format .bmp and be stored in the **data** folder.<br>
 
