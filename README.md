@@ -95,6 +95,14 @@ Documentation can be generated using: <br>
 **make jdoc** to generate Java documentation. It will be found in Java/doc/index.html <br>
 
 ## Further information
+### Creating maps
+When creating custom maps for the simulator following criterias must be fulfilled:<br>
+Black (#000000) rgb(0, 0, 0): Area that individuals can walk.<br>
+Purple (#9b536f) rgb(155, 83, 111): Hospitals (individuals can walk).<br>
+All other colours: Obstacles that individuals cant walk on.<br>
+
+Map-file must be .bmp and be stored in the folder **data**.<br>
+
 ### Recording
 Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
 
