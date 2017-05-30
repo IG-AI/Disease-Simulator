@@ -7,6 +7,7 @@
   * [System requirements](#system-requirements)
 * [Documentation](#documentation)
 * [Further information](#further-information)
+  * [Creating maps](#Creating maps)
   * [Recording](#recording)
   * [Logging](#logging)
   * [Testing](#testing)
@@ -101,7 +102,7 @@ Black (#000000) rgb(0, 0, 0): Area that individuals can walk.<br>
 Purple (#9b536f) rgb(155, 83, 111): Hospitals (individuals can walk).<br>
 All other colours: Obstacles that individuals cant walk on.<br>
 
-Map-file must be .bmp and be stored in the folder **data**.<br>
+Map-file must be of the format .bmp and be stored in the **data** folder.<br>
 
 ### Recording
 Using the record option will create a recording of the simulation that is being run. These files can be found in the folder **recordings/** . <br>
