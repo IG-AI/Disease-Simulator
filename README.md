@@ -7,7 +7,7 @@
   * [System requirements](#system-requirements)
 * [Documentation](#documentation)
 * [Further information](#further-information)
-  * [Creating maps](#Creating maps)
+  * [Creating maps](#creating-maps)
   * [Recording](#recording)
   * [Logging](#logging)
   * [Testing](#testing)
