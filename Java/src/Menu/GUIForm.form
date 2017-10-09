@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Menu.GUIForm">
+  <grid id="27dc6" binding="mainFrame" layout-manager="GridLayoutManager" row-count="19" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="20" left="20" bottom="20" right="50"/>
+    <constraints>
+      <xy x="20" y="20" width="654" height="617"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <vspacer id="c3a03">
+        <constraints>
+          <grid row="13" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="1" use-parent-layout="false">
+            <preferred-size width="25" height="25"/>
+          </grid>
+        </constraints>
+      </vspacer>
+      <vspacer id="44d68">
+        <constraints>
+          <grid row="15" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="1" use-parent-layout="false">
+            <preferred-size width="25" height="25"/>
+          </grid>
+        </constraints>
+      </vspacer>
+      <component id="9ed0f" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <labelFor value="269f"/>
+          <text value="Number of individuals"/>
+          <toolTipText value="Number of individuals in the simulation"/>
+        </properties>
+      </component>
+      <component id="52365" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Infected at start"/>
+          <toolTipText value="Number of infected individuals"/>
+        </properties>
+      </component>
+      <component id="f874" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="4" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Number of ticks"/>
+          <toolTipText value="Determine the number of simulation steps before the simulation end, if set to -1 it will run indefinitely"/>
+        </properties>
+      </component>
+      <hspacer id="9433f">
+        <constraints>
+          <grid row="15" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="80b" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Health"/>
+          <toolTipText value="The number of ticks an individual will 'live' after being infected"/>
+        </properties>
+      </component>
+      <component id="a3313" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="4" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Disease range"/>
+          <toolTipText value="The radius of the area an individual need to be in order to be infected by another individual"/>
+        </properties>
+      </component>
+      <component id="db776" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="4" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Infection probability"/>
+          <toolTipText value="The chanse of the infection spreading between two individuals"/>
+        </properties>
+      </component>
+      <vspacer id="4c4aa">
+        <constraints>
+          <grid row="18" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <hspacer id="47788">
+        <constraints>
+          <grid row="17" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="36cdf" class="javax.swing.JComboBox" binding="mapBox">
+        <constraints>
+          <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="40be6" class="javax.swing.JSpinner" binding="infectionProbabilitySpinner">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The chanse of the infection spreading between two individuals"/>
+        </properties>
+      </component>
+      <component id="be9e9" class="javax.swing.JSpinner" binding="rangeOfDiseaseSpinner">
+        <constraints>
+          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The radius of the area an individual need to be in order to be infected by another individual"/>
+        </properties>
+      </component>
+      <component id="3da34" class="javax.swing.JSpinner" binding="numberOfHealthSpinner">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The number of ticks an individual will 'live' after being infected"/>
+        </properties>
+      </component>
+      <component id="c3436" class="javax.swing.JSpinner" binding="numberOfTicksSpinner">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Determine the number of simulation steps before the simulation end, if set to -1 it will run indefinitely"/>
+        </properties>
+      </component>
+      <component id="6cce4" class="javax.swing.JSpinner" binding="numberOfInfectedSpinner">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Number of infected individuals"/>
+        </properties>
+      </component>
+      <component id="269f" class="javax.swing.JSpinner" binding="numberOfIndividualsSpinner">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="4" hsize-policy="4" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText value="Number of individuals in the simulation"/>
+        </properties>
+      </component>
+      <component id="a6640" class="javax.swing.JLabel" binding="mapInfo">
+        <constraints>
+          <grid row="14" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Select a map"/>
+        </properties>
+      </component>
+      <component id="e3827" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="End condition"/>
+          <toolTipText value="When the simulation will end"/>
+        </properties>
+      </component>
+      <component id="fe658" class="javax.swing.JComboBox" binding="endBox">
+        <constraints>
+          <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="ea511" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Movement"/>
+          <toolTipText value="The movement of the individuals."/>
+        </properties>
+      </component>
+      <component id="bc91a" class="javax.swing.JComboBox" binding="moveBox">
+        <constraints>
+          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The movement of the individuals."/>
+        </properties>
+      </component>
+      <component id="b661e" class="javax.swing.JCheckBox" binding="vaccinationCheckBox">
+        <constraints>
+          <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="c588" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Vaccination in hospitals"/>
+          <toolTipText value="Toggle vaccination: 'on' or 'off' in hospitals"/>
+        </properties>
+      </component>
+      <component id="2cfe0" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Recording"/>
+          <toolTipText value="The behaviour of the recording function."/>
+        </properties>
+      </component>
+      <component id="62306" class="javax.swing.JComboBox" binding="recordingBox">
+        <constraints>
+          <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="The behaviour of the recording function."/>
+        </properties>
+      </component>
+      <component id="3a090" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Random"/>
+          <toolTipText value="The behaviour of the random generators in the simulation"/>
+        </properties>
+      </component>
+      <component id="76457" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Vaccinated individuals"/>
+          <toolTipText value="Number of vaccinated individuals"/>
+        </properties>
+      </component>
+      <component id="ccfb4" class="javax.swing.JSpinner" binding="vaccinatedIndividualsSpinner">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Number of vaccinated individuals"/>
+        </properties>
+      </component>
+      <component id="2ac78" class="javax.swing.JComboBox" binding="randomBox">
+        <constraints>
+          <grid row="11" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <toolTipText value="Manual will use a predetermined seed resulting in identical simulations if the same parameters are use, auto will be different each simulation."/>
+        </properties>
+      </component>
+      <component id="c4050" class="javax.swing.JButton" binding="exitButton" default-binding="true">
+        <constraints>
+          <grid row="18" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="10" height="10"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="&amp;Exit"/>
+        </properties>
+      </component>
+      <component id="f4424" class="javax.swing.JButton" binding="startButton" default-binding="true">
+        <constraints>
+          <grid row="18" column="1" row-span="1" col-span="1" vsize-policy="4" hsize-policy="3" anchor="0" fill="1" indent="1" use-parent-layout="false">
+            <preferred-size width="10" height="10"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="&amp;Start"/>
+          <toolTipText value=""/>
+        </properties>
+      </component>
+      <component id="4ba64" class="javax.swing.JButton" binding="readmeButton">
+        <constraints>
+          <grid row="16" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="&amp;Readme"/>
+        </properties>
+      </component>
+      <component id="5ff51" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Recorded file"/>
+          <toolTipText value="Requires &quot;Recording&quot; set to &quot;playback&quot; and a recorded file"/>
+        </properties>
+      </component>
+      <component id="9e194" class="javax.swing.JComboBox" binding="recordedFileBox" default-binding="true">
+        <constraints>
+          <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+    </children>
+  </grid>
+</form>
