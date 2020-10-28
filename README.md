@@ -1,4 +1,4 @@
-# Project-Snowfox
+# Disease simulator
 ### Content
 * [Authors](#authors)
 * [The program](#the-program)
